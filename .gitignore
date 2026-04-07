@@ -1,0 +1,18 @@
+# Environment variables (never commit real credentials)
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Vercel
+.vercel/
+
+# Supabase local dev
+supabase/.temp/

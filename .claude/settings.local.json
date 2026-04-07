@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/jeero/autismphapp//**)",
+      "Bash(mkdir -p /c/Users/jeero/autismphapp/assets/data /c/Users/jeero/autismphapp/database)",
+      "Bash(python -m http.server 8080)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/about.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/contact.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/assets/data/cities.json)",
+      "Bash(cp /c/Users/jeero/autismphapp/database/schema.sql /c/Users/jeero/autismphapp/supabase/migrations/20250101000000_init_centers.sql)",
+      "Bash(cp /c/Users/jeero/autismphapp/database/seed.sql /c/Users/jeero/autismphapp/supabase/seed.sql)",
+      "Bash(mkdir -p /c/Users/jeero/autismphapp/supabase/migrations)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote:*)"
+    ]
+  }
+}
