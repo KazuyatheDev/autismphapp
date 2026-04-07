@@ -146,7 +146,7 @@
     }
 
     .hero-sub {
-      font-size: 10px;
+      font-size: 12px;
       color: var(--gray);
       line-height: 1.68;
       margin-bottom: 32px;
@@ -717,7 +717,14 @@
       document.getElementById('setup-banner').style.display = 'block';
     }
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (!window.supabase) {
+      document.getElementById('setup-banner').textContent =
+        'Search library failed to load — please refresh the page.';
+      document.getElementById('setup-banner').style.display = 'block';
+    }
+    const supabase = window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
 
     // STATE
     let cities         = [];
@@ -865,14 +872,19 @@
     // SEARCH
     searchBtn.addEventListener('click', performSearch);
 
+    function scrollToResults() {
+      const top = results.getBoundingClientRect().top + window.pageYOffset - 68;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    }
+
     async function performSearch() {
-      if (!IS_CONFIGURED) {
+      if (!IS_CONFIGURED || !supabase) {
         results.innerHTML = `
           <div class="state">
             <h2>Supabase not configured.</h2>
             <p>Open <code>index.html</code>, replace the two placeholder values in the config block near the top of the script tag, then reload the page.</p>
           </div>`;
-        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollToResults();
         return;
       }
 
@@ -922,7 +934,7 @@
       } finally {
         searchBtn.disabled = false;
         searchBtn.textContent = 'Search';
-        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollToResults();
       }
     }
 
