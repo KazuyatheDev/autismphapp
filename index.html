@@ -358,6 +358,7 @@
     }
 
     .results-count { font-size: 13px; color: var(--gray); }
+    .results-filtered { font-size: 11.5px; color: #b0b0b0; margin-left: 6px; }
 
     /* CARD */
     .card {
@@ -719,12 +720,13 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // STATE
-    let cities       = [];
-    let activeTypes  = new Set(['center', 'school']);
-    let activeSvcs   = new Set(['OT', 'ST', 'ABA', 'SPED']);
-    let selectedCity = '';
-    let acIdx        = -1;
-    let acOpen       = false;
+    let cities         = [];
+    let activeSvcs     = new Set(['OT', 'ST', 'ABA', 'SPED']);
+    let selectedCity   = '';
+    let acIdx          = -1;
+    let acOpen         = false;
+    let rawResults     = [];   // all fetched results before client filter
+    let usedAddrFallback = false; // true when search fell back to address field
 
     // DOM
     const cityInput = document.getElementById('cityInput');
@@ -844,25 +846,21 @@
       acIdx = -1;
     }
 
-    // FILTER TOGGLE
-    function initFilters(id, set) {
-      document.getElementById(id).querySelectorAll('.fb').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const v = btn.dataset.v;
-          if (set.has(v)) {
-            if (set.size === 1) return;
-            set.delete(v);
-            btn.classList.add('off');
-          } else {
-            set.add(v);
-            btn.classList.remove('off');
-          }
-        });
+    // FILTER TOGGLE — live re-filter after a search has been run
+    document.getElementById('svcFilters').querySelectorAll('.fb').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const v = btn.dataset.v;
+        if (activeSvcs.has(v)) {
+          if (activeSvcs.size === 1) return; // keep at least one active
+          activeSvcs.delete(v);
+          btn.classList.add('off');
+        } else {
+          activeSvcs.add(v);
+          btn.classList.remove('off');
+        }
+        if (rawResults.length > 0) applyFilters(); // re-render instantly
       });
-    }
-
-    initFilters('typeFilters', activeTypes);
-    initFilters('svcFilters', activeSvcs);
+    });
 
     // SEARCH
     searchBtn.addEventListener('click', performSearch);
@@ -881,6 +879,8 @@
       searchBtn.disabled = true;
       searchBtn.textContent = 'Searching…';
       results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading centers…</p></div>`;
+      rawResults = [];
+      usedAddrFallback = false;
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
@@ -888,22 +888,30 @@
 
         if (searchText) {
           if (selectedCity) {
+            // User picked a city from autocomplete — match city field exactly
             q = q.ilike('city', `%${searchText}%`);
           } else {
+            // Free text — try name and city first
             q = q.or(`name.ilike.%${searchText}%,city.ilike.%${searchText}%`);
           }
         }
 
-        const { data, error } = await q;
+        let { data, error } = await q;
         if (error) throw error;
 
-        const filtered = (data || []).filter(c =>
-          activeTypes.has(c.type) &&
-          Array.isArray(c.services) &&
-          c.services.some(s => activeSvcs.has(s))
-        );
+        // Address fallback: if free-text search returned nothing, try address field
+        if (!selectedCity && searchText && (!data || data.length === 0)) {
+          const fb = await supabase
+            .from('centers').select('*').eq('status', 'approved')
+            .ilike('address', `%${searchText}%`);
+          if (!fb.error && fb.data && fb.data.length > 0) {
+            data = fb.data;
+            usedAddrFallback = true;
+          }
+        }
 
-        renderResults(filtered);
+        rawResults = data || [];
+        applyFilters();
 
       } catch (err) {
         results.innerHTML = `
@@ -918,26 +926,51 @@
       }
     }
 
+    // Apply active service filters to rawResults and re-render
+    function applyFilters() {
+      const filtered = rawResults.filter(c =>
+        Array.isArray(c.services) && c.services.some(s => activeSvcs.has(s))
+      );
+      renderResults(filtered);
+    }
+
     // RENDER
     function renderResults(centers) {
       results.innerHTML = '';
 
+      const searchText = selectedCity || cityInput.value.trim();
+
       if (!centers.length) {
+        const hint = rawResults.length > 0
+          ? 'No centers match the selected service filters. Try enabling more filter types above.'
+          : 'Try a different city name, or check your spelling.';
         results.innerHTML = `
           <div class="state">
             <h2>No results found.</h2>
-            <p>Try a different city or name, or adjust your facility type and service filters.</p>
+            <p>${hint}</p>
           </div>`;
         return;
       }
 
       const typeLbl = { center: 'Therapy Center', school: 'School / SPED' };
 
+      // Build heading label
+      let headingLabel = searchText
+        ? (usedAddrFallback
+            ? `Address results for "${esc(searchText)}"`
+            : `Results in ${esc(searchText)}`)
+        : 'All Centers';
+
+      const countLabel = `${centers.length} center${centers.length !== 1 ? 's' : ''} found`;
+      const filteredNote = rawResults.length !== centers.length
+        ? `<span class="results-filtered">(${rawResults.length} total, filtered to ${centers.length})</span>`
+        : '';
+
       const head = document.createElement('div');
       head.className = 'results-head';
       head.innerHTML =
-        `<span class="results-title">Results</span>` +
-        `<span class="results-count">${centers.length} center${centers.length !== 1 ? 's' : ''} found</span>`;
+        `<span class="results-title">${headingLabel}</span>` +
+        `<span class="results-count">${countLabel}${filteredNote}</span>`;
       results.appendChild(head);
 
       centers.forEach((c, i) => {
