@@ -733,13 +733,26 @@
     const searchBtn = document.getElementById('searchBtn');
     const results   = document.getElementById('results');
 
-    // Load cities
+    // Load cities — from Supabase if configured, else fall back to local JSON
     (async () => {
       try {
-        const r = await fetch('./assets/data/cities.json');
-        cities = await r.json();
+        if (IS_CONFIGURED) {
+          const { data, error } = await supabase
+            .from('cities')
+            .select('name, province, region')
+            .order('name');
+          if (error) throw error;
+          cities = data || [];
+        } else {
+          const r = await fetch('./assets/data/cities.json');
+          cities = await r.json();
+        }
       } catch (e) {
-        console.warn('cities.json not loaded:', e);
+        console.warn('Cities not loaded:', e);
+        try {
+          const r = await fetch('./assets/data/cities.json');
+          cities = await r.json();
+        } catch (_) {}
       }
     })();
 
