@@ -722,7 +722,7 @@
         'Search library failed to load — please refresh the page.';
       document.getElementById('setup-banner').style.display = 'block';
     }
-    const supabase = window.supabase
+    var supabase = window.supabase
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       : null;
 
