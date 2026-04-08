@@ -22,6 +22,7 @@
       --nav-h:   60px;
     }
 
+    /* Sticky footer — body is a flex column */
     html, body { height: 100%; }
     body {
       font-family: var(--sans);
@@ -35,7 +36,7 @@
 
     .page-content { flex: 1; }
 
-    /* ── SETUP BANNER ─────────────────────────────────────────────────── */
+    /* SETUP BANNER */
     #setup-banner {
       display: none;
       position: fixed;
@@ -53,10 +54,12 @@
     #setup-banner a { color: #FFD93D; margin-left: 6px; text-decoration: underline; }
     #setup-banner code {
       background: rgba(255,255,255,0.12);
-      padding: 1px 5px; border-radius: 3px; font-size: 11.5px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11.5px;
     }
 
-    /* ── NAV ──────────────────────────────────────────────────────────── */
+    /* NAV */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -69,67 +72,42 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 28px;
-      gap: 16px;
       z-index: 1000;
     }
 
     .nav-logo {
-      display: flex; align-items: center; gap: 9px;
-      text-decoration: none; flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+      flex-shrink: 0;
     }
+
     .nav-logo-text {
-      font-family: var(--sans); font-size: 17px;
-      font-weight: 700; color: var(--black); letter-spacing: -0.3px;
+      font-family: var(--sans);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: -0.3px;
     }
 
     .nav-links {
-      display: flex; gap: 24px; list-style: none; align-items: center;
+      display: flex;
+      gap: 28px;
+      list-style: none;
     }
+
     .nav-links a {
-      font-size: 13px; font-weight: 500; color: var(--gray);
-      text-decoration: none; transition: color 0.18s;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.18s;
     }
+
     .nav-links a:hover { color: var(--black); }
 
-    /* Nav "Submit a Center" button — desktop */
-    .nav-cta {
-      padding: 7px 13px;
-      background: var(--black);
-      color: var(--white);
-      font-family: var(--sans);
-      font-size: 12.5px;
-      font-weight: 600;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: opacity 0.15s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .nav-cta:hover { opacity: 0.8; }
-
-    /* Nav right cluster */
-    .nav-right {
-      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
-    }
-
-    /* ── BURGER ───────────────────────────────────────────────────────── */
-    .burger {
-      display: none;
-      flex-direction: column; justify-content: center; gap: 5px;
-      width: 36px; height: 36px;
-      background: none; border: none; cursor: pointer; padding: 5px;
-    }
-    .burger span {
-      display: block; width: 22px; height: 1.5px;
-      background: var(--black); border-radius: 1px;
-      transition: transform 0.22s ease, opacity 0.22s ease;
-    }
-    .burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-    .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-    .burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-
-    /* ── HERO ─────────────────────────────────────────────────────────── */
+    /* HERO — off-white bg, z-index so dropdown overlaps content below */
     #main {
       padding: calc(var(--nav-h) + 28px) 20px 22px;
       background: #F9FAFB;
@@ -137,333 +115,641 @@
       position: relative;
       z-index: 10;
     }
+
     .main-inner {
-      width: 100%; max-width: 600px; margin: 0 auto; text-align: center;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
     }
+
+    /* Smaller title so it fits one line on desktop */
     .hero-title {
       font-family: var(--sans);
       font-size: clamp(16px, 2.4vw, 20px);
-      font-weight: 700; line-height: 1.25; letter-spacing: -0.3px;
-      color: var(--black); margin-bottom: 6px;
-      opacity: 0; animation: fadeUp 0.5s ease 0.08s forwards;
-    }
-    .hero-sub {
-      font-size: 13px; color: var(--gray); line-height: 1.55;
-      margin-bottom: 16px;
-      opacity: 0; animation: fadeUp 0.5s ease 0.18s forwards;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.3px;
+      color: var(--black);
+      margin-bottom: 6px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.08s forwards;
     }
 
-    /* ── SEARCH ROW ───────────────────────────────────────────────────── */
+    .hero-sub {
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.55;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.18s forwards;
+    }
+
+    /* SEARCH ROW — positioned so dropdown stacks above pills */
     .search-row {
-      display: flex; width: 100%; margin-bottom: 12px;
-      opacity: 0; animation: fadeUp 0.5s ease 0.26s forwards;
+      display: flex;
+      width: 100%;
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.26s forwards;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-      position: relative; z-index: 20;
+      position: relative;
+      z-index: 20;
     }
-    .input-wrap { position: relative; flex: 1; min-width: 0; }
+
+    .input-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+    }
+
     .s-icon {
-      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      pointer-events: none; opacity: 0.38; font-size: 14px; line-height: 1;
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      opacity: 0.38;
+      font-size: 14px;
+      line-height: 1;
     }
+
     #cityInput {
-      width: 100%; padding: 13px 38px 13px 40px;
-      border: 1.5px solid #d0d0d0; border-right: none;
-      background: var(--white); font-family: var(--sans);
-      font-size: 14px; color: var(--black); outline: none;
-      appearance: none; -webkit-appearance: none;
-      border-radius: 0; transition: border-color 0.18s;
+      width: 100%;
+      padding: 13px 38px 13px 40px;
+      border: 1.5px solid #d0d0d0;
+      border-right: none;
+      background: var(--white);
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--black);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 0;
+      transition: border-color 0.18s;
     }
+
     #cityInput:focus { border-color: #999; }
-    #cityInput::placeholder { color: #c0c0c0; font-size: 13.5px; }
-    .city-clear {
-      position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer;
-      color: #c0c0c0; font-size: 20px; line-height: 1;
-      padding: 2px 4px; display: none; transition: color 0.15s;
+
+    #cityInput::placeholder {
+      color: #c0c0c0;
+      font-size: 13.5px;
     }
+
+    .city-clear {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #c0c0c0;
+      font-size: 20px;
+      line-height: 1;
+      padding: 2px 4px;
+      display: none;
+      transition: color 0.15s;
+    }
+
     .city-clear:hover { color: var(--gray); }
+
     #searchBtn {
       padding: 13px 22px;
-      border: 1.5px solid var(--black); background: var(--black);
-      color: var(--white); font-family: var(--sans);
-      font-size: 13.5px; font-weight: 600; cursor: pointer;
-      white-space: nowrap; flex-shrink: 0; transition: opacity 0.18s;
-      border-radius: 0; appearance: none; letter-spacing: 0.2px;
+      border: 1.5px solid var(--black);
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: opacity 0.18s;
+      border-radius: 0;
+      appearance: none;
+      letter-spacing: 0.2px;
     }
+
     #searchBtn:hover { opacity: 0.82; }
     #searchBtn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    /* ── AUTOCOMPLETE (shared style, used by hero + modal) ────────────── */
+    /* AUTOCOMPLETE — high z-index to overlap pills and results */
     .ac-dropdown {
       position: absolute;
-      top: calc(100% - 1.5px); left: 0; right: 0;
+      top: calc(100% - 1.5px);
+      left: 0; right: 0;
       background: var(--white);
-      border: 1.5px solid var(--black); border-top: none;
-      max-height: 220px; overflow-y: auto;
-      z-index: 800; display: none; text-align: left;
+      border: 1.5px solid var(--black);
+      border-top: none;
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 800;
+      display: none;
+      text-align: left;
     }
+
     .ac-dropdown.open { display: block; }
+
     .ac-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 14px; cursor: pointer; font-size: 13.5px;
-      border-bottom: 1px solid var(--border); transition: background 0.1s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 15px;
+      cursor: pointer;
+      font-size: 13.5px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
     }
+
     .ac-item:last-child { border-bottom: none; }
     .ac-item:hover, .ac-item.kactive { background: var(--surface); }
+
     .ac-city { font-weight: 500; color: var(--black); }
     .ac-region { font-size: 11.5px; color: var(--gray); flex-shrink: 0; margin-left: 8px; }
 
-    /* ── SERVICE FILTER PILLS ─────────────────────────────────────────── */
+    /* SERVICE FILTER PILLS */
     .service-pills {
-      display: flex; gap: 8px; overflow-x: auto;
-      -webkit-overflow-scrolling: touch; scrollbar-width: none;
-      padding-bottom: 2px; justify-content: center;
-      opacity: 0; animation: fadeUp 0.5s ease 0.34s forwards;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.34s forwards;
     }
-    .service-pills::-webkit-scrollbar { display: none; }
-    .pill {
-      flex-shrink: 0; padding: 8px 18px; min-height: 36px;
-      border: 1.5px solid var(--border); background: var(--white);
-      color: var(--gray); font-family: var(--sans);
-      font-size: 12.5px; font-weight: 600; cursor: pointer;
-      border-radius: 100px; transition: all 0.15s; white-space: nowrap; line-height: 1;
-    }
-    .pill.active { background: var(--black); color: var(--white); border-color: var(--black); }
-    .pill:hover:not(.active) { border-color: var(--black); color: var(--black); }
 
-    /* ── RESULTS ──────────────────────────────────────────────────────── */
+    .service-pills::-webkit-scrollbar { display: none; }
+
+    .pill {
+      flex-shrink: 0;
+      padding: 8px 18px;
+      min-height: 36px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--gray);
+      font-family: var(--sans);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 100px;
+      transition: all 0.15s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .pill.active {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    .pill:hover:not(.active) {
+      border-color: var(--black);
+      color: var(--black);
+    }
+
+    /* RESULTS */
     #results {
-      max-width: 960px; margin: 0 auto; padding: 28px 24px 40px;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 24px 16px;
     }
+
     .results-head {
-      display: flex; justify-content: space-between; align-items: baseline;
-      padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
     }
-    .results-title { font-size: 16px; font-weight: 700; letter-spacing: -0.1px; }
+
+    .results-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.1px;
+    }
+
     .results-count { font-size: 13px; color: var(--gray); }
 
-    /* ── CARDS GRID ───────────────────────────────────────────────────── */
-    .cards-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    @media (min-width: 600px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 900px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
+    /* CARDS GRID */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
 
+    /* CARD */
     .card {
-      border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px 18px;
-      opacity: 0; transform: translateY(10px);
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 16px 18px;
+      opacity: 0;
+      transform: translateY(10px);
       transition: opacity 0.3s ease, transform 0.3s ease, background 0.15s, box-shadow 0.15s;
     }
+
     .card.visible { opacity: 1; transform: translateY(0); }
     .card:hover { background: #FAFAFA; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .card-name { font-size: 15px; font-weight: 700; color: var(--black); margin-bottom: 4px; line-height: 1.3; }
-    .card-city { font-size: 12.5px; color: var(--gray); margin-bottom: 8px; }
-    .card-svcs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+
+    .card-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .card-city {
+      font-size: 12.5px;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+
+    .card-svcs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
     .card-svcs:empty { display: none; }
+
+    /* Uniform service badges — no colored variants */
     .svc {
-      font-size: 10.5px; font-weight: 700;
-      background: #F1F1F1; color: #333;
-      padding: 3px 8px; border-radius: 4px; letter-spacing: 0.3px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: #F1F1F1;
+      color: #333;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
     }
-    .card-details { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+
+    .card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
     .card-detail {
-      font-size: 12.5px; color: var(--gray);
-      display: flex; align-items: flex-start; gap: 6px; line-height: 1.45;
+      font-size: 12.5px;
+      color: var(--gray);
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      line-height: 1.45;
     }
+
     .card-detail a {
-      color: var(--black); text-decoration: underline;
-      text-underline-offset: 2px; text-decoration-color: var(--border); word-break: break-all;
+      color: var(--black);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-color: var(--border);
+      word-break: break-all;
     }
+
     .card-detail a:hover { text-decoration-color: var(--black); }
 
-    /* ── STATES ───────────────────────────────────────────────────────── */
-    .state { text-align: center; padding: 48px 20px; }
-    .state h2 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-    .state p { font-size: 14px; color: var(--gray); line-height: 1.65; max-width: 380px; margin: 0 auto; }
+    .card-notes {
+      font-size: 12px;
+      color: #999;
+      font-style: italic;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    /* STATES */
+    .state {
+      text-align: center;
+      padding: 48px 20px;
+    }
+
+    .state h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .state p {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.65;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
     .spinner {
       width: 24px; height: 24px;
-      border: 2px solid var(--border); border-top-color: var(--black);
-      border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--black);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 16px;
     }
 
-    /* ── FOOTER ───────────────────────────────────────────────────────── */
-    footer {
-      border-top: 1px solid var(--border); padding: 20px 24px;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 10px;
-    }
-    .footer-logo {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 15px; font-weight: 700; color: var(--black); text-decoration: none;
-    }
-    .footer-copy { font-size: 12px; color: var(--gray); }
-    .footer-disclaimer {
-      font-size: 10.5px; color: #c0c0c0; line-height: 1.6;
-      width: 100%; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;
-    }
-
-    /* ── PRIMARY BUTTON ───────────────────────────────────────────────── */
+    /* PRIMARY BUTTON */
     .btn-primary {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 11px 22px; background: var(--black); color: var(--white);
-      font-family: var(--sans); font-size: 14px; font-weight: 600;
-      border: none; border-radius: 6px; cursor: pointer;
-      transition: opacity 0.18s; min-height: 44px; white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 24px;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.18s;
+      min-height: 44px;
+      white-space: nowrap;
     }
+
     .btn-primary:hover { opacity: 0.82; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* ── MODAL ────────────────────────────────────────────────────────── */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.52); z-index: 2000;
-      display: flex; align-items: center; justify-content: center;
-      padding: 16px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    /* SUBMIT CTA SECTION */
+    .submit-cta {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 24px 40px;
+      text-align: center;
+      border-top: 1px solid var(--border);
     }
+
+    .submit-cta-text {
+      font-size: 14px;
+      color: var(--gray);
+      margin-bottom: 14px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--black);
+      text-decoration: none;
+    }
+
+    .footer-copy { font-size: 12px; color: var(--gray); }
+
+    .footer-disclaimer {
+      font-size: 10.5px;
+      color: #c0c0c0;
+      line-height: 1.6;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 2000;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .modal-overlay[hidden] { display: none; }
 
     .modal {
-      background: var(--white); width: 100%; max-width: 500px;
-      border-radius: 12px; overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.18);
-      margin: auto;
+      background: var(--white);
+      width: 100%;
+      max-width: 540px;
+      border-radius: 12px;
+      margin: auto 0;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
 
     .modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px 14px; border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--white);
+      z-index: 1;
     }
-    .modal-title { font-size: 16px; font-weight: 700; }
+
+    .modal-title { font-size: 18px; font-weight: 700; }
+
     .modal-close {
-      background: none; border: none; font-size: 18px; cursor: pointer;
-      color: var(--gray); padding: 3px 6px; line-height: 1; border-radius: 4px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--gray);
+      padding: 4px 6px;
+      line-height: 1;
+      border-radius: 4px;
       transition: color 0.15s, background 0.15s;
     }
+
     .modal-close:hover { color: var(--black); background: var(--surface); }
 
-    .modal-body { padding: 16px 20px 20px; }
+    .modal-body { padding: 20px 24px 24px; }
 
-    /* ── FORM ─────────────────────────────────────────────────────────── */
-    .form-group { margin-bottom: 13px; }
+    .form-group { margin-bottom: 16px; }
+
     .form-group > label {
-      display: block; font-size: 12.5px; font-weight: 600;
-      color: var(--black); margin-bottom: 5px;
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--black);
+      margin-bottom: 6px;
     }
 
-    /* Text/email/tel/url inputs — NOT checkboxes or radios */
-    .form-group input[type="text"],
-    .form-group input[type="tel"],
-    .form-group input[type="email"],
-    .form-group input[type="url"] {
-      width: 100%; padding: 9px 11px;
-      border: 1.5px solid #d0d0d0; border-radius: 6px;
-      font-family: var(--sans); font-size: 13.5px; color: var(--black);
-      background: var(--white); outline: none;
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #d0d0d0;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--black);
+      background: var(--white);
+      outline: none;
       transition: border-color 0.15s;
-      appearance: none; -webkit-appearance: none;
+      appearance: none;
+      -webkit-appearance: none;
     }
-    .form-group input[type="text"]:focus,
-    .form-group input[type="tel"]:focus,
-    .form-group input[type="email"]:focus,
-    .form-group input[type="url"]:focus { border-color: var(--black); }
-    .form-group input::placeholder { color: #c0c0c0; }
-    .form-group input.field-error { border-color: #e53e3e !important; }
 
-    /* Two-column layout */
+    .form-group input:focus,
+    .form-group textarea:focus { border-color: var(--black); }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: #c0c0c0; }
+
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
     .form-row {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
+
     .form-row .form-group { margin-bottom: 0; }
 
-    /* Radio group for type */
-    .radio-group {
-      display: flex; gap: 20px; align-items: center; padding: 4px 0;
-    }
-    .radio-label {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 13.5px; font-weight: 500; cursor: pointer; color: var(--black);
-    }
-    .radio-label input[type="radio"] {
-      width: 15px; height: 15px; flex-shrink: 0;
-      accent-color: var(--black); cursor: pointer;
+    .form-checks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    /* Service checkboxes — 2×2 grid */
-    .checks-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
-    }
     .check-label {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; font-weight: 500; cursor: pointer; color: var(--black);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13.5px;
+      font-weight: 400;
+      color: var(--black);
+      cursor: pointer;
     }
+
     .check-label input[type="checkbox"] {
-      width: 15px; height: 15px; flex-shrink: 0;
-      accent-color: var(--black); cursor: pointer;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      accent-color: var(--black);
+      cursor: pointer;
     }
 
-    /* City autocomplete inside modal */
-    .city-ac-wrap { position: relative; }
+    .form-actions { margin-top: 22px; }
 
-    /* Region field — secondary feel */
-    #f-region {
-      background: var(--surface);
+    .form-note {
+      font-size: 11.5px;
       color: var(--gray);
+      margin-top: 10px;
+      line-height: 1.5;
     }
-    #f-region:focus { background: var(--white); color: var(--black); }
-    #f-region.has-value { color: var(--black); }
-
-    .form-actions { margin-top: 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .form-note { font-size: 11px; color: #aaa; line-height: 1.45; flex: 1; min-width: 120px; }
-
-    .field-hint { font-size: 11px; color: #e53e3e; margin-top: 4px; display: none; }
-    .field-hint.show { display: block; }
 
     .submit-success {
-      text-align: center; padding: 20px 0 8px;
+      text-align: center;
+      padding: 24px 0 8px;
     }
-    .success-icon {
-      width: 44px; height: 44px; border-radius: 50%;
-      background: #EAFAF1; color: #1E8449;
-      font-size: 20px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
-    }
-    .submit-success h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-    .submit-success p { font-size: 13.5px; color: var(--gray); line-height: 1.55; }
 
-    /* ── ANIMATIONS ───────────────────────────────────────────────────── */
+    .success-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #EAFAF1;
+      color: #1E8449;
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+
+    .submit-success h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .submit-success p { font-size: 14px; color: var(--gray); line-height: 1.6; }
+
+    /* ANIMATIONS */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── RESPONSIVE ───────────────────────────────────────────────────── */
+    /* BURGER BUTTON */
+    .burger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 36px;
+      height: 36px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      flex-shrink: 0;
+    }
+
+    .burger span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--black);
+      border-radius: 1px;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+
+    .burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* RESPONSIVE */
+    @media (min-width: 600px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 900px) {
+      .cards-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
     @media (max-width: 640px) {
-      nav { padding: 0 16px; gap: 10px; }
+      nav { padding: 0 16px; }
       .burger { display: flex; }
-      .nav-cta { display: none; } /* hide desktop CTA; shown in burger menu */
 
       .nav-links {
-        position: absolute; top: 100%; left: 0; right: 0;
-        background: var(--white); border-bottom: 1px solid var(--border);
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
         box-shadow: 0 6px 24px rgba(0,0,0,0.09);
-        flex-direction: column; gap: 0;
-        display: none; z-index: 999;
+        flex-direction: column;
+        gap: 0;
+        display: none;
+        z-index: 999;
         animation: menuSlide 0.18s ease;
       }
+
       .nav-links.mob-open { display: flex; }
+
       .nav-links li { border-bottom: 1px solid var(--border); }
       .nav-links li:last-child { border-bottom: none; }
-      .nav-links a { display: block; padding: 16px 24px; font-size: 15px; font-weight: 500; }
 
-      /* Mobile burger menu — submit button item */
-      .nav-submit-li { padding: 12px 16px; }
-      .nav-submit-li .nav-cta-menu {
-        display: block; width: 100%; padding: 12px 20px;
-        background: var(--black); color: var(--white);
-        font-family: var(--sans); font-size: 14px; font-weight: 600;
-        border: none; border-radius: 6px; cursor: pointer;
-        text-align: center; transition: opacity 0.15s;
+      .nav-links a {
+        display: block;
+        padding: 17px 24px;
+        font-size: 15px;
+        font-weight: 500;
       }
-      .nav-submit-li .nav-cta-menu:hover { opacity: 0.85; }
 
       @keyframes menuSlide {
         from { opacity: 0; transform: translateY(-6px); }
@@ -473,19 +759,19 @@
       #main { padding: calc(var(--nav-h) + 20px) 16px 18px; }
       .main-inner { text-align: left; }
       .service-pills { justify-content: flex-start; }
-      #results { padding: 20px 16px 32px; }
+
+      #results { padding: 20px 16px 10px; }
+      .submit-cta { padding: 24px 16px 36px; }
       footer { padding: 16px; }
+
       .search-row { box-shadow: none; }
       #cityInput { padding: 12px 36px 12px 40px; }
       #searchBtn { padding: 12px 16px; font-size: 13px; }
 
-      /* Modal — bottom sheet on mobile */
-      .modal-overlay { align-items: flex-end; padding: 0; }
-      .modal { border-radius: 16px 16px 0 0; max-height: 92svh; overflow-y: auto; }
-      .modal-header { position: sticky; top: 0; background: var(--white); z-index: 1; }
-
-      .form-row { grid-template-columns: 1fr; gap: 13px; }
-      .checks-grid { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .modal { border-radius: 16px 16px 0 0; margin: 0; }
+      .modal-body { max-height: 75svh; overflow-y: auto; }
     }
 
     @media (max-width: 380px) {
@@ -514,24 +800,14 @@
       </svg>
       <span class="nav-logo-text">Autismph</span>
     </a>
-
     <ul class="nav-links" id="navLinks">
       <li><a href="index.html">Home</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html">Contact</a></li>
-      <!-- Mobile burger menu submit button -->
-      <li class="nav-submit-li">
-        <button class="nav-cta-menu" id="navCtaMobile">+ Submit a Center</button>
-      </li>
     </ul>
-
-    <!-- Desktop CTA button -->
-    <div class="nav-right">
-      <button class="nav-cta" id="navCtaDesktop">+ Submit a Center</button>
-      <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+    <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
 
   <div class="page-content">
@@ -539,15 +815,21 @@
     <!-- HERO + SEARCH -->
     <section id="main">
       <div class="main-inner">
+
         <h1 class="hero-title">Find Autism Therapy Centers in the Philippines</h1>
         <p class="hero-sub">Free community directory of therapy centers and SPED schools. Search by city, service, or name.</p>
 
+        <!-- Search row -->
         <div class="search-row">
           <div class="input-wrap">
             <span class="s-icon" aria-hidden="true">🔍</span>
             <input
-              type="text" id="cityInput" autocomplete="off" spellcheck="false"
-              placeholder="Search by center name or city" aria-label="Search therapy centers"
+              type="text"
+              id="cityInput"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Search by center name or city"
+              aria-label="Search therapy centers"
             />
             <button class="city-clear" id="cityClr" aria-label="Clear input">&times;</button>
             <div class="ac-dropdown" id="acDropdown" role="listbox" aria-label="City suggestions"></div>
@@ -555,6 +837,7 @@
           <button id="searchBtn">Search</button>
         </div>
 
+        <!-- Service filter pills -->
         <div class="service-pills" id="servicePills">
           <button class="pill active" data-svc="All">All</button>
           <button class="pill" data-svc="OT">OT</button>
@@ -562,13 +845,20 @@
           <button class="pill" data-svc="SPED">SPED</button>
           <button class="pill" data-svc="ABA">ABA</button>
         </div>
+
       </div>
     </section>
 
     <!-- RESULTS -->
     <section id="results"></section>
 
-  </div>
+    <!-- SUBMIT CTA -->
+    <div class="submit-cta">
+      <p class="submit-cta-text">Know a therapy center or SPED school not in our directory?</p>
+      <button class="btn-primary" id="openSubmitModal">+ Submit a Center</button>
+    </div>
+
+  </div><!-- /.page-content -->
 
   <!-- FOOTER -->
   <footer>
@@ -582,7 +872,7 @@
       Autismph
     </a>
     <span class="footer-copy">© 2025 Autismph · Free to use · Community maintained</span>
-    <p class="footer-disclaimer">The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource — we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions.</p>
+    <p class="footer-disclaimer">The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource — we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions. This directory does not constitute a referral, endorsement, or professional recommendation.</p>
   </footer>
 
   <!-- SUBMIT MODAL -->
@@ -595,86 +885,84 @@
       <div class="modal-body">
         <form id="submitForm" novalidate>
 
-          <!-- Name -->
           <div class="form-group">
-            <label for="f-name">Therapy / School Name <span style="color:#e53e3e">*</span></label>
-            <input type="text" id="f-name" autocomplete="off" placeholder="e.g. Sunshine Therapy Center" />
-            <p class="field-hint" id="hint-name">Please enter the center or school name.</p>
+            <label for="f-name">Center Name <span style="color:#e53e3e">*</span></label>
+            <input type="text" id="f-name" name="center_name" required placeholder="e.g. Sunshine Therapy Center" />
           </div>
 
-          <!-- Type -->
-          <div class="form-group">
-            <label>Type <span style="color:#e53e3e">*</span></label>
-            <div class="radio-group">
-              <label class="radio-label">
-                <input type="radio" name="type" value="center" checked /> Therapy Center
-              </label>
-              <label class="radio-label">
-                <input type="radio" name="type" value="school" /> SPED School
-              </label>
-            </div>
-          </div>
-
-          <!-- City + Region -->
           <div class="form-row">
             <div class="form-group">
               <label for="f-city">City <span style="color:#e53e3e">*</span></label>
-              <div class="city-ac-wrap">
-                <input type="text" id="f-city" autocomplete="off" spellcheck="false" placeholder="e.g. Quezon City" />
-                <div class="ac-dropdown" id="f-city-ac" role="listbox"></div>
-              </div>
-              <p class="field-hint" id="hint-city">Please enter the city.</p>
+              <input type="text" id="f-city" name="city" required placeholder="e.g. Quezon City" />
             </div>
             <div class="form-group">
               <label for="f-region">Region</label>
-              <input type="text" id="f-region" placeholder="Auto-filled from city" />
+              <input type="text" id="f-region" name="region" placeholder="e.g. NCR" />
             </div>
           </div>
 
-          <!-- Address -->
           <div class="form-group">
-            <label for="f-address">Address <span style="color:#e53e3e">*</span></label>
-            <input type="text" id="f-address" autocomplete="off" placeholder="Street, barangay, city" />
-            <p class="field-hint" id="hint-address">Please enter the address.</p>
+            <label for="f-address">Address</label>
+            <input type="text" id="f-address" name="address" placeholder="Street, barangay, city" />
           </div>
 
-          <!-- Services -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-contact">Contact Number</label>
+              <input type="tel" id="f-contact" name="contact_number" placeholder="09XX XXX XXXX" />
+            </div>
+            <div class="form-group">
+              <label for="f-email">Email</label>
+              <input type="email" id="f-email" name="email" placeholder="contact@center.com" />
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>Services Offered <span style="color:#e53e3e">*</span></label>
-            <div class="checks-grid">
+            <label for="f-website">Website</label>
+            <input type="url" id="f-website" name="website" placeholder="https://..." />
+          </div>
+
+          <div class="form-group">
+            <label for="f-facebook">Facebook Page URL</label>
+            <input type="url" id="f-facebook" name="facebook_url" placeholder="https://facebook.com/..." />
+          </div>
+
+          <div class="form-group">
+            <label>Services Offered</label>
+            <div class="form-checks">
               <label class="check-label">
-                <input type="checkbox" name="services" value="OT" /> OT (Occupational Therapy)
+                <input type="checkbox" name="services" value="OT" />
+                Occupational Therapy (OT)
               </label>
               <label class="check-label">
-                <input type="checkbox" name="services" value="ST" /> ST (Speech Therapy)
+                <input type="checkbox" name="services" value="ST" />
+                Speech Therapy (ST)
               </label>
               <label class="check-label">
-                <input type="checkbox" name="services" value="SPED" /> SPED (Special Education)
+                <input type="checkbox" name="services" value="SPED" />
+                Special Education (SPED)
               </label>
               <label class="check-label">
-                <input type="checkbox" name="services" value="ABA" /> ABA (Applied Behavior)
+                <input type="checkbox" name="services" value="ABA" />
+                Applied Behavior Analysis (ABA)
               </label>
             </div>
-            <p class="field-hint" id="hint-services">Select at least one service.</p>
           </div>
 
-          <!-- Contact -->
           <div class="form-group">
-            <label for="f-contact">Contact Number <span style="color:#999;font-weight:400">(optional)</span></label>
-            <input type="tel" id="f-contact" placeholder="09XX XXX XXXX or 02-XXXX-XXXX" />
+            <label for="f-notes">Additional Notes</label>
+            <textarea id="f-notes" name="notes" rows="3" placeholder="Any other details about this center..."></textarea>
           </div>
 
-          <!-- Actions -->
           <div id="submitFormArea" class="form-actions">
             <button type="submit" class="btn-primary" id="submitFormBtn">Submit for Review</button>
-            <p class="form-note">Reviewed by our team before publishing.</p>
+            <p class="form-note">Submissions are reviewed by our team before being added to the directory.</p>
           </div>
 
-          <!-- Success state -->
           <div id="submitSuccess" class="submit-success" hidden>
             <div class="success-icon">✓</div>
             <h3>Thank you!</h3>
-            <p>Your submission has been received and will be reviewed before being published to the directory.</p>
+            <p>Your submission has been received and will be reviewed before being published.</p>
           </div>
 
         </form>
@@ -687,6 +975,8 @@
 
   <script>
     // ─── SUPABASE CONFIG ─────────────────────────────────────────────────
+    // Replace these values with your project's credentials
+    // Found at: Supabase Dashboard → Project Settings → API
     const SUPABASE_URL      = 'https://pqshfeuyeeakdhesclem.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxc2hmZXV5ZWVha2RoZXNjbGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzYyMzcsImV4cCI6MjA5MTE1MjIzN30.sd6WQUANjZiTWpcfPwWrZ6egp5DURWC70JXQ-kcQnO0';
     // ─────────────────────────────────────────────────────────────────────
@@ -695,19 +985,20 @@
       !SUPABASE_URL.includes('your-project-ref') &&
       SUPABASE_ANON_KEY !== 'your-anon-public-key-here';
 
-    if (!IS_CONFIGURED) document.getElementById('setup-banner').style.display = 'block';
+    if (!IS_CONFIGURED) {
+      document.getElementById('setup-banner').style.display = 'block';
+    }
 
     if (!window.supabase) {
       document.getElementById('setup-banner').textContent =
         'Search library failed to load — please refresh the page.';
       document.getElementById('setup-banner').style.display = 'block';
     }
-
-    const supabase = window.supabase
+    var supabase = window.supabase
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       : null;
 
-    // ─── STATE ───────────────────────────────────────────────────────────
+    // STATE
     let cities           = [];
     let activeFilter     = 'All';
     let selectedCity     = '';
@@ -717,7 +1008,7 @@
     let usedAddrFallback = false;
     let resultLabel      = '';
 
-    // ─── DOM ─────────────────────────────────────────────────────────────
+    // DOM
     const cityInput = document.getElementById('cityInput');
     const cityClr   = document.getElementById('cityClr');
     const acDrop    = document.getElementById('acDropdown');
@@ -725,12 +1016,14 @@
     const results   = document.getElementById('results');
     const pillsEl   = document.getElementById('servicePills');
 
-    // ─── LOAD CITIES ─────────────────────────────────────────────────────
+    // Load cities — from Supabase if configured, else fall back to local JSON
     (async () => {
       try {
-        if (IS_CONFIGURED && supabase) {
+        if (IS_CONFIGURED) {
           const { data, error } = await supabase
-            .from('cities').select('name, province, region').order('name');
+            .from('cities')
+            .select('name, province, region')
+            .order('name');
           if (error) throw error;
           cities = data || [];
         } else {
@@ -738,23 +1031,28 @@
           cities = await r.json();
         }
       } catch (e) {
-        console.warn('Cities not loaded from Supabase, trying local:', e);
-        try { const r = await fetch('./assets/data/cities.json'); cities = await r.json(); }
-        catch (_) {}
+        console.warn('Cities not loaded:', e);
+        try {
+          const r = await fetch('./assets/data/cities.json');
+          cities = await r.json();
+        } catch (_) {}
       }
     })();
 
-    // ─── HERO AUTOCOMPLETE ────────────────────────────────────────────────
+    // AUTOCOMPLETE
     cityInput.addEventListener('input', () => {
       selectedCity = '';
       cityClr.style.display = cityInput.value ? 'block' : 'none';
       const q = cityInput.value.trim().toLowerCase();
-      if (!q) { closeAC(); }
-      else {
-        const hits = cities.filter(c =>
-          c.name.toLowerCase().startsWith(q) || c.name.toLowerCase().includes(q)
-        ).slice(0, 8);
-        renderAC(hits, acDrop, pickCity);
+      if (!q) {
+        closeAC();
+      } else {
+        const hits = cities
+          .filter(c =>
+            c.name.toLowerCase().startsWith(q) ||
+            c.name.toLowerCase().includes(q))
+          .slice(0, 8);
+        renderAC(hits);
       }
       if (rawResults.length > 0) applyFilters();
     });
@@ -765,10 +1063,21 @@
         if (e.key === 'Enter') { e.preventDefault(); performSearch(); }
         return;
       }
-      if (e.key === 'ArrowDown') { e.preventDefault(); acIdx = Math.min(acIdx + 1, items.length - 1); highlightAC(items, acIdx); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); acIdx = Math.max(acIdx - 1, 0); highlightAC(items, acIdx); }
-      else if (e.key === 'Enter') { e.preventDefault(); if (acIdx >= 0 && items[acIdx]) items[acIdx].click(); else performSearch(); }
-      else if (e.key === 'Escape') { closeAC(); }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        acIdx = Math.min(acIdx + 1, items.length - 1);
+        highlightAC(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        acIdx = Math.max(acIdx - 1, 0);
+        highlightAC(items);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (acIdx >= 0 && items[acIdx]) items[acIdx].click();
+        else performSearch();
+      } else if (e.key === 'Escape') {
+        closeAC();
+      }
     });
 
     document.addEventListener('click', e => {
@@ -776,53 +1085,72 @@
     });
 
     cityClr.addEventListener('click', () => {
-      cityInput.value = ''; selectedCity = '';
-      cityClr.style.display = 'none'; closeAC(); cityInput.focus();
+      cityInput.value = '';
+      selectedCity = '';
+      cityClr.style.display = 'none';
+      closeAC();
+      cityInput.focus();
       if (rawResults.length > 0) applyFilters();
     });
 
-    function renderAC(hits, dropEl, onPick) {
-      if (!hits.length) { closeDropdown(dropEl); return; }
-      dropEl.innerHTML = '';
+    function renderAC(hits) {
+      if (!hits.length) { closeAC(); return; }
+      acDrop.innerHTML = '';
       hits.forEach(c => {
         const el = document.createElement('div');
-        el.className = 'ac-item'; el.setAttribute('role', 'option');
-        el.innerHTML = `<span class="ac-city">${esc(c.name)}</span><span class="ac-region">${esc(c.region)}</span>`;
-        el.addEventListener('mousedown', ev => { ev.preventDefault(); onPick(c); });
-        dropEl.appendChild(el);
+        el.className = 'ac-item';
+        el.setAttribute('role', 'option');
+        el.innerHTML =
+          `<span class="ac-city">${esc(c.name)}</span>` +
+          `<span class="ac-region">${esc(c.region)}</span>`;
+        el.addEventListener('mousedown', e => {
+          e.preventDefault();
+          pickCity(c);
+        });
+        acDrop.appendChild(el);
       });
-      dropEl.classList.add('open');
-      if (dropEl === acDrop) { acOpen = true; acIdx = -1; }
+      acIdx = -1;
+      acDrop.classList.add('open');
+      acOpen = true;
     }
 
-    function highlightAC(items, idx) {
-      items.forEach((el, i) => el.classList.toggle('kactive', i === idx));
+    function highlightAC(items) {
+      items.forEach((el, i) => el.classList.toggle('kactive', i === acIdx));
     }
 
     function pickCity(c) {
-      cityInput.value = c.name; selectedCity = c.name;
-      cityClr.style.display = 'block'; closeAC();
+      cityInput.value = c.name;
+      selectedCity = c.name;
+      cityClr.style.display = 'block';
+      closeAC();
       if (rawResults.length > 0) applyFilters();
     }
 
-    function closeAC() { closeDropdown(acDrop); acOpen = false; acIdx = -1; }
-    function closeDropdown(el) { el.classList.remove('open'); el.innerHTML = ''; }
+    function closeAC() {
+      acDrop.classList.remove('open');
+      acDrop.innerHTML = '';
+      acOpen = false;
+      acIdx = -1;
+    }
 
-    // ─── DEFAULT LOAD ─────────────────────────────────────────────────────
+    // DEFAULT LOAD — top 10 most recently added centers
     (async () => {
       if (!IS_CONFIGURED || !supabase) return;
       try {
         resultLabel = 'Recently Added Centers';
         const { data, error } = await supabase
           .from('centers').select('*').eq('status', 'approved')
-          .order('created_at', { ascending: false }).limit(10);
+          .order('created_at', { ascending: false })
+          .limit(10);
         if (error) throw error;
         rawResults = data || [];
         applyFilters();
-      } catch (e) { console.warn('Default load failed:', e); }
+      } catch (e) {
+        console.warn('Default load failed:', e);
+      }
     })();
 
-    // ─── SERVICE PILL ─────────────────────────────────────────────────────
+    // SERVICE PILL — single select
     pillsEl.querySelectorAll('.pill').forEach(btn => {
       btn.addEventListener('click', () => {
         pillsEl.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -832,7 +1160,7 @@
       });
     });
 
-    // ─── SEARCH ───────────────────────────────────────────────────────────
+    // SEARCH BUTTON
     searchBtn.addEventListener('click', performSearch);
 
     function scrollToResults() {
@@ -842,66 +1170,106 @@
 
     async function performSearch() {
       if (!IS_CONFIGURED || !supabase) {
-        results.innerHTML = `<div class="state"><h2>Supabase not configured.</h2><p>Replace the placeholder credentials in the config block near the top of the script and reload.</p></div>`;
-        scrollToResults(); return;
+        results.innerHTML = `
+          <div class="state">
+            <h2>Supabase not configured.</h2>
+            <p>Open <code>index.html</code>, replace the two placeholder values in the config block near the top of the script tag, then reload the page.</p>
+          </div>`;
+        scrollToResults();
+        return;
       }
-      searchBtn.disabled = true; searchBtn.textContent = 'Searching…';
+
+      searchBtn.disabled = true;
+      searchBtn.textContent = 'Searching…';
       results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading centers…</p></div>`;
-      rawResults = []; usedAddrFallback = false; resultLabel = '';
+      rawResults = [];
+      usedAddrFallback = false;
+      resultLabel = '';
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
         let q = supabase.from('centers').select('*').eq('status', 'approved');
+
         if (searchText) {
-          if (selectedCity) q = q.ilike('city', `%${searchText}%`);
-          else q = q.or(`name.ilike.%${searchText}%,city.ilike.%${searchText}%`);
+          if (selectedCity) {
+            q = q.ilike('city', `%${searchText}%`);
+          } else {
+            q = q.or(`name.ilike.%${searchText}%,city.ilike.%${searchText}%`);
+          }
         }
+
         let { data, error } = await q;
         if (error) throw error;
 
+        // Address fallback
         if (!selectedCity && searchText && (!data || data.length === 0)) {
-          const fb = await supabase.from('centers').select('*').eq('status', 'approved')
+          const fb = await supabase
+            .from('centers').select('*').eq('status', 'approved')
             .ilike('address', `%${searchText}%`);
-          if (!fb.error && fb.data && fb.data.length > 0) { data = fb.data; usedAddrFallback = true; }
+          if (!fb.error && fb.data && fb.data.length > 0) {
+            data = fb.data;
+            usedAddrFallback = true;
+          }
         }
 
         rawResults = data || [];
         const label = selectedCity || cityInput.value.trim();
         resultLabel = label
-          ? (usedAddrFallback ? `Address results for "${esc(label)}"` : `Results in ${esc(label)}`)
+          ? (usedAddrFallback
+              ? `Address results for "${esc(label)}"`
+              : `Results in ${esc(label)}`)
           : 'All Centers';
         applyFilters();
+
       } catch (err) {
-        results.innerHTML = `<div class="state"><h2>Something went wrong.</h2><p>${esc(err.message || 'Unable to connect.')}</p></div>`;
+        results.innerHTML = `
+          <div class="state">
+            <h2>Something went wrong.</h2>
+            <p>${esc(err.message || 'Unable to connect. Check your Supabase config and network connection.')}</p>
+          </div>`;
       } finally {
-        searchBtn.disabled = false; searchBtn.textContent = 'Search';
+        searchBtn.disabled = false;
+        searchBtn.textContent = 'Search';
         scrollToResults();
       }
     }
 
+    // Apply active service filter + text search to rawResults and re-render
     function applyFilters() {
       const text = cityInput.value.trim().toLowerCase();
       const filtered = rawResults.filter(c => {
+        const name = c.center_name || c.name || '';
+        const city = c.city || '';
         const matchText = !text ||
-          (c.name  && c.name.toLowerCase().includes(text)) ||
-          (c.city  && c.city.toLowerCase().includes(text));
+          name.toLowerCase().includes(text) ||
+          city.toLowerCase().includes(text);
+        const services = c.services_offered || c.services || [];
         const matchSvc = activeFilter === 'All' ||
-          (Array.isArray(c.services) && c.services.includes(activeFilter));
+          (Array.isArray(services) && services.includes(activeFilter));
         return matchText && matchSvc;
       });
       renderResults(filtered);
     }
 
+    // RENDER — show all available fields
     function renderResults(centers) {
       results.innerHTML = '';
+
       if (!centers.length) {
-        results.innerHTML = `<div class="state"><h2>No centers found.</h2><p>No centers match the current search or filter. Try a different search or select "All".</p></div>`;
+        results.innerHTML = `
+          <div class="state">
+            <h2>No centers found.</h2>
+            <p>No centers match the current search or filter. Try a different search or select "All".</p>
+          </div>`;
         return;
       }
+
       const head = document.createElement('div');
       head.className = 'results-head';
       const count = `${centers.length} center${centers.length !== 1 ? 's' : ''}`;
-      head.innerHTML = `<span class="results-title">${resultLabel || 'Centers'}</span><span class="results-count">${count}</span>`;
+      head.innerHTML =
+        `<span class="results-title">${resultLabel || 'Centers'}</span>` +
+        `<span class="results-count">${count}</span>`;
       results.appendChild(head);
 
       const grid = document.createElement('div');
@@ -911,189 +1279,132 @@
         const card = document.createElement('div');
         card.className = 'card';
 
-        const name    = c.name || '';
-        const city    = c.city || '';
-        const region  = c.region || '';
-        const address = c.address || '';
-        const contact = c.contact || '';
-        const svcs    = c.services || [];
+        const name     = c.center_name || c.name || '';
+        const city     = c.city || '';
+        const region   = c.region || '';
+        const address  = c.address || '';
+        const contact  = c.contact_number || c.contact || '';
+        const email    = c.email || '';
+        const website  = c.website || '';
+        const facebook = c.facebook_url || '';
+        const notes    = c.notes || '';
+        const services = c.services_offered || c.services || [];
 
-        const badges = svcs.map(s => `<span class="svc">${esc(s)}</span>`).join('');
+        const badges = services
+          .map(s => `<span class="svc">${esc(s)}</span>`)
+          .join('');
+
         let details = '';
-        if (address) details += `<p class="card-detail"><span>📌</span><span>${esc(address)}</span></p>`;
-        if (contact) details += `<p class="card-detail"><span>📞</span><span>${esc(contact)}</span></p>`;
+        if (address)  details += `<p class="card-detail"><span>📌</span><span>${esc(address)}</span></p>`;
+        if (contact)  details += `<p class="card-detail"><span>📞</span><span>${esc(contact)}</span></p>`;
+        if (email)    details += `<p class="card-detail"><span>✉️</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></p>`;
+        if (website)  details += `<p class="card-detail"><span>🌐</span><span><a href="${esc(website)}" target="_blank" rel="noopener">${esc(website.replace(/^https?:\/\//, ''))}</a></span></p>`;
+        if (facebook) details += `<p class="card-detail"><span>📘</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener">Facebook Page</a></span></p>`;
 
         card.innerHTML = `
           <p class="card-name">${esc(name)}</p>
           <p class="card-city">📍 ${esc(city)}${region ? ', ' + esc(region) : ''}</p>
           <div class="card-svcs">${badges}</div>
-          ${details ? `<div class="card-details">${details}</div>` : ''}`;
+          ${details ? `<div class="card-details">${details}</div>` : ''}
+          ${notes ? `<p class="card-notes">${esc(notes)}</p>` : ''}`;
 
         grid.appendChild(card);
         setTimeout(() => card.classList.add('visible'), i * 40);
       });
+
       results.appendChild(grid);
     }
 
     function esc(str) {
       if (str == null) return '';
-      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
-    // ─── MODAL OPEN / CLOSE ──────────────────────────────────────────────
-    const submitModal    = document.getElementById('submitModal');
-    const modalClose     = document.getElementById('modalClose');
-    const submitForm     = document.getElementById('submitForm');
-    const submitFormBtn  = document.getElementById('submitFormBtn');
+    // ─── SUBMIT MODAL ────────────────────────────────────────────────────
+    const submitModal   = document.getElementById('submitModal');
+    const openModalBtn  = document.getElementById('openSubmitModal');
+    const closeModalBtn = document.getElementById('modalClose');
+    const submitForm    = document.getElementById('submitForm');
+    const submitFormBtn = document.getElementById('submitFormBtn');
+    const submitSuccess = document.getElementById('submitSuccess');
     const submitFormArea = document.getElementById('submitFormArea');
-    const submitSuccess  = document.getElementById('submitSuccess');
 
     function openModal() {
       submitModal.hidden = false;
       document.body.style.overflow = 'hidden';
-      document.getElementById('f-name').focus();
+      closeModalBtn.focus();
     }
+
     function closeModal() {
       submitModal.hidden = true;
       document.body.style.overflow = '';
     }
 
-    document.getElementById('navCtaDesktop').addEventListener('click', openModal);
-    document.getElementById('navCtaMobile').addEventListener('click', () => { closeBurger(); openModal(); });
-    modalClose.addEventListener('click', closeModal);
-    submitModal.addEventListener('click', e => { if (e.target === submitModal) closeModal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !submitModal.hidden) closeModal(); });
+    openModalBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
 
-    // ─── MODAL CITY AUTOCOMPLETE ──────────────────────────────────────────
-    const fCity   = document.getElementById('f-city');
-    const fRegion = document.getElementById('f-region');
-    const fCityAc = document.getElementById('f-city-ac');
-    let modalCityAcOpen = false;
-    let modalCityIdx = -1;
-    let modalSelectedCity = null;
-
-    fCity.addEventListener('input', () => {
-      modalSelectedCity = null;
-      fRegion.value = '';
-      fRegion.classList.remove('has-value');
-      const q = fCity.value.trim().toLowerCase();
-      if (!q) { closeDropdown(fCityAc); modalCityAcOpen = false; return; }
-      const hits = cities.filter(c =>
-        c.name.toLowerCase().startsWith(q) || c.name.toLowerCase().includes(q)
-      ).slice(0, 8);
-      renderAC(hits, fCityAc, pickModalCity);
-      modalCityAcOpen = fCityAc.classList.contains('open');
-      modalCityIdx = -1;
+    // Close on overlay click
+    submitModal.addEventListener('click', e => {
+      if (e.target === submitModal) closeModal();
     });
 
-    fCity.addEventListener('keydown', e => {
-      const items = fCityAc.querySelectorAll('.ac-item');
-      if (!modalCityAcOpen || !items.length) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); modalCityIdx = Math.min(modalCityIdx + 1, items.length - 1); highlightAC(items, modalCityIdx); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); modalCityIdx = Math.max(modalCityIdx - 1, 0); highlightAC(items, modalCityIdx); }
-      else if (e.key === 'Enter') { e.preventDefault(); if (modalCityIdx >= 0 && items[modalCityIdx]) items[modalCityIdx].click(); }
-      else if (e.key === 'Escape') { closeDropdown(fCityAc); modalCityAcOpen = false; }
+    // Close on Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !submitModal.hidden) closeModal();
     });
 
-    document.addEventListener('click', e => {
-      if (!e.target.closest('.city-ac-wrap')) { closeDropdown(fCityAc); modalCityAcOpen = false; }
-    });
-
-    function pickModalCity(c) {
-      fCity.value = c.name;
-      fRegion.value = c.region;
-      fRegion.classList.add('has-value');
-      modalSelectedCity = c;
-      closeDropdown(fCityAc); modalCityAcOpen = false;
-      clearHint('hint-city');
-    }
-
-    // ─── FORM VALIDATION HELPERS ─────────────────────────────────────────
-    function showHint(id) { document.getElementById(id).classList.add('show'); }
-    function clearHint(id) { document.getElementById(id).classList.remove('show'); }
-    function markError(inputEl) { inputEl.classList.add('field-error'); }
-    function clearError(inputEl) { inputEl.classList.remove('field-error'); }
-
-    // Clear errors on user interaction
-    document.getElementById('f-name').addEventListener('input', () => { clearError(document.getElementById('f-name')); clearHint('hint-name'); });
-    fCity.addEventListener('input', () => { clearError(fCity); clearHint('hint-city'); });
-    document.getElementById('f-address').addEventListener('input', () => { clearError(document.getElementById('f-address')); clearHint('hint-address'); });
-    submitForm.querySelectorAll('input[name="services"]').forEach(cb => {
-      cb.addEventListener('change', () => clearHint('hint-services'));
-    });
-
-    // ─── FORM SUBMIT ──────────────────────────────────────────────────────
     submitForm.addEventListener('submit', async e => {
       e.preventDefault();
 
-      const nameEl    = document.getElementById('f-name');
-      const addressEl = document.getElementById('f-address');
-      const name      = nameEl.value.trim();
-      const city      = fCity.value.trim();
-      const region    = fRegion.value.trim();
-      const address   = addressEl.value.trim();
-      const type      = submitForm.querySelector('input[name="type"]:checked').value;
-      const services  = [...submitForm.querySelectorAll('input[name="services"]:checked')].map(cb => cb.value);
-      const contact   = document.getElementById('f-contact').value.trim() || null;
+      const name = submitForm.querySelector('#f-name').value.trim();
+      const city = submitForm.querySelector('#f-city').value.trim();
+      if (!name || !city) {
+        submitForm.querySelector('#f-name').focus();
+        return;
+      }
 
-      let valid = true;
-      if (!name)           { markError(nameEl);    showHint('hint-name');     valid = false; }
-      if (!city)           { markError(fCity);     showHint('hint-city');     valid = false; }
-      if (!address)        { markError(addressEl); showHint('hint-address');  valid = false; }
-      if (!services.length){ showHint('hint-services'); valid = false; }
-      if (!valid) return;
+      const services = [...submitForm.querySelectorAll('input[name="services"]:checked')]
+        .map(cb => cb.value);
+
+      const payload = {
+        center_name:  name,
+        city,
+        region:       submitForm.querySelector('#f-region').value.trim() || null,
+        address:      submitForm.querySelector('#f-address').value.trim() || null,
+        contact_number: submitForm.querySelector('#f-contact').value.trim() || null,
+        email:        submitForm.querySelector('#f-email').value.trim() || null,
+        website:      submitForm.querySelector('#f-website').value.trim() || null,
+        facebook_url: submitForm.querySelector('#f-facebook').value.trim() || null,
+        services_offered: services.length ? services : null,
+        notes:        submitForm.querySelector('#f-notes').value.trim() || null,
+        status:       'pending',
+      };
 
       submitFormBtn.disabled = true;
       submitFormBtn.textContent = 'Submitting…';
-
-      const payload = {
-        name,
-        city,
-        region: region || 'Unknown',
-        type,
-        services,
-        address,
-        contact,
-        status: 'pending',
-      };
 
       try {
         if (IS_CONFIGURED && supabase) {
           const { error } = await supabase.from('centers').insert([payload]);
           if (error) throw error;
         }
-        // Show success
+        // Show success state
         submitFormArea.hidden = true;
         submitSuccess.hidden = false;
-        submitForm.querySelectorAll('.form-group').forEach(el => el.style.display = 'none');
+        // Hide all form fields visually
+        [...submitForm.querySelectorAll('.form-group, .form-row')].forEach(el => {
+          el.style.display = 'none';
+        });
       } catch (err) {
-        console.error('Submit error:', err);
         submitFormBtn.disabled = false;
         submitFormBtn.textContent = 'Submit for Review';
-        const msg = err.message || 'Submission failed. Please try again.';
-        alert(msg.includes('row-level security')
-          ? 'Submissions are temporarily unavailable. Please try again later.'
-          : 'Error: ' + msg);
+        alert('Submission failed: ' + (err.message || 'Please try again.'));
       }
     });
-
-    // Reset form when modal closes so it's fresh next time
-    function resetForm() {
-      submitForm.reset();
-      submitFormArea.hidden = false;
-      submitSuccess.hidden = true;
-      submitFormBtn.disabled = false;
-      submitFormBtn.textContent = 'Submit for Review';
-      submitForm.querySelectorAll('.form-group').forEach(el => el.style.display = '');
-      submitForm.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
-      submitForm.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
-      fRegion.classList.remove('has-value');
-      modalSelectedCity = null;
-      closeDropdown(fCityAc); modalCityAcOpen = false;
-    }
-
-    modalClose.addEventListener('click', resetForm);
-    submitModal.addEventListener('click', e => { if (e.target === submitModal) resetForm(); });
 
     // ─── BURGER MENU ─────────────────────────────────────────────────────
     const burger   = document.getElementById('burger');
@@ -1106,9 +1417,13 @@
       burger.setAttribute('aria-expanded', open);
     });
 
-    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeBurger));
+    navLinks.querySelectorAll('a').forEach(a =>
+      a.addEventListener('click', closeBurger)
+    );
 
-    document.addEventListener('click', e => { if (!e.target.closest('nav')) closeBurger(); });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('nav')) closeBurger();
+    });
 
     function closeBurger() {
       burger.classList.remove('open');
