@@ -107,6 +107,23 @@
 
     .nav-links a:hover { color: var(--black); }
 
+    /* Nav "Submit a Center" button */
+    .nav-submit-btn {
+      padding: 7px 14px;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 12.5px;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .nav-submit-btn:hover { opacity: 0.8; }
+
     /* HERO — off-white bg, z-index so dropdown overlaps content below */
     #main {
       padding: calc(var(--nav-h) + 28px) 20px 22px;
@@ -590,7 +607,8 @@
       margin-bottom: 6px;
     }
 
-    .form-group input,
+    /* Only non-checkbox inputs get appearance:none so checkboxes render natively */
+    .form-group input:not([type="checkbox"]),
     .form-group textarea {
       width: 100%;
       padding: 10px 12px;
@@ -606,11 +624,18 @@
       -webkit-appearance: none;
     }
 
-    .form-group input:focus,
+    .form-group input:not([type="checkbox"]):focus,
     .form-group textarea:focus { border-color: var(--black); }
 
     .form-group input::placeholder,
     .form-group textarea::placeholder { color: #c0c0c0; }
+
+    .form-group input.field-error { border-color: #e53e3e !important; }
+    .field-hint { font-size: 11.5px; color: #e53e3e; margin-top: 4px; display: none; }
+    .field-hint.show { display: block; }
+
+    /* City autocomplete wrapper inside modal */
+    .city-ac-wrap { position: relative; }
 
     .form-group textarea { resize: vertical; min-height: 80px; }
 
@@ -751,6 +776,27 @@
         font-weight: 500;
       }
 
+      /* Desktop nav submit button hidden on mobile — shown in burger menu instead */
+      .nav-submit-btn { display: none; }
+
+      .nav-submit-li { padding: 12px 16px; border-bottom: none !important; }
+      .nav-submit-li .nav-cta-menu {
+        display: block;
+        width: 100%;
+        padding: 13px 20px;
+        background: var(--black);
+        color: var(--white);
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-align: center;
+        transition: opacity 0.15s;
+      }
+      .nav-submit-li .nav-cta-menu:hover { opacity: 0.85; }
+
       @keyframes menuSlide {
         from { opacity: 0; transform: translateY(-6px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -804,7 +850,11 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html">Contact</a></li>
+      <li class="nav-submit-li">
+        <button class="nav-cta-menu" id="navSubmitMobile">+ Submit a Center</button>
+      </li>
     </ul>
+    <button class="nav-submit-btn" id="navSubmitDesktop">+ Submit a Center</button>
     <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -885,50 +935,54 @@
       <div class="modal-body">
         <form id="submitForm" novalidate>
 
+          <!-- name — maps to centers.name -->
           <div class="form-group">
-            <label for="f-name">Center Name <span style="color:#e53e3e">*</span></label>
-            <input type="text" id="f-name" name="center_name" required placeholder="e.g. Sunshine Therapy Center" />
+            <label for="f-name">Therapy / School Name <span style="color:#e53e3e">*</span></label>
+            <input type="text" id="f-name" autocomplete="off" placeholder="e.g. Sunshine Therapy Center" />
+            <p class="field-hint" id="hint-name">Please enter the center or school name.</p>
           </div>
 
+          <!-- type — maps to centers.type (center | school) -->
+          <div class="form-group">
+            <label>Type <span style="color:#e53e3e">*</span></label>
+            <div style="display:flex;gap:20px;padding:4px 0;">
+              <label style="display:flex;align-items:center;gap:7px;font-size:13.5px;cursor:pointer;">
+                <input type="radio" name="f-type" value="center" checked style="accent-color:var(--black);width:15px;height:15px;" />
+                Therapy Center
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;font-size:13.5px;cursor:pointer;">
+                <input type="radio" name="f-type" value="school" style="accent-color:var(--black);width:15px;height:15px;" />
+                SPED School
+              </label>
+            </div>
+          </div>
+
+          <!-- city + region — maps to centers.city and centers.region -->
           <div class="form-row">
             <div class="form-group">
               <label for="f-city">City <span style="color:#e53e3e">*</span></label>
-              <input type="text" id="f-city" name="city" required placeholder="e.g. Quezon City" />
+              <div class="city-ac-wrap">
+                <input type="text" id="f-city" autocomplete="off" spellcheck="false" placeholder="e.g. Quezon City" />
+                <div class="ac-dropdown" id="f-city-ac" role="listbox"></div>
+              </div>
+              <p class="field-hint" id="hint-city">Please enter the city.</p>
             </div>
             <div class="form-group">
               <label for="f-region">Region</label>
-              <input type="text" id="f-region" name="region" placeholder="e.g. NCR" />
+              <input type="text" id="f-region" placeholder="Auto-filled from city" style="background:var(--surface);color:var(--gray);" />
             </div>
           </div>
 
+          <!-- address — maps to centers.address (required) -->
           <div class="form-group">
-            <label for="f-address">Address</label>
-            <input type="text" id="f-address" name="address" placeholder="Street, barangay, city" />
+            <label for="f-address">Address <span style="color:#e53e3e">*</span></label>
+            <input type="text" id="f-address" autocomplete="off" placeholder="Street, barangay, city" />
+            <p class="field-hint" id="hint-address">Please enter the address.</p>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="f-contact">Contact Number</label>
-              <input type="tel" id="f-contact" name="contact_number" placeholder="09XX XXX XXXX" />
-            </div>
-            <div class="form-group">
-              <label for="f-email">Email</label>
-              <input type="email" id="f-email" name="email" placeholder="contact@center.com" />
-            </div>
-          </div>
-
+          <!-- services — maps to centers.services text[] (required, at least 1) -->
           <div class="form-group">
-            <label for="f-website">Website</label>
-            <input type="url" id="f-website" name="website" placeholder="https://..." />
-          </div>
-
-          <div class="form-group">
-            <label for="f-facebook">Facebook Page URL</label>
-            <input type="url" id="f-facebook" name="facebook_url" placeholder="https://facebook.com/..." />
-          </div>
-
-          <div class="form-group">
-            <label>Services Offered</label>
+            <label>Services Offered <span style="color:#e53e3e">*</span></label>
             <div class="form-checks">
               <label class="check-label">
                 <input type="checkbox" name="services" value="OT" />
@@ -947,11 +1001,13 @@
                 Applied Behavior Analysis (ABA)
               </label>
             </div>
+            <p class="field-hint" id="hint-services">Please select at least one service.</p>
           </div>
 
+          <!-- contact — maps to centers.contact (optional) -->
           <div class="form-group">
-            <label for="f-notes">Additional Notes</label>
-            <textarea id="f-notes" name="notes" rows="3" placeholder="Any other details about this center..."></textarea>
+            <label for="f-contact">Contact Number <span style="color:#999;font-weight:400">(optional)</span></label>
+            <input type="tel" id="f-contact" placeholder="09XX XXX XXXX or 02-XXXX-XXXX" />
           </div>
 
           <div id="submitFormArea" class="form-actions">
@@ -1325,84 +1381,187 @@
     }
 
     // ─── SUBMIT MODAL ────────────────────────────────────────────────────
-    const submitModal   = document.getElementById('submitModal');
-    const openModalBtn  = document.getElementById('openSubmitModal');
-    const closeModalBtn = document.getElementById('modalClose');
-    const submitForm    = document.getElementById('submitForm');
-    const submitFormBtn = document.getElementById('submitFormBtn');
-    const submitSuccess = document.getElementById('submitSuccess');
+    const submitModal    = document.getElementById('submitModal');
+    const openModalBtn   = document.getElementById('openSubmitModal');
+    const closeModalBtn  = document.getElementById('modalClose');
+    const submitForm     = document.getElementById('submitForm');
+    const submitFormBtn  = document.getElementById('submitFormBtn');
+    const submitSuccess  = document.getElementById('submitSuccess');
     const submitFormArea = document.getElementById('submitFormArea');
+
+    // Modal city autocomplete state
+    const fCityInput  = document.getElementById('f-city');
+    const fRegionInput = document.getElementById('f-region');
+    const fCityAcDrop = document.getElementById('f-city-ac');
+    let modalAcOpen = false;
+    let modalAcIdx  = -1;
 
     function openModal() {
       submitModal.hidden = false;
       document.body.style.overflow = 'hidden';
-      closeModalBtn.focus();
+      document.getElementById('f-name').focus();
     }
 
     function closeModal() {
       submitModal.hidden = true;
       document.body.style.overflow = '';
+      closeFCityAC();
     }
 
+    function resetModal() {
+      submitForm.reset();
+      submitFormArea.hidden = false;
+      submitSuccess.hidden = true;
+      submitFormBtn.disabled = false;
+      submitFormBtn.textContent = 'Submit for Review';
+      submitForm.querySelectorAll('.form-group').forEach(el => el.style.display = '');
+      submitForm.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+      submitForm.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
+      fRegionInput.value = '';
+      closeFCityAC();
+    }
+
+    // All open-modal triggers
     openModalBtn.addEventListener('click', openModal);
-    closeModalBtn.addEventListener('click', closeModal);
-
-    // Close on overlay click
-    submitModal.addEventListener('click', e => {
-      if (e.target === submitModal) closeModal();
+    document.getElementById('navSubmitDesktop').addEventListener('click', openModal);
+    document.getElementById('navSubmitMobile').addEventListener('click', () => {
+      closeBurger(); openModal();
     });
 
-    // Close on Escape
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && !submitModal.hidden) closeModal();
+    closeModalBtn.addEventListener('click', () => { resetModal(); closeModal(); });
+    submitModal.addEventListener('click', e => { if (e.target === submitModal) { resetModal(); closeModal(); } });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !submitModal.hidden) { resetModal(); closeModal(); } });
+
+    // ─── MODAL CITY AUTOCOMPLETE ──────────────────────────────────────────
+    fCityInput.addEventListener('input', () => {
+      fRegionInput.value = '';
+      const q = fCityInput.value.trim().toLowerCase();
+      if (!q) { closeFCityAC(); return; }
+      const hits = cities.filter(c =>
+        c.name.toLowerCase().startsWith(q) || c.name.toLowerCase().includes(q)
+      ).slice(0, 8);
+      if (!hits.length) { closeFCityAC(); return; }
+      fCityAcDrop.innerHTML = '';
+      hits.forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'ac-item';
+        el.setAttribute('role', 'option');
+        el.innerHTML = `<span class="ac-city">${esc(c.name)}</span><span class="ac-region">${esc(c.region)}</span>`;
+        el.addEventListener('mousedown', ev => {
+          ev.preventDefault();
+          fCityInput.value  = c.name;
+          fRegionInput.value = c.region;
+          fRegionInput.style.color = 'var(--black)';
+          clearFieldError(fCityInput, 'hint-city');
+          closeFCityAC();
+        });
+        fCityAcDrop.appendChild(el);
+      });
+      fCityAcDrop.classList.add('open');
+      modalAcOpen = true;
+      modalAcIdx  = -1;
     });
 
+    fCityInput.addEventListener('keydown', e => {
+      const items = fCityAcDrop.querySelectorAll('.ac-item');
+      if (!modalAcOpen || !items.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        modalAcIdx = Math.min(modalAcIdx + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('kactive', i === modalAcIdx));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        modalAcIdx = Math.max(modalAcIdx - 1, 0);
+        items.forEach((el, i) => el.classList.toggle('kactive', i === modalAcIdx));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (modalAcIdx >= 0 && items[modalAcIdx]) items[modalAcIdx].click();
+      } else if (e.key === 'Escape') {
+        closeFCityAC();
+      }
+    });
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.city-ac-wrap')) closeFCityAC();
+    });
+
+    function closeFCityAC() {
+      fCityAcDrop.classList.remove('open');
+      fCityAcDrop.innerHTML = '';
+      modalAcOpen = false;
+      modalAcIdx  = -1;
+    }
+
+    // ─── VALIDATION HELPERS ───────────────────────────────────────────────
+    function showFieldError(inputEl, hintId) {
+      inputEl.classList.add('field-error');
+      document.getElementById(hintId).classList.add('show');
+    }
+    function clearFieldError(inputEl, hintId) {
+      inputEl.classList.remove('field-error');
+      document.getElementById(hintId).classList.remove('show');
+    }
+
+    document.getElementById('f-name').addEventListener('input', function() { clearFieldError(this, 'hint-name'); });
+    fCityInput.addEventListener('input', function() { clearFieldError(this, 'hint-city'); });
+    document.getElementById('f-address').addEventListener('input', function() { clearFieldError(this, 'hint-address'); });
+    submitForm.querySelectorAll('input[name="services"]').forEach(cb => {
+      cb.addEventListener('change', () => document.getElementById('hint-services').classList.remove('show'));
+    });
+
+    // ─── FORM SUBMIT (schema-matched payload) ─────────────────────────────
     submitForm.addEventListener('submit', async e => {
       e.preventDefault();
 
-      const name = submitForm.querySelector('#f-name').value.trim();
-      const city = submitForm.querySelector('#f-city').value.trim();
-      if (!name || !city) {
-        submitForm.querySelector('#f-name').focus();
-        return;
-      }
+      const nameEl    = document.getElementById('f-name');
+      const addressEl = document.getElementById('f-address');
+      const name    = nameEl.value.trim();
+      const city    = fCityInput.value.trim();
+      const region  = fRegionInput.value.trim();
+      const address = addressEl.value.trim();
+      const type    = submitForm.querySelector('input[name="f-type"]:checked').value;
+      const services = [...submitForm.querySelectorAll('input[name="services"]:checked')].map(cb => cb.value);
+      const contact = document.getElementById('f-contact').value.trim() || null;
 
-      const services = [...submitForm.querySelectorAll('input[name="services"]:checked')]
-        .map(cb => cb.value);
-
-      const payload = {
-        center_name:  name,
-        city,
-        region:       submitForm.querySelector('#f-region').value.trim() || null,
-        address:      submitForm.querySelector('#f-address').value.trim() || null,
-        contact_number: submitForm.querySelector('#f-contact').value.trim() || null,
-        email:        submitForm.querySelector('#f-email').value.trim() || null,
-        website:      submitForm.querySelector('#f-website').value.trim() || null,
-        facebook_url: submitForm.querySelector('#f-facebook').value.trim() || null,
-        services_offered: services.length ? services : null,
-        notes:        submitForm.querySelector('#f-notes').value.trim() || null,
-        status:       'pending',
-      };
+      // Validate required fields
+      let valid = true;
+      if (!name)            { showFieldError(nameEl,    'hint-name');     valid = false; }
+      if (!city)            { showFieldError(fCityInput,'hint-city');     valid = false; }
+      if (!address)         { showFieldError(addressEl, 'hint-address');  valid = false; }
+      if (!services.length) { document.getElementById('hint-services').classList.add('show'); valid = false; }
+      if (!valid) return;
 
       submitFormBtn.disabled = true;
       submitFormBtn.textContent = 'Submitting…';
+
+      // Payload matches centers table exactly:
+      // name, city, region (NOT NULL), type (NOT NULL), services (NOT NULL), address, contact, status
+      const payload = {
+        name,
+        city,
+        region:   region || 'Unknown',
+        type,
+        services,
+        address,
+        contact,
+        status:   'pending',
+      };
 
       try {
         if (IS_CONFIGURED && supabase) {
           const { error } = await supabase.from('centers').insert([payload]);
           if (error) throw error;
         }
-        // Show success state
         submitFormArea.hidden = true;
         submitSuccess.hidden = false;
-        // Hide all form fields visually
-        [...submitForm.querySelectorAll('.form-group, .form-row')].forEach(el => {
-          el.style.display = 'none';
-        });
+        submitForm.querySelectorAll('.form-group').forEach(el => el.style.display = 'none');
       } catch (err) {
         submitFormBtn.disabled = false;
         submitFormBtn.textContent = 'Submit for Review';
-        alert('Submission failed: ' + (err.message || 'Please try again.'));
+        const msg = err.message || 'Please try again.';
+        alert(msg.includes('row-level security')
+          ? 'Submissions are currently unavailable. Please try again later.'
+          : 'Error: ' + msg);
       }
     });
 
