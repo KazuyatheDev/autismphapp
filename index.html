@@ -407,26 +407,43 @@
       color: #333;
       padding: 3px 8px;
       border-radius: 4px;
+      border: 1px solid #e0e0e0;
       letter-spacing: 0.3px;
     }
 
-    .card-details {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-top: 8px;
+    .card-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 10px 0;
     }
 
-    .card-detail {
+    .card-contacts {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-row {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 6px;
+      align-items: flex-start;
       font-size: 12.5px;
       color: var(--gray);
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
       line-height: 1.45;
     }
 
-    .card-detail a {
+    .card-row-icon {
+      display: flex;
+      align-items: flex-start;
+      padding-top: 1px;
+      color: #b0b0b0;
+      flex-shrink: 0;
+    }
+
+    .card-row-icon svg { display: block; }
+
+    .card-row a {
       color: var(--black);
       text-decoration: underline;
       text-underline-offset: 2px;
@@ -434,15 +451,25 @@
       word-break: break-all;
     }
 
-    .card-detail a:hover { text-decoration-color: var(--black); }
+    .card-row a:hover { text-decoration-color: var(--black); }
 
-    .card-notes {
+    .card-update-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--sans);
       font-size: 12px;
-      color: #999;
-      font-style: italic;
-      margin-top: 6px;
-      line-height: 1.5;
+      color: #b0b0b0;
+      padding: 4px 0;
+      text-align: left;
+      transition: color 0.15s;
+      min-height: 32px;
     }
+
+    .card-update-btn:hover { color: var(--gray); }
 
     .card-copy-btn {
       position: absolute;
@@ -916,6 +943,7 @@
           <button class="pill" data-svc="ST">ST</button>
           <button class="pill" data-svc="SPED">SPED</button>
           <button class="pill" data-svc="ABA">ABA</button>
+          <button class="pill" data-svc="DEVPED">DEVPED</button>
         </div>
 
       </div>
@@ -963,9 +991,9 @@
 
           <!-- name — maps to centers.name (required) -->
           <div class="form-group">
-            <label for="f-name">Therapy / School Name <span style="color:#e53e3e">*</span></label>
+            <label for="f-name">Therapy / Name <span style="color:#e53e3e">*</span></label>
             <input type="text" id="f-name" autocomplete="off" placeholder="e.g. Sunshine Therapy Center" />
-            <p class="field-hint" id="hint-name">Please enter the center or school name.</p>
+            <p class="field-hint" id="hint-name">Please enter the center or  name.</p>
           </div>
 
           <!-- type + services — 2-column -->
@@ -974,10 +1002,13 @@
               <label>Service Type <span style="color:#e53e3e">*</span></label>
               <div class="form-checks">
                 <label class="check-label">
-                  <input type="checkbox" value="center" checked /> Therapy Center
+                  <input type="checkbox" value="center" /> Therapy Center
                 </label>
                 <label class="check-label">
                   <input type="checkbox" value="school" /> Special School
+                </label>
+                 <label class="check-label">
+                  <input type="checkbox" value="devped" /> Depvelopmental Pediatrician
                 </label>
               </div>
             </div>
@@ -995,6 +1026,9 @@
                 </label>
                 <label class="check-label">
                   <input type="checkbox" name="services" value="ABA" /> ABA
+                </label>
+                  <label class="check-label">
+                  <input type="checkbox" name="services" value="DEVPED" /> DevPed
                 </label>
               </div>
               <p class="field-hint" id="hint-services">Select at least one.</p>
@@ -1054,6 +1088,97 @@
             <p>This help our ausome community.</p>
           </div>
 
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPDATE MODAL -->
+  <div id="updateModal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="updateModalTitle">
+      <div class="modal-header">
+        <h2 id="updateModalTitle" class="modal-title">Suggest an Update</h2>
+        <button type="button" class="modal-close" id="updateModalClose" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="updateForm" novalidate>
+          <input type="hidden" id="uf-center-id" />
+
+          <div class="form-group">
+            <label for="uf-change-note">What changed? <span style="color:#e53e3e">*</span></label>
+            <textarea id="uf-change-note" placeholder="Briefly describe what's outdated or incorrect..." style="min-height:64px"></textarea>
+            <p class="field-hint" id="hint-change-note">Please describe what changed.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="uf-name">Center Name</label>
+            <input type="text" id="uf-name" autocomplete="off" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="uf-city">City</label>
+              <input type="text" id="uf-city" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="uf-region">Region</label>
+              <input type="text" id="uf-region" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="uf-address">Address</label>
+            <input type="text" id="uf-address" autocomplete="off" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="uf-contact">Phone</label>
+              <input type="tel" id="uf-contact" />
+            </div>
+            <div class="form-group">
+              <label for="uf-email">Email</label>
+              <input type="email" id="uf-email" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="uf-website">Website</label>
+              <input type="url" id="uf-website" />
+            </div>
+            <div class="form-group">
+              <label for="uf-facebook">Facebook</label>
+              <input type="url" id="uf-facebook" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Services</label>
+            <div class="form-checks" style="flex-direction:row;flex-wrap:wrap;gap:10px 18px">
+              <label class="check-label"><input type="checkbox" name="uf-services" value="OT" /> OT</label>
+              <label class="check-label"><input type="checkbox" name="uf-services" value="ST" /> ST</label>
+              <label class="check-label"><input type="checkbox" name="uf-services" value="SPED" /> SPED</label>
+              <label class="check-label"><input type="checkbox" name="uf-services" value="ABA" /> ABA</label>
+              <label class="check-label"><input type="checkbox" name="uf-services" value="DEVPED" /> DevPed</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="uf-notes">Notes <span class="opt">(optional)</span></label>
+            <textarea id="uf-notes" placeholder="Any other notes..."></textarea>
+          </div>
+
+          <div id="updateFormArea" class="form-actions">
+            <button type="submit" class="btn-primary" id="updateFormBtn">Submit Update</button>
+            <p class="form-note">Your suggestion will be reviewed before any changes go live.</p>
+          </div>
+
+          <div id="updateSuccess" class="submit-success" hidden>
+            <div class="success-icon">✓</div>
+            <h3>Thanks!</h3>
+            <p>Your update has been submitted for review.</p>
+          </div>
         </form>
       </div>
     </div>
@@ -1363,6 +1488,16 @@
       const grid = document.createElement('div');
       grid.className = 'cards-grid';
 
+      // Stroke-only SVG icons (14px)
+      const IC = {
+        pin:    `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+        phone:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+        mail:   `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+        globe:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+        fb:     `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`,
+        pencil: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+      };
+
       centers.forEach((c, i) => {
         const card = document.createElement('div');
         card.className = 'card';
@@ -1375,25 +1510,24 @@
         const email    = c.email || '';
         const website  = c.website || '';
         const facebook = c.facebook_url || '';
-        const notes    = c.notes || '';
         const services = c.services || [];
 
         const badges = services.map(s => `<span class="svc">${esc(s)}</span>`).join('');
 
-        // Build details HTML
-        let detailsHTML = '';
-        if (address)  detailsHTML += `<p class="card-detail"><span>📌</span><span>${esc(address)}</span></p>`;
-        if (contact)  detailsHTML += `<p class="card-detail"><span>📞</span><span>${esc(contact)}</span></p>`;
-        if (email)    detailsHTML += `<p class="card-detail"><span>✉️</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></p>`;
-        if (website)  detailsHTML += `<p class="card-detail"><span>🌐</span><span><a href="${esc(website)}" target="_blank" rel="noopener">${esc(website.replace(/^https?:\/\//, ''))}</a></span></p>`;
-        if (facebook) detailsHTML += `<p class="card-detail"><span>📘</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener">Facebook Page</a></span></p>`;
-        if (notes)    detailsHTML += `<p class="card-notes">${esc(notes)}</p>`;
+        // Contact rows with SVG icons
+        let contactsHTML = '';
+        if (address)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.pin}</span><span>${esc(address)}</span></div>`;
+        if (contact)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.phone}</span><span><a href="tel:${esc(contact)}">${esc(contact)}</a></span></div>`;
+        if (email)    contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.mail}</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></div>`;
+        if (website)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.globe}</span><span><a href="${esc(website)}" target="_blank" rel="noopener noreferrer">${esc(website.replace(/^https?:\/\//, ''))}</a></span></div>`;
+        if (facebook) contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.fb}</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener noreferrer">Facebook Page</a></span></div>`;
 
         card.innerHTML = `
-          <p class="card-name" style="padding-right:32px">${esc(name)}</p>
-          <p class="card-city">📍 ${esc(city)}${region ? ', ' + esc(region) : ''}</p>
+          <p class="card-name" style="padding-right:36px">${esc(name)}</p>
+          <p class="card-city">${esc(city)}${region ? ', ' + esc(region) : ''}</p>
           <div class="card-svcs">${badges}</div>
-          ${detailsHTML ? `<div class="card-details">${detailsHTML}</div>` : ''}`;
+          ${contactsHTML ? `<hr class="card-divider"><div class="card-contacts">${contactsHTML}</div>` : ''}
+          <hr class="card-divider">`;
 
         // Copy button
         const copyBtn = document.createElement('button');
@@ -1417,6 +1551,14 @@
           showCopyToast();
         });
         card.appendChild(copyBtn);
+
+        // Suggest update button
+        const updateBtn = document.createElement('button');
+        updateBtn.type = 'button';
+        updateBtn.className = 'card-update-btn';
+        updateBtn.innerHTML = `${IC.pencil} Is this info outdated? Suggest an update`;
+        updateBtn.addEventListener('click', () => openUpdateModal(c));
+        card.appendChild(updateBtn);
 
         grid.appendChild(card);
         setTimeout(() => card.classList.add('visible'), i * 40);
@@ -1624,6 +1766,111 @@
       } catch (err) {
         submitFormBtn.disabled = false;
         submitFormBtn.textContent = 'Submit for Review';
+        const msg = err.message || 'Please try again.';
+        alert(msg.includes('row-level security')
+          ? 'Submissions are currently unavailable. Please try again later.'
+          : 'Error: ' + msg);
+      }
+    });
+
+    // ─── UPDATE MODAL ────────────────────────────────────────────────────
+    const updateModal     = document.getElementById('updateModal');
+    const updateModalClose = document.getElementById('updateModalClose');
+    const updateForm      = document.getElementById('updateForm');
+    const updateFormBtn   = document.getElementById('updateFormBtn');
+    const updateSuccess   = document.getElementById('updateSuccess');
+    const updateFormArea  = document.getElementById('updateFormArea');
+
+    function openUpdateModal(center) {
+      document.getElementById('uf-center-id').value = center.id || '';
+      document.getElementById('uf-name').value      = center.name || '';
+      document.getElementById('uf-city').value      = center.city || '';
+      document.getElementById('uf-region').value    = center.region || '';
+      document.getElementById('uf-address').value   = center.address || '';
+      document.getElementById('uf-contact').value   = center.contact || '';
+      document.getElementById('uf-email').value     = center.email || '';
+      document.getElementById('uf-website').value   = center.website || '';
+      document.getElementById('uf-facebook').value  = center.facebook_url || '';
+      document.getElementById('uf-notes').value     = center.notes || '';
+      document.getElementById('uf-change-note').value = '';
+
+      const svcs = center.services || [];
+      updateForm.querySelectorAll('input[name="uf-services"]').forEach(cb => {
+        cb.checked = svcs.includes(cb.value);
+      });
+
+      updateFormArea.hidden = false;
+      updateSuccess.hidden = true;
+      updateFormBtn.disabled = false;
+      updateFormBtn.textContent = 'Submit Update';
+      updateForm.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+      updateForm.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
+      updateForm.querySelectorAll('.form-group, .form-row').forEach(el => el.style.display = '');
+
+      updateModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('uf-change-note').focus();
+    }
+
+    function closeUpdateModal() {
+      updateModal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    updateModalClose.addEventListener('click', closeUpdateModal);
+    updateModal.addEventListener('click', e => { if (e.target === updateModal) closeUpdateModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !updateModal.hidden) closeUpdateModal(); });
+
+    document.getElementById('uf-change-note').addEventListener('input', function() {
+      this.classList.remove('field-error');
+      document.getElementById('hint-change-note').classList.remove('show');
+    });
+
+    updateForm.addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const changeNoteEl = document.getElementById('uf-change-note');
+      const changeNote   = changeNoteEl.value.trim();
+      if (!changeNote) {
+        changeNoteEl.classList.add('field-error');
+        document.getElementById('hint-change-note').classList.add('show');
+        changeNoteEl.focus();
+        return;
+      }
+
+      const centerId = document.getElementById('uf-center-id').value;
+      const formData = {
+        center_name:    document.getElementById('uf-name').value.trim(),
+        city:           document.getElementById('uf-city').value.trim(),
+        region:         document.getElementById('uf-region').value.trim(),
+        address:        document.getElementById('uf-address').value.trim(),
+        contact_number: document.getElementById('uf-contact').value.trim(),
+        email:          document.getElementById('uf-email').value.trim(),
+        website:        document.getElementById('uf-website').value.trim(),
+        facebook_url:   document.getElementById('uf-facebook').value.trim(),
+        services:       [...updateForm.querySelectorAll('input[name="uf-services"]:checked')].map(cb => cb.value),
+        notes:          document.getElementById('uf-notes').value.trim(),
+      };
+
+      updateFormBtn.disabled = true;
+      updateFormBtn.textContent = 'Submitting…';
+
+      try {
+        if (IS_CONFIGURED && supabase) {
+          const { error } = await supabase.from('center_updates').insert([{
+            center_id:         centerId || null,
+            submitted_changes: formData,
+            change_note:       changeNote,
+          }]);
+          if (error) throw error;
+        }
+        updateFormArea.hidden = true;
+        updateForm.querySelectorAll('.form-group, .form-row').forEach(el => el.style.display = 'none');
+        updateSuccess.hidden = false;
+        setTimeout(closeUpdateModal, 2800);
+      } catch (err) {
+        updateFormBtn.disabled = false;
+        updateFormBtn.textContent = 'Submit Update';
         const msg = err.message || 'Please try again.';
         alert(msg.includes('row-level security')
           ? 'Submissions are currently unavailable. Please try again later.'
