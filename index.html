@@ -365,6 +365,7 @@
 
     /* CARD */
     .card {
+      position: relative;
       border: 1px solid #E5E7EB;
       border-radius: 8px;
       padding: 16px 18px;
@@ -443,6 +444,76 @@
       margin-top: 6px;
       line-height: 1.5;
     }
+
+    .card-copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 4px 6px;
+      color: var(--gray);
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .card-copy-btn:hover { background: var(--surface); color: var(--black); border-color: #bbb; }
+    .card-copy-btn svg { width: 13px; height: 13px; display: block; pointer-events: none; }
+
+    .card-toggle {
+      background: none;
+      border: none;
+      font-size: 11.5px;
+      color: var(--gray);
+      cursor: pointer;
+      padding: 5px 0 0;
+      font-family: var(--sans);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: color 0.15s;
+    }
+    .card-toggle:hover { color: var(--black); }
+
+    .view-all-wrap { text-align: center; padding: 18px 0 4px; }
+    .btn-view-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 24px;
+      border: 1.5px solid var(--black);
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--black);
+      background: var(--white);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-view-all:hover { background: var(--black); color: var(--white); }
+
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: var(--black);
+      color: var(--white);
+      font-size: 13px;
+      font-family: var(--sans);
+      padding: 8px 16px;
+      border-radius: 6px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s, transform 0.18s;
+      z-index: 3000;
+      white-space: nowrap;
+    }
+    .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* STATES */
     .state {
@@ -853,7 +924,7 @@
       <div class="main-inner">
 
         <h1 class="hero-title">Find Autism Therapy Centers in the Philippines</h1>
-        <p class="hero-sub">Free community directory of therapy centers and SPED schools. Search by city, service, or name.</p>
+        <p class="hero-sub">This site is created by ausome parent to help ausome community. Want to contribute ? Help us by adding services that you know about!</p>
 
         <!-- Search row -->
         <div class="search-row">
@@ -911,11 +982,15 @@
     <p class="footer-disclaimer">The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource — we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions. This directory does not constitute a referral, endorsement, or professional recommendation.</p>
   </footer>
 
+  <!-- COPY TOAST -->
+  <div id="copyToast" class="copy-toast" aria-live="polite">Copied!</div>
+
   <!-- SUBMIT MODAL -->
   <div id="submitModal" class="modal-overlay" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-header">
-        <h2 id="modalTitle" class="modal-title">Submit a Center</h2>
+        <h2 id="modalTitle" class="modal-title">Submit a Service or Center</h2><br>
+        <span class="footer-copy">Help us by adding services that you know about!</span>
         <button type="button" class="modal-close" id="modalClose" aria-label="Close">✕</button>
       </div>
       <div class="modal-body">
@@ -928,17 +1003,44 @@
             <p class="field-hint" id="hint-name">Please enter the center or school name.</p>
           </div>
 
-          <!-- type — maps to centers.type NOT NULL (required) -->
-          <div class="form-group">
-            <label>Type <span style="color:#e53e3e">*</span></label>
-            <div class="type-radios">
-              <label class="check-label">
-                <input type="radio" name="f-type" value="center" checked /> Therapy Center
-              </label>
-              <label class="check-label">
-                <input type="radio" name="f-type" value="school" /> Special School
-              </label>
+          <!-- type + services — 2-column -->
+          <div class="form-row" style="align-items:start">
+            <div class="form-group">
+              <label>Type <span style="color:#e53e3e">*</span></label>
+              <div class="type-radios" style="flex-direction:column;gap:6px">
+                <label class="check-label">
+                  <input type="radio" name="f-type" value="center" checked /> Therapy Center
+                </label>
+                <label class="check-label">
+                  <input type="radio" name="f-type" value="school" /> Special School
+                </label>
+              </div>
             </div>
+            <div class="form-group">
+              <label>Services Offered <span style="color:#e53e3e">*</span></label>
+              <div class="form-checks">
+                <label class="check-label">
+                  <input type="checkbox" name="services" value="OT" /> OT
+                </label>
+                <label class="check-label">
+                  <input type="checkbox" name="services" value="ST" /> ST
+                </label>
+                <label class="check-label">
+                  <input type="checkbox" name="services" value="SPED" /> SPED
+                </label>
+                <label class="check-label">
+                  <input type="checkbox" name="services" value="ABA" /> ABA
+                </label>
+              </div>
+              <p class="field-hint" id="hint-services">Select at least one.</p>
+            </div>
+          </div>
+
+          <!-- address — maps to centers.address (required) -->
+          <div class="form-group">
+            <label for="f-address">Address <span style="color:#e53e3e">*</span></label>
+            <input type="text" id="f-address" autocomplete="off" placeholder="Street, barangay, city" />
+            <p class="field-hint" id="hint-address">Please enter the address.</p>
           </div>
 
           <!-- city + hidden region — maps to centers.city and centers.region -->
@@ -949,34 +1051,7 @@
               <div class="ac-dropdown" id="f-city-ac" role="listbox"></div>
             </div>
             <input type="hidden" id="f-region" />
-            <p class="field-hint" id="hint-city">Please enter the city.</p>
-          </div>
-
-          <!-- address — maps to centers.address (required) -->
-          <div class="form-group">
-            <label for="f-address">Address <span style="color:#e53e3e">*</span></label>
-            <input type="text" id="f-address" autocomplete="off" placeholder="Street, barangay, city" />
-            <p class="field-hint" id="hint-address">Please enter the address.</p>
-          </div>
-
-          <!-- services — maps to centers.services text[] (required, at least 1) -->
-          <div class="form-group">
-            <label>Services Offered <span style="color:#e53e3e">*</span></label>
-            <div class="form-checks">
-              <label class="check-label">
-                <input type="checkbox" name="services" value="OT" /> Occupational Therapy (OT)
-              </label>
-              <label class="check-label">
-                <input type="checkbox" name="services" value="ST" /> Speech Therapy (ST)
-              </label>
-              <label class="check-label">
-                <input type="checkbox" name="services" value="SPED" /> Special Education (SPED)
-              </label>
-              <label class="check-label">
-                <input type="checkbox" name="services" value="ABA" /> Applied Behavior Analysis (ABA)
-              </label>
-            </div>
-            <p class="field-hint" id="hint-services">Please select at least one service.</p>
+            <p class="field-hint" id="hint-city">Please enter the city or province.</p>
           </div>
 
           <!-- contact + email — optional, 2-column -->
@@ -1048,14 +1123,16 @@
       : null;
 
     // STATE
-    let cities           = [];
-    let activeFilter     = 'All';
-    let selectedCity     = '';
-    let acIdx            = -1;
-    let acOpen           = false;
-    let rawResults       = [];
-    let usedAddrFallback = false;
-    let resultLabel      = '';
+    let cities               = [];
+    let activeFilter         = 'All';
+    let selectedCity         = '';
+    let acIdx                = -1;
+    let acOpen               = false;
+    let rawResults           = [];
+    let usedAddrFallback     = false;
+    let resultLabel          = '';
+    let totalApprovedCount   = 0;
+    let isDefaultView        = false;
 
     // DOM
     const cityInput = document.getElementById('cityInput');
@@ -1182,17 +1259,20 @@
       acIdx = -1;
     }
 
-    // DEFAULT LOAD — top 10 most recently added centers
+    // DEFAULT LOAD — top 10 most recently added + total count
     (async () => {
       if (!IS_CONFIGURED || !supabase) return;
       try {
+        const [listRes, countRes] = await Promise.all([
+          supabase.from('centers').select('*').eq('status', 'approved')
+            .order('created_at', { ascending: false }).limit(10),
+          supabase.from('centers').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
+        ]);
+        if (listRes.error) throw listRes.error;
+        rawResults = listRes.data || [];
+        totalApprovedCount = countRes.count || 0;
         resultLabel = 'Recently Added Centers';
-        const { data, error } = await supabase
-          .from('centers').select('*').eq('status', 'approved')
-          .order('created_at', { ascending: false })
-          .limit(10);
-        if (error) throw error;
-        rawResults = data || [];
+        isDefaultView = true;
         applyFilters();
       } catch (e) {
         console.warn('Default load failed:', e);
@@ -1234,6 +1314,7 @@
       rawResults = [];
       usedAddrFallback = false;
       resultLabel = '';
+      isDefaultView = false;
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
@@ -1300,7 +1381,7 @@
       renderResults(filtered);
     }
 
-    // RENDER — show all available fields
+    // RENDER — collapsed cards with copy button and view-all
     function renderResults(centers) {
       results.innerHTML = '';
 
@@ -1339,29 +1420,113 @@
         const notes    = c.notes || '';
         const services = c.services || [];
 
-        const badges = services
-          .map(s => `<span class="svc">${esc(s)}</span>`)
-          .join('');
+        const badges = services.map(s => `<span class="svc">${esc(s)}</span>`).join('');
 
-        let details = '';
-        if (address)  details += `<p class="card-detail"><span>📌</span><span>${esc(address)}</span></p>`;
-        if (contact)  details += `<p class="card-detail"><span>📞</span><span>${esc(contact)}</span></p>`;
-        if (email)    details += `<p class="card-detail"><span>✉️</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></p>`;
-        if (website)  details += `<p class="card-detail"><span>🌐</span><span><a href="${esc(website)}" target="_blank" rel="noopener">${esc(website.replace(/^https?:\/\//, ''))}</a></span></p>`;
-        if (facebook) details += `<p class="card-detail"><span>📘</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener">Facebook Page</a></span></p>`;
+        // Build details HTML
+        let detailsHTML = '';
+        if (address)  detailsHTML += `<p class="card-detail"><span>📌</span><span>${esc(address)}</span></p>`;
+        if (contact)  detailsHTML += `<p class="card-detail"><span>📞</span><span>${esc(contact)}</span></p>`;
+        if (email)    detailsHTML += `<p class="card-detail"><span>✉️</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></p>`;
+        if (website)  detailsHTML += `<p class="card-detail"><span>🌐</span><span><a href="${esc(website)}" target="_blank" rel="noopener">${esc(website.replace(/^https?:\/\//, ''))}</a></span></p>`;
+        if (facebook) detailsHTML += `<p class="card-detail"><span>📘</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener">Facebook Page</a></span></p>`;
+        if (notes)    detailsHTML += `<p class="card-notes">${esc(notes)}</p>`;
 
+        // Always-visible summary
         card.innerHTML = `
-          <p class="card-name">${esc(name)}</p>
+          <p class="card-name" style="padding-right:32px">${esc(name)}</p>
           <p class="card-city">📍 ${esc(city)}${region ? ', ' + esc(region) : ''}</p>
-          <div class="card-svcs">${badges}</div>
-          ${details ? `<div class="card-details">${details}</div>` : ''}
-          ${notes ? `<p class="card-notes">${esc(notes)}</p>` : ''}`;
+          <div class="card-svcs">${badges}</div>`;
+
+        // Collapsible details
+        if (detailsHTML) {
+          const detailsEl = document.createElement('div');
+          detailsEl.className = 'card-details';
+          detailsEl.hidden = true;
+          detailsEl.innerHTML = detailsHTML;
+
+          const toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'card-toggle';
+          toggle.innerHTML = 'Show details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,3 5,7 8,3"/></svg>';
+          toggle.addEventListener('click', () => {
+            const opening = detailsEl.hidden;
+            detailsEl.hidden = !opening;
+            toggle.innerHTML = opening
+              ? 'Hide details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,7 5,3 8,7"/></svg>'
+              : 'Show details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,3 5,7 8,3"/></svg>';
+          });
+
+          card.appendChild(toggle);
+          card.appendChild(detailsEl);
+        }
+
+        // Copy button
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'card-copy-btn';
+        copyBtn.setAttribute('aria-label', 'Copy center info');
+        copyBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>`;
+        copyBtn.addEventListener('click', () => {
+          const parts = [`${name}${city ? ' – ' + city : ''}${region ? ', ' + region : ''}`];
+          if (services.length) parts.push(services.join(', '));
+          if (contact) parts.push(contact);
+          if (address) parts.push(address);
+          if (website) parts.push(website);
+          const text = parts.join(' | ');
+          navigator.clipboard.writeText(text).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+            document.body.removeChild(ta);
+          });
+          showCopyToast();
+        });
+        card.appendChild(copyBtn);
 
         grid.appendChild(card);
         setTimeout(() => card.classList.add('visible'), i * 40);
       });
 
       results.appendChild(grid);
+
+      // View All button — show only on default view when there are more centers
+      if (isDefaultView && totalApprovedCount > rawResults.length) {
+        const wrap = document.createElement('div');
+        wrap.className = 'view-all-wrap';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-view-all';
+        btn.textContent = `View All Centers (${totalApprovedCount}) →`;
+        btn.addEventListener('click', loadAllCenters);
+        wrap.appendChild(btn);
+        results.appendChild(wrap);
+      }
+    }
+
+    async function loadAllCenters() {
+      if (!IS_CONFIGURED || !supabase) return;
+      results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading all centers…</p></div>`;
+      try {
+        const { data, error } = await supabase
+          .from('centers').select('*').eq('status', 'approved')
+          .order('name');
+        if (error) throw error;
+        rawResults = data || [];
+        resultLabel = 'All Centers';
+        isDefaultView = false;
+        applyFilters();
+        scrollToResults();
+      } catch (e) {
+        results.innerHTML = `<div class="state"><h2>Could not load centers.</h2><p>${esc(e.message)}</p></div>`;
+      }
+    }
+
+    let toastTimer;
+    function showCopyToast() {
+      const toast = document.getElementById('copyToast');
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
     function esc(str) {
