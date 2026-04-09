@@ -76,8 +76,6 @@
       z-index: 1000;
     }
 
-    .nav-submit-btn { margin-left: auto; }
-
     .nav-logo {
       display: flex;
       align-items: center;
@@ -98,6 +96,7 @@
       display: flex;
       gap: 28px;
       list-style: none;
+      margin-left: auto;
     }
 
     .nav-links a {
@@ -412,11 +411,12 @@
     }
 
     .card-details {
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 5px;
       margin-top: 8px;
     }
+    .card-details.open { display: flex; }
 
     .card-detail {
       font-size: 12.5px;
@@ -990,7 +990,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-header">
         <h2 id="modalTitle" class="modal-title">Submit a Service or Center</h2><br>
-        <span class="footer-copy">Help us by adding services that you know about!</span>
+        
         <button type="button" class="modal-close" id="modalClose" aria-label="Close">✕</button>
       </div>
       <div class="modal-body">
@@ -1007,12 +1007,12 @@
           <div class="form-row" style="align-items:start">
             <div class="form-group">
               <label>Type <span style="color:#e53e3e">*</span></label>
-              <div class="type-radios" style="flex-direction:column;gap:6px">
+              <div class="form-checks">
                 <label class="check-label">
-                  <input type="radio" name="f-type" value="center" checked /> Therapy Center
+                  <input type="checkbox" value="center" checked /> Therapy Center
                 </label>
                 <label class="check-label">
-                  <input type="radio" name="f-type" value="school" /> Special School
+                  <input type="checkbox" value="school" /> Special School
                 </label>
               </div>
             </div>
@@ -1265,7 +1265,7 @@
       try {
         const [listRes, countRes] = await Promise.all([
           supabase.from('centers').select('*').eq('status', 'approved')
-            .order('created_at', { ascending: false }).limit(10),
+            .order('created_at', { ascending: false }).limit(4),
           supabase.from('centers').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
         ]);
         if (listRes.error) throw listRes.error;
@@ -1441,7 +1441,6 @@
         if (detailsHTML) {
           const detailsEl = document.createElement('div');
           detailsEl.className = 'card-details';
-          detailsEl.hidden = true;
           detailsEl.innerHTML = detailsHTML;
 
           const toggle = document.createElement('button');
@@ -1449,8 +1448,8 @@
           toggle.className = 'card-toggle';
           toggle.innerHTML = 'Show details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,3 5,7 8,3"/></svg>';
           toggle.addEventListener('click', () => {
-            const opening = detailsEl.hidden;
-            detailsEl.hidden = !opening;
+            const opening = !detailsEl.classList.contains('open');
+            detailsEl.classList.toggle('open', opening);
             toggle.innerHTML = opening
               ? 'Hide details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,7 5,3 8,7"/></svg>'
               : 'Show details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,3 5,7 8,3"/></svg>';
