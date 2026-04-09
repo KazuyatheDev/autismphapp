@@ -70,10 +70,13 @@
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: 28px;
       padding: 0 28px;
       z-index: 1000;
     }
+
+    .nav-submit-btn { margin-left: auto; }
 
     .nav-logo {
       display: flex;
@@ -776,27 +779,6 @@
         font-weight: 500;
       }
 
-      /* Desktop nav submit button hidden on mobile — shown in burger menu instead */
-      .nav-submit-btn { display: none; }
-
-      .nav-submit-li { padding: 12px 16px; border-bottom: none !important; }
-      .nav-submit-li .nav-cta-menu {
-        display: block;
-        width: 100%;
-        padding: 13px 20px;
-        background: var(--black);
-        color: var(--white);
-        font-family: var(--sans);
-        font-size: 14px;
-        font-weight: 600;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        text-align: center;
-        transition: opacity 0.15s;
-      }
-      .nav-submit-li .nav-cta-menu:hover { opacity: 0.85; }
-
       @keyframes menuSlide {
         from { opacity: 0; transform: translateY(-6px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -850,9 +832,6 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html">Contact</a></li>
-      <li class="nav-submit-li">
-        <button class="nav-cta-menu" id="navSubmitMobile">+ Submit a Center</button>
-      </li>
     </ul>
     <button class="nav-submit-btn" id="navSubmitDesktop">+ Submit a Center</button>
     <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
@@ -942,21 +921,6 @@
             <p class="field-hint" id="hint-name">Please enter the center or school name.</p>
           </div>
 
-          <!-- type — maps to centers.type (center | school) -->
-          <div class="form-group">
-            <label>Type <span style="color:#e53e3e">*</span></label>
-            <div style="display:flex;gap:20px;padding:4px 0;">
-              <label style="display:flex;align-items:center;gap:7px;font-size:13.5px;cursor:pointer;">
-                <input type="radio" name="f-type" value="center" checked style="accent-color:var(--black);width:15px;height:15px;" />
-                Therapy Center
-              </label>
-              <label style="display:flex;align-items:center;gap:7px;font-size:13.5px;cursor:pointer;">
-                <input type="radio" name="f-type" value="school" style="accent-color:var(--black);width:15px;height:15px;" />
-                SPED School
-              </label>
-            </div>
-          </div>
-
           <!-- city + region — maps to centers.city and centers.region -->
           <div class="form-row">
             <div class="form-group">
@@ -966,10 +930,6 @@
                 <div class="ac-dropdown" id="f-city-ac" role="listbox"></div>
               </div>
               <p class="field-hint" id="hint-city">Please enter the city.</p>
-            </div>
-            <div class="form-group">
-              <label for="f-region">Region</label>
-              <input type="text" id="f-region" placeholder="Auto-filled from city" style="background:var(--surface);color:var(--gray);" />
             </div>
           </div>
 
@@ -1010,15 +970,33 @@
             <input type="tel" id="f-contact" placeholder="09XX XXX XXXX or 02-XXXX-XXXX" />
           </div>
 
+          <!-- email — maps to centers.email (optional) -->
+          <div class="form-group">
+            <label for="f-email">Email <span style="color:#999;font-weight:400">(optional)</span></label>
+            <input type="email" id="f-email" placeholder="contact@center.com" />
+          </div>
+
+          <!-- website — maps to centers.website (optional) -->
+          <div class="form-group">
+            <label for="f-website">Website <span style="color:#999;font-weight:400">(optional)</span></label>
+            <input type="url" id="f-website" placeholder="https://..." />
+          </div>
+
+          <!-- facebook_url — maps to centers.facebook_url (optional) -->
+          <div class="form-group">
+            <label for="f-facebook">Facebook Page URL <span style="color:#999;font-weight:400">(optional)</span></label>
+            <input type="url" id="f-facebook" placeholder="https://facebook.com/..." />
+          </div>
+
           <div id="submitFormArea" class="form-actions">
             <button type="submit" class="btn-primary" id="submitFormBtn">Submit for Review</button>
-            <p class="form-note">Submissions are reviewed by our team before being added to the directory.</p>
+            <p class="form-note">Thank you for helping us improve the directory! This will help us other users find the resources they need.</p>
           </div>
 
           <div id="submitSuccess" class="submit-success" hidden>
             <div class="success-icon">✓</div>
             <h3>Thank you!</h3>
-            <p>Your submission has been received and will be reviewed before being published.</p>
+            <p>This help our ausome community.</p>
           </div>
 
         </form>
@@ -1424,9 +1402,6 @@
     // All open-modal triggers
     openModalBtn.addEventListener('click', openModal);
     document.getElementById('navSubmitDesktop').addEventListener('click', openModal);
-    document.getElementById('navSubmitMobile').addEventListener('click', () => {
-      closeBurger(); openModal();
-    });
 
     closeModalBtn.addEventListener('click', () => { resetModal(); closeModal(); });
     submitModal.addEventListener('click', e => { if (e.target === submitModal) { resetModal(); closeModal(); } });
@@ -1521,7 +1496,10 @@
       const address = addressEl.value.trim();
       const type    = submitForm.querySelector('input[name="f-type"]:checked').value;
       const services = [...submitForm.querySelectorAll('input[name="services"]:checked')].map(cb => cb.value);
-      const contact = document.getElementById('f-contact').value.trim() || null;
+      const contact  = document.getElementById('f-contact').value.trim() || null;
+      const email    = document.getElementById('f-email').value.trim() || null;
+      const website  = document.getElementById('f-website').value.trim() || null;
+      const facebookUrl = document.getElementById('f-facebook').value.trim() || null;
 
       // Validate required fields
       let valid = true;
@@ -1539,12 +1517,15 @@
       const payload = {
         name,
         city,
-        region:   region || 'Unknown',
+        region:       region || 'Unknown',
         type,
         services,
         address,
         contact,
-        status:   'pending',
+        email,
+        website,
+        facebook_url: facebookUrl,
+        status:       'pending',
       };
 
       try {
@@ -1554,7 +1535,7 @@
         }
         submitFormArea.hidden = true;
         submitSuccess.hidden = false;
-        submitForm.querySelectorAll('.form-group').forEach(el => el.style.display = 'none');
+        submitForm.querySelectorAll('.form-group, .form-row').forEach(el => el.style.display = 'none');
       } catch (err) {
         submitFormBtn.disabled = false;
         submitFormBtn.textContent = 'Submit for Review';
