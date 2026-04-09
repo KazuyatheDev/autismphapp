@@ -411,12 +411,11 @@
     }
 
     .card-details {
-      display: none;
+      display: flex;
       flex-direction: column;
       gap: 5px;
       margin-top: 8px;
     }
-    .card-details.open { display: flex; }
 
     .card-detail {
       font-size: 12.5px;
@@ -462,39 +461,6 @@
     }
     .card-copy-btn:hover { background: var(--surface); color: var(--black); border-color: #bbb; }
     .card-copy-btn svg { width: 13px; height: 13px; display: block; pointer-events: none; }
-
-    .card-toggle {
-      background: none;
-      border: none;
-      font-size: 11.5px;
-      color: var(--gray);
-      cursor: pointer;
-      padding: 5px 0 0;
-      font-family: var(--sans);
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      transition: color 0.15s;
-    }
-    .card-toggle:hover { color: var(--black); }
-
-    .view-all-wrap { text-align: center; padding: 18px 0 4px; }
-    .btn-view-all {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 24px;
-      border: 1.5px solid var(--black);
-      border-radius: 6px;
-      font-family: var(--sans);
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--black);
-      background: var(--white);
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-    .btn-view-all:hover { background: var(--black); color: var(--white); }
 
     .copy-toast {
       position: fixed;
@@ -1006,7 +972,7 @@
           <!-- type + services — 2-column -->
           <div class="form-row" style="align-items:start">
             <div class="form-group">
-              <label>Type <span style="color:#e53e3e">*</span></label>
+              <label>Service Type <span style="color:#e53e3e">*</span></label>
               <div class="form-checks">
                 <label class="check-label">
                   <input type="checkbox" value="center" checked /> Therapy Center
@@ -1045,7 +1011,7 @@
 
           <!-- city + hidden region — maps to centers.city and centers.region -->
           <div class="form-group">
-            <label for="f-city">City <span style="color:#e53e3e">*</span></label>
+            <label for="f-city">Located City <span style="color:#e53e3e">*</span></label>
             <div class="city-ac-wrap">
               <input type="text" id="f-city" autocomplete="off" spellcheck="false" placeholder="e.g. Quezon City" />
               <div class="ac-dropdown" id="f-city-ac" role="listbox"></div>
@@ -1131,8 +1097,6 @@
     let rawResults           = [];
     let usedAddrFallback     = false;
     let resultLabel          = '';
-    let totalApprovedCount   = 0;
-    let isDefaultView        = false;
 
     // DOM
     const cityInput = document.getElementById('cityInput');
@@ -1259,20 +1223,16 @@
       acIdx = -1;
     }
 
-    // DEFAULT LOAD — top 10 most recently added + total count
+    // DEFAULT LOAD — top 10 most recently added centers
     (async () => {
       if (!IS_CONFIGURED || !supabase) return;
       try {
-        const [listRes, countRes] = await Promise.all([
-          supabase.from('centers').select('*').eq('status', 'approved')
-            .order('created_at', { ascending: false }).limit(4),
-          supabase.from('centers').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
-        ]);
-        if (listRes.error) throw listRes.error;
-        rawResults = listRes.data || [];
-        totalApprovedCount = countRes.count || 0;
+        const { data, error } = await supabase
+          .from('centers').select('*').eq('status', 'approved')
+          .order('created_at', { ascending: false }).limit(10);
+        if (error) throw error;
+        rawResults = data || [];
         resultLabel = 'Recently Added Centers';
-        isDefaultView = true;
         applyFilters();
       } catch (e) {
         console.warn('Default load failed:', e);
@@ -1314,7 +1274,6 @@
       rawResults = [];
       usedAddrFallback = false;
       resultLabel = '';
-      isDefaultView = false;
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
@@ -1431,33 +1390,11 @@
         if (facebook) detailsHTML += `<p class="card-detail"><span>📘</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener">Facebook Page</a></span></p>`;
         if (notes)    detailsHTML += `<p class="card-notes">${esc(notes)}</p>`;
 
-        // Always-visible summary
         card.innerHTML = `
           <p class="card-name" style="padding-right:32px">${esc(name)}</p>
           <p class="card-city">📍 ${esc(city)}${region ? ', ' + esc(region) : ''}</p>
-          <div class="card-svcs">${badges}</div>`;
-
-        // Collapsible details
-        if (detailsHTML) {
-          const detailsEl = document.createElement('div');
-          detailsEl.className = 'card-details';
-          detailsEl.innerHTML = detailsHTML;
-
-          const toggle = document.createElement('button');
-          toggle.type = 'button';
-          toggle.className = 'card-toggle';
-          toggle.innerHTML = 'Show details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,3 5,7 8,3"/></svg>';
-          toggle.addEventListener('click', () => {
-            const opening = !detailsEl.classList.contains('open');
-            detailsEl.classList.toggle('open', opening);
-            toggle.innerHTML = opening
-              ? 'Hide details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,7 5,3 8,7"/></svg>'
-              : 'Show details <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="2,3 5,7 8,3"/></svg>';
-          });
-
-          card.appendChild(toggle);
-          card.appendChild(detailsEl);
-        }
+          <div class="card-svcs">${badges}</div>
+          ${detailsHTML ? `<div class="card-details">${detailsHTML}</div>` : ''}`;
 
         // Copy button
         const copyBtn = document.createElement('button');
@@ -1487,37 +1424,6 @@
       });
 
       results.appendChild(grid);
-
-      // View All button — show only on default view when there are more centers
-      if (isDefaultView && totalApprovedCount > rawResults.length) {
-        const wrap = document.createElement('div');
-        wrap.className = 'view-all-wrap';
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'btn-view-all';
-        btn.textContent = `View All Centers (${totalApprovedCount}) →`;
-        btn.addEventListener('click', loadAllCenters);
-        wrap.appendChild(btn);
-        results.appendChild(wrap);
-      }
-    }
-
-    async function loadAllCenters() {
-      if (!IS_CONFIGURED || !supabase) return;
-      results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading all centers…</p></div>`;
-      try {
-        const { data, error } = await supabase
-          .from('centers').select('*').eq('status', 'approved')
-          .order('name');
-        if (error) throw error;
-        rawResults = data || [];
-        resultLabel = 'All Centers';
-        isDefaultView = false;
-        applyFilters();
-        scrollToResults();
-      } catch (e) {
-        results.innerHTML = `<div class="state"><h2>Could not load centers.</h2><p>${esc(e.message)}</p></div>`;
-      }
     }
 
     let toastTimer;
