@@ -999,20 +999,6 @@
           <!-- type + services — 2-column -->
           <div class="form-row" style="align-items:start">
             <div class="form-group">
-              <label>Service Type <span style="color:#e53e3e">*</span></label>
-              <div class="form-checks">
-                <label class="check-label">
-                  <input type="checkbox" value="center" /> Therapy Center
-                </label>
-                <label class="check-label">
-                  <input type="checkbox" value="school" /> Special School
-                </label>
-                 <label class="check-label">
-                  <input type="checkbox" value="devped" /> Depvelopmental Pediatrician
-                </label>
-              </div>
-            </div>
-            <div class="form-group">
               <label>Services Offered <span style="color:#e53e3e">*</span></label>
               <div class="form-checks">
                 <label class="check-label">
@@ -1103,15 +1089,8 @@
       <div class="modal-body">
         <form id="updateForm" novalidate>
           <input type="hidden" id="uf-center-id" />
-
           <div class="form-group">
-            <label for="uf-change-note">What changed? <span style="color:#e53e3e">*</span></label>
-            <textarea id="uf-change-note" placeholder="Briefly describe what's outdated or incorrect..." style="min-height:64px"></textarea>
-            <p class="field-hint" id="hint-change-note">Please describe what changed.</p>
-          </div>
-
-          <div class="form-group">
-            <label for="uf-name">Center Name</label>
+            <label for="uf-name">Center / Service Name</label>
             <input type="text" id="uf-name" autocomplete="off" />
           </div>
 
@@ -1162,11 +1141,6 @@
               <label class="check-label"><input type="checkbox" name="uf-services" value="ABA" /> ABA</label>
               <label class="check-label"><input type="checkbox" name="uf-services" value="DEVPED" /> DevPed</label>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label for="uf-notes">Notes <span class="opt">(optional)</span></label>
-            <textarea id="uf-notes" placeholder="Any other notes..."></textarea>
           </div>
 
           <div id="updateFormArea" class="form-actions">
