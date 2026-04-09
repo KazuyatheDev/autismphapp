@@ -889,9 +889,8 @@
     <section id="main">
       <div class="main-inner">
 
-        <h1 class="hero-title">Find Autism Therapy Centers in the Philippines</h1>
-        <p class="hero-sub">This site is created by ausome parent to help ausome community. Want to contribute ? Help us by adding services that you know about!</p>
-
+        <h1 class="hero-title">Find Autism Therapy Centers or Services in the Philippines</h1>
+        <p class="hero-sub">Built by an <span title="awesome — a term of pride in the autism parent community">ausome</span> parent for the ausome community. Know a therapy center or SPED school? Help us grow this directory by adding it!</p>
         <!-- Search row -->
         <div class="search-row">
           <div class="input-wrap">
@@ -944,8 +943,8 @@
       </svg>
       Autismph
     </a>
-    <span class="footer-copy">© 2025 Autismph · Free to use · Community maintained</span>
-    <p class="footer-disclaimer">The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource — we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions. This directory does not constitute a referral, endorsement, or professional recommendation.</p>
+    <span class="footer-copy">© 2025 Autismph · Free to use · Built by Ausome Parent · Community maintained</span>
+    <p class="footer-disclaimer"><b>Disclaimer:</b> The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource, we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions. This directory does not constitute a referral, endorsement, or professional recommendation.</p>
   </footer>
 
   <!-- COPY TOAST -->
@@ -1229,7 +1228,7 @@
       try {
         const { data, error } = await supabase
           .from('centers').select('*').eq('status', 'approved')
-          .order('created_at', { ascending: false }).limit(10);
+          .order('created_at', { ascending: false }).limit(3);
         if (error) throw error;
         rawResults = data || [];
         resultLabel = 'Recently Added Centers';
