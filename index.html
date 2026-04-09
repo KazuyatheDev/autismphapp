@@ -574,7 +574,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 24px 16px;
+      padding: 14px 18px 12px;
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
@@ -582,12 +582,12 @@
       z-index: 1;
     }
 
-    .modal-title { font-size: 18px; font-weight: 700; }
+    .modal-title { font-size: 16px; font-weight: 700; }
 
     .modal-close {
       background: none;
       border: none;
-      font-size: 20px;
+      font-size: 18px;
       cursor: pointer;
       color: var(--gray);
       padding: 4px 6px;
@@ -598,27 +598,29 @@
 
     .modal-close:hover { color: var(--black); background: var(--surface); }
 
-    .modal-body { padding: 20px 24px 24px; }
+    .modal-body { padding: 14px 18px 18px; }
 
-    .form-group { margin-bottom: 16px; }
+    .form-group { margin-bottom: 12px; }
 
     .form-group > label {
       display: block;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--black);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
+
+    .form-group > label .opt { color: #999; font-weight: 400; }
 
     /* Only non-checkbox inputs get appearance:none so checkboxes render natively */
     .form-group input:not([type="checkbox"]),
     .form-group textarea {
       width: 100%;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border: 1.5px solid #d0d0d0;
       border-radius: 6px;
       font-family: var(--sans);
-      font-size: 14px;
+      font-size: 13px;
       color: var(--black);
       background: var(--white);
       outline: none;
@@ -645,7 +647,7 @@
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
     }
 
     .form-row .form-group { margin-bottom: 0; }
@@ -653,28 +655,34 @@
     .form-checks {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
+    }
+
+    .type-radios {
+      display: flex;
+      gap: 16px;
     }
 
     .check-label {
       display: flex;
       align-items: center;
-      gap: 9px;
-      font-size: 13.5px;
+      gap: 7px;
+      font-size: 12.5px;
       font-weight: 400;
       color: var(--black);
       cursor: pointer;
     }
 
-    .check-label input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
+    .check-label input[type="checkbox"],
+    .check-label input[type="radio"] {
+      width: 15px;
+      height: 15px;
       flex-shrink: 0;
       accent-color: var(--black);
       cursor: pointer;
     }
 
-    .form-actions { margin-top: 22px; }
+    .form-actions { margin-top: 16px; }
 
     .form-note {
       font-size: 11.5px;
@@ -796,10 +804,9 @@
       #cityInput { padding: 12px 36px 12px 40px; }
       #searchBtn { padding: 12px 16px; font-size: 13px; }
 
-      .form-row { grid-template-columns: 1fr; }
       .modal-overlay { padding: 0; align-items: flex-end; }
       .modal { border-radius: 16px 16px 0 0; margin: 0; }
-      .modal-body { max-height: 75svh; overflow-y: auto; }
+      .modal-body { max-height: 80svh; overflow-y: auto; }
     }
 
     @media (max-width: 380px) {
@@ -914,23 +921,35 @@
       <div class="modal-body">
         <form id="submitForm" novalidate>
 
-          <!-- name — maps to centers.name -->
+          <!-- name — maps to centers.name (required) -->
           <div class="form-group">
             <label for="f-name">Therapy / School Name <span style="color:#e53e3e">*</span></label>
             <input type="text" id="f-name" autocomplete="off" placeholder="e.g. Sunshine Therapy Center" />
             <p class="field-hint" id="hint-name">Please enter the center or school name.</p>
           </div>
 
-          <!-- city + region — maps to centers.city and centers.region -->
-          <div class="form-row">
-            <div class="form-group">
-              <label for="f-city">City <span style="color:#e53e3e">*</span></label>
-              <div class="city-ac-wrap">
-                <input type="text" id="f-city" autocomplete="off" spellcheck="false" placeholder="e.g. Quezon City" />
-                <div class="ac-dropdown" id="f-city-ac" role="listbox"></div>
-              </div>
-              <p class="field-hint" id="hint-city">Please enter the city.</p>
+          <!-- type — maps to centers.type NOT NULL (required) -->
+          <div class="form-group">
+            <label>Type <span style="color:#e53e3e">*</span></label>
+            <div class="type-radios">
+              <label class="check-label">
+                <input type="radio" name="f-type" value="center" checked /> Therapy Center
+              </label>
+              <label class="check-label">
+                <input type="radio" name="f-type" value="school" /> Special School
+              </label>
             </div>
+          </div>
+
+          <!-- city + hidden region — maps to centers.city and centers.region -->
+          <div class="form-group">
+            <label for="f-city">City <span style="color:#e53e3e">*</span></label>
+            <div class="city-ac-wrap">
+              <input type="text" id="f-city" autocomplete="off" spellcheck="false" placeholder="e.g. Quezon City" />
+              <div class="ac-dropdown" id="f-city-ac" role="listbox"></div>
+            </div>
+            <input type="hidden" id="f-region" />
+            <p class="field-hint" id="hint-city">Please enter the city.</p>
           </div>
 
           <!-- address — maps to centers.address (required) -->
@@ -945,47 +964,43 @@
             <label>Services Offered <span style="color:#e53e3e">*</span></label>
             <div class="form-checks">
               <label class="check-label">
-                <input type="checkbox" name="services" value="OT" />
-                Occupational Therapy (OT)
+                <input type="checkbox" name="services" value="OT" /> Occupational Therapy (OT)
               </label>
               <label class="check-label">
-                <input type="checkbox" name="services" value="ST" />
-                Speech Therapy (ST)
+                <input type="checkbox" name="services" value="ST" /> Speech Therapy (ST)
               </label>
               <label class="check-label">
-                <input type="checkbox" name="services" value="SPED" />
-                Special Education (SPED)
+                <input type="checkbox" name="services" value="SPED" /> Special Education (SPED)
               </label>
               <label class="check-label">
-                <input type="checkbox" name="services" value="ABA" />
-                Applied Behavior Analysis (ABA)
+                <input type="checkbox" name="services" value="ABA" /> Applied Behavior Analysis (ABA)
               </label>
             </div>
             <p class="field-hint" id="hint-services">Please select at least one service.</p>
           </div>
 
-          <!-- contact — maps to centers.contact (optional) -->
-          <div class="form-group">
-            <label for="f-contact">Contact Number <span style="color:#999;font-weight:400">(optional)</span></label>
-            <input type="tel" id="f-contact" placeholder="09XX XXX XXXX or 02-XXXX-XXXX" />
+          <!-- contact + email — optional, 2-column -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-contact">Contact <span class="opt">(optional)</span></label>
+              <input type="tel" id="f-contact" placeholder="09XX XXX XXXX" />
+            </div>
+            <div class="form-group">
+              <label for="f-email">Email <span class="opt">(optional)</span></label>
+              <input type="email" id="f-email" placeholder="email@center.com" />
+            </div>
           </div>
 
-          <!-- email — maps to centers.email (optional) -->
-          <div class="form-group">
-            <label for="f-email">Email <span style="color:#999;font-weight:400">(optional)</span></label>
-            <input type="email" id="f-email" placeholder="contact@center.com" />
-          </div>
-
-          <!-- website — maps to centers.website (optional) -->
-          <div class="form-group">
-            <label for="f-website">Website <span style="color:#999;font-weight:400">(optional)</span></label>
-            <input type="url" id="f-website" placeholder="https://..." />
-          </div>
-
-          <!-- facebook_url — maps to centers.facebook_url (optional) -->
-          <div class="form-group">
-            <label for="f-facebook">Facebook Page URL <span style="color:#999;font-weight:400">(optional)</span></label>
-            <input type="url" id="f-facebook" placeholder="https://facebook.com/..." />
+          <!-- website + facebook — optional, 2-column -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-website">Website <span class="opt">(optional)</span></label>
+              <input type="url" id="f-website" placeholder="https://..." />
+            </div>
+            <div class="form-group">
+              <label for="f-facebook">Facebook <span class="opt">(optional)</span></label>
+              <input type="url" id="f-facebook" placeholder="facebook.com/..." />
+            </div>
           </div>
 
           <div id="submitFormArea" class="form-actions">
@@ -1272,12 +1287,12 @@
     function applyFilters() {
       const text = cityInput.value.trim().toLowerCase();
       const filtered = rawResults.filter(c => {
-        const name = c.center_name || c.name || '';
+        const name = c.name || '';
         const city = c.city || '';
         const matchText = !text ||
           name.toLowerCase().includes(text) ||
           city.toLowerCase().includes(text);
-        const services = c.services_offered || c.services || [];
+        const services = c.services || [];
         const matchSvc = activeFilter === 'All' ||
           (Array.isArray(services) && services.includes(activeFilter));
         return matchText && matchSvc;
@@ -1313,16 +1328,16 @@
         const card = document.createElement('div');
         card.className = 'card';
 
-        const name     = c.center_name || c.name || '';
+        const name     = c.name || '';
         const city     = c.city || '';
         const region   = c.region || '';
         const address  = c.address || '';
-        const contact  = c.contact_number || c.contact || '';
+        const contact  = c.contact || '';
         const email    = c.email || '';
         const website  = c.website || '';
         const facebook = c.facebook_url || '';
         const notes    = c.notes || '';
-        const services = c.services_offered || c.services || [];
+        const services = c.services || [];
 
         const badges = services
           .map(s => `<span class="svc">${esc(s)}</span>`)
@@ -1392,7 +1407,7 @@
       submitSuccess.hidden = true;
       submitFormBtn.disabled = false;
       submitFormBtn.textContent = 'Submit for Review';
-      submitForm.querySelectorAll('.form-group').forEach(el => el.style.display = '');
+      submitForm.querySelectorAll('.form-group, .form-row').forEach(el => el.style.display = '');
       submitForm.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
       submitForm.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
       fRegionInput.value = '';
@@ -1494,7 +1509,8 @@
       const city    = fCityInput.value.trim();
       const region  = fRegionInput.value.trim();
       const address = addressEl.value.trim();
-      const type    = submitForm.querySelector('input[name="f-type"]:checked').value;
+      const typeChecked = submitForm.querySelector('input[name="f-type"]:checked');
+      const type    = typeChecked ? typeChecked.value : 'center';
       const services = [...submitForm.querySelectorAll('input[name="services"]:checked')].map(cb => cb.value);
       const contact  = document.getElementById('f-contact').value.trim() || null;
       const email    = document.getElementById('f-email').value.trim() || null;
