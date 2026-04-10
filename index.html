@@ -1126,7 +1126,6 @@
     let acOpen               = false;
     let rawResults           = [];
     let usedAddrFallback     = false;
-    let resultLabel          = '';
 
     // DOM
     const cityInput = document.getElementById('cityInput');
@@ -1253,16 +1252,20 @@
       acIdx = -1;
     }
 
-    // DEFAULT LOAD — top 10 most recently added centers
+    // DEFAULT LOAD — 2 random approved centers
     (async () => {
       if (!IS_CONFIGURED || !supabase) return;
       try {
         const { data, error } = await supabase
           .from('centers').select('*').eq('status', 'approved')
-          .order('created_at', { ascending: false }).limit(3);
+          .limit(50);
         if (error) throw error;
-        rawResults = data || [];
-        resultLabel = 'Recently Added Centers';
+        const pool = data || [];
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        rawResults = pool.slice(0, 2);
         applyFilters();
       } catch (e) {
         console.warn('Default load failed:', e);
@@ -1303,7 +1306,6 @@
       results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading centers…</p></div>`;
       rawResults = [];
       usedAddrFallback = false;
-      resultLabel = '';
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
@@ -1332,12 +1334,6 @@
         }
 
         rawResults = data || [];
-        const label = selectedCity || cityInput.value.trim();
-        resultLabel = label
-          ? (usedAddrFallback
-              ? `Address results for "${esc(label)}"`
-              : `Results in ${esc(label)}`)
-          : 'All Centers';
         applyFilters();
 
       } catch (err) {
@@ -1351,6 +1347,17 @@
         searchBtn.textContent = 'Search';
         scrollToResults();
       }
+    }
+
+    // Build a dynamic heading label from current search + filter state
+    function buildLabel() {
+      const text = selectedCity || cityInput.value.trim();
+      const hasText   = !!text;
+      const hasFilter = activeFilter !== 'All';
+      if (hasFilter && hasText) return `${activeFilter} Centers in '${text}'`;
+      if (hasFilter)            return `${activeFilter} Centers`;
+      if (hasText)              return `Results for '${text}'`;
+      return 'Browse Centers';
     }
 
     // Apply active service filter + text search to rawResults and re-render
@@ -1367,11 +1374,11 @@
           (Array.isArray(services) && services.includes(activeFilter));
         return matchText && matchSvc;
       });
-      renderResults(filtered);
+      renderResults(filtered, buildLabel());
     }
 
-    // RENDER — collapsed cards with copy button and view-all
-    function renderResults(centers) {
+    // RENDER — collapsed cards with copy button
+    function renderResults(centers, label) {
       results.innerHTML = '';
 
       if (!centers.length) {
@@ -1387,7 +1394,7 @@
       head.className = 'results-head';
       const count = `${centers.length} center${centers.length !== 1 ? 's' : ''}`;
       head.innerHTML =
-        `<span class="results-title">${resultLabel || 'Centers'}</span>` +
+        `<span class="results-title">${esc(label || 'Browse Centers')}</span>` +
         `<span class="results-count">${count}</span>`;
       results.appendChild(head);
 
