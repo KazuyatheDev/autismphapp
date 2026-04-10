@@ -812,6 +812,21 @@
     .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
     .burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
+    /* 2-column services grid in modals */
+    .svc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 12px;
+    }
+    .svc-grid .form-checks {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Nav submit label switching */
+    .nav-submit-short { display: none; }
+
     /* RESPONSIVE */
     @media (min-width: 600px) {
       .cards-grid { grid-template-columns: repeat(2, 1fr); }
@@ -824,6 +839,9 @@
     @media (max-width: 640px) {
       nav { padding: 0 16px; }
       .burger { display: flex; }
+      .nav-submit-full { display: none; }
+      .nav-submit-short { display: inline; }
+      .nav-submit-btn { margin-left: auto; font-size: 12px; padding: 7px 11px; }
 
       .nav-links {
         position: absolute;
@@ -902,9 +920,8 @@
     <ul class="nav-links" id="navLinks">
       <li><a href="index.html">Home</a></li>
       <li><a href="about.html">About</a></li>
-      <li><a href="contact.html">Contact</a></li>
     </ul>
-    <button class="nav-submit-btn" id="navSubmitDesktop">+ Submit a Center</button>
+    <button class="nav-submit-btn" id="navSubmitDesktop"><span class="nav-submit-full">+ Submit a Center</span><span class="nav-submit-short">+ Submit</span></button>
     <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -916,8 +933,8 @@
     <section id="main">
       <div class="main-inner">
 
-        <h1 class="hero-title">Find Autism Therapy Centers or Services in the Philippines</h1>
-        <p class="hero-sub">Built by an <span title="awesome — a term of pride in the autism parent community">ausome</span> parent for the ausome community. Know a therapy center or SPED school? Help us grow this directory by adding it!</p>
+        <h1 class="hero-title">Find Autism Therapy Centers in the Philippines</h1>
+        <p class="hero-sub">Know a service, therapy center or SPED school? Help us grow this directory by adding it!</p>
         <!-- Search row -->
         <div class="search-row">
           <div class="input-wrap">
@@ -938,12 +955,12 @@
 
         <!-- Service filter pills -->
         <div class="service-pills" id="servicePills">
-          <button class="pill active" data-svc="All">All</button>
-          <button class="pill" data-svc="OT">OT</button>
-          <button class="pill" data-svc="ST">ST</button>
-          <button class="pill" data-svc="SPED">SPED</button>
-          <button class="pill" data-svc="ABA">ABA</button>
-          <button class="pill" data-svc="DEVPED">DEVPED</button>
+          <button class="pill active" data-svc="All" title="Show all centers">All</button>
+          <button class="pill" data-svc="OT" title="Occupational Therapy">OT</button>
+          <button class="pill" data-svc="ST" title="Speech Therapy">ST</button>
+          <button class="pill" data-svc="SPED" title="Special Education">SPED</button>
+          <button class="pill" data-svc="ABA" title="Applied Behavior Analysis">ABA</button>
+          <button class="pill" data-svc="DEVPED" title="Developmental Pediatrician">DEVPED</button>
         </div>
 
       </div>
@@ -972,7 +989,7 @@
       Autismph
     </a>
     <span class="footer-copy">© 2025 Autismph · Free to use · Built by Ausome Parent · Community maintained</span>
-    <p class="footer-disclaimer"><b>Disclaimer:</b> The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource, we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions. This directory does not constitute a referral, endorsement, or professional recommendation.</p>
+    <p class="footer-copy"><b>Disclaimer:</b> The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource, we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions. This directory does not constitute a referral, endorsement, or professional recommendation.</p>
   </footer>
 
   <!-- COPY TOAST -->
@@ -996,29 +1013,21 @@
             <p class="field-hint" id="hint-name">Please enter the center or  name.</p>
           </div>
 
-          <!-- type + services — 2-column -->
-          <div class="form-row" style="align-items:start">
-            <div class="form-group">
-              <label>Services Offered <span style="color:#e53e3e">*</span></label>
+          <!-- services — 2-column grid -->
+          <div class="form-group">
+            <label>Services Offered <span style="color:#e53e3e">*</span></label>
+            <div class="svc-grid">
               <div class="form-checks">
-                <label class="check-label">
-                  <input type="checkbox" name="services" value="OT" /> OT
-                </label>
-                <label class="check-label">
-                  <input type="checkbox" name="services" value="ST" /> ST
-                </label>
-                <label class="check-label">
-                  <input type="checkbox" name="services" value="SPED" /> SPED
-                </label>
-                <label class="check-label">
-                  <input type="checkbox" name="services" value="ABA" /> ABA
-                </label>
-                  <label class="check-label">
-                  <input type="checkbox" name="services" value="DEVPED" /> DevPed
-                </label>
+                <label class="check-label"><input type="checkbox" name="services" value="OT" /> OT</label>
+                <label class="check-label"><input type="checkbox" name="services" value="ST" /> ST</label>
+                <label class="check-label"><input type="checkbox" name="services" value="ABA" /> ABA</label>
               </div>
-              <p class="field-hint" id="hint-services">Select at least one.</p>
+              <div class="form-checks">
+                <label class="check-label"><input type="checkbox" name="services" value="SPED" /> SPED</label>
+                <label class="check-label"><input type="checkbox" name="services" value="DEVPED" /> DevPed</label>
+              </div>
             </div>
+            <p class="field-hint" id="hint-services">Select at least one.</p>
           </div>
 
           <!-- address — maps to centers.address (required) -->
@@ -1090,7 +1099,7 @@
         <form id="updateForm" novalidate>
           <input type="hidden" id="uf-center-id" />
           <div class="form-group">
-            <label for="uf-name">Center / Service Name</label>
+            <label for="uf-name">Center Name</label>
             <input type="text" id="uf-name" autocomplete="off" />
           </div>
 
@@ -1134,12 +1143,16 @@
 
           <div class="form-group">
             <label>Services</label>
-            <div class="form-checks" style="flex-direction:row;flex-wrap:wrap;gap:10px 18px">
-              <label class="check-label"><input type="checkbox" name="uf-services" value="OT" /> OT</label>
-              <label class="check-label"><input type="checkbox" name="uf-services" value="ST" /> ST</label>
-              <label class="check-label"><input type="checkbox" name="uf-services" value="SPED" /> SPED</label>
-              <label class="check-label"><input type="checkbox" name="uf-services" value="ABA" /> ABA</label>
-              <label class="check-label"><input type="checkbox" name="uf-services" value="DEVPED" /> DevPed</label>
+            <div class="svc-grid">
+              <div class="form-checks">
+                <label class="check-label"><input type="checkbox" name="uf-services" value="OT" /> OT</label>
+                <label class="check-label"><input type="checkbox" name="uf-services" value="ST" /> ST</label>
+                <label class="check-label"><input type="checkbox" name="uf-services" value="ABA" /> ABA</label>
+              </div>
+              <div class="form-checks">
+                <label class="check-label"><input type="checkbox" name="uf-services" value="SPED" /> SPED</label>
+                <label class="check-label"><input type="checkbox" name="uf-services" value="DEVPED" /> DevPed</label>
+              </div>
             </div>
           </div>
 
@@ -1765,8 +1778,6 @@
       document.getElementById('uf-email').value     = center.email || '';
       document.getElementById('uf-website').value   = center.website || '';
       document.getElementById('uf-facebook').value  = center.facebook_url || '';
-      document.getElementById('uf-notes').value     = center.notes || '';
-      document.getElementById('uf-change-note').value = '';
 
       const svcs = center.services || [];
       updateForm.querySelectorAll('input[name="uf-services"]').forEach(cb => {
@@ -1778,12 +1789,11 @@
       updateFormBtn.disabled = false;
       updateFormBtn.textContent = 'Submit Update';
       updateForm.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
-      updateForm.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
       updateForm.querySelectorAll('.form-group, .form-row').forEach(el => el.style.display = '');
 
       updateModal.hidden = false;
       document.body.style.overflow = 'hidden';
-      document.getElementById('uf-change-note').focus();
+      document.getElementById('uf-name').focus();
     }
 
     function closeUpdateModal() {
@@ -1795,22 +1805,8 @@
     updateModal.addEventListener('click', e => { if (e.target === updateModal) closeUpdateModal(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !updateModal.hidden) closeUpdateModal(); });
 
-    document.getElementById('uf-change-note').addEventListener('input', function() {
-      this.classList.remove('field-error');
-      document.getElementById('hint-change-note').classList.remove('show');
-    });
-
     updateForm.addEventListener('submit', async e => {
       e.preventDefault();
-
-      const changeNoteEl = document.getElementById('uf-change-note');
-      const changeNote   = changeNoteEl.value.trim();
-      if (!changeNote) {
-        changeNoteEl.classList.add('field-error');
-        document.getElementById('hint-change-note').classList.add('show');
-        changeNoteEl.focus();
-        return;
-      }
 
       const centerId = document.getElementById('uf-center-id').value;
       const formData = {
@@ -1823,7 +1819,6 @@
         website:        document.getElementById('uf-website').value.trim(),
         facebook_url:   document.getElementById('uf-facebook').value.trim(),
         services:       [...updateForm.querySelectorAll('input[name="uf-services"]:checked')].map(cb => cb.value),
-        notes:          document.getElementById('uf-notes').value.trim(),
       };
 
       updateFormBtn.disabled = true;
@@ -1834,7 +1829,7 @@
           const { error } = await supabase.from('center_updates').insert([{
             center_id:         centerId || null,
             submitted_changes: formData,
-            change_note:       changeNote,
+            change_note:       '',
           }]);
           if (error) throw error;
         }
