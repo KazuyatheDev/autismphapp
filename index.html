@@ -920,6 +920,7 @@
     <ul class="nav-links" id="navLinks">
       <li><a href="index.html">Home</a></li>
       <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
     </ul>
     <button class="nav-submit-btn" id="navSubmitDesktop"><span class="nav-submit-full">+ Submit a Center</span><span class="nav-submit-short">+ Submit</span></button>
     <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
@@ -1088,88 +1089,6 @@
     </div>
   </div>
 
-  <!-- UPDATE MODAL -->
-  <div id="updateModal" class="modal-overlay" hidden>
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="updateModalTitle">
-      <div class="modal-header">
-        <h2 id="updateModalTitle" class="modal-title">Suggest an Update</h2>
-        <button type="button" class="modal-close" id="updateModalClose" aria-label="Close">✕</button>
-      </div>
-      <div class="modal-body">
-        <form id="updateForm" novalidate>
-          <input type="hidden" id="uf-center-id" />
-          <div class="form-group">
-            <label for="uf-name">Center Name</label>
-            <input type="text" id="uf-name" autocomplete="off" />
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="uf-city">City</label>
-              <input type="text" id="uf-city" autocomplete="off" />
-            </div>
-            <div class="form-group">
-              <label for="uf-region">Region</label>
-              <input type="text" id="uf-region" autocomplete="off" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="uf-address">Address</label>
-            <input type="text" id="uf-address" autocomplete="off" />
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="uf-contact">Phone</label>
-              <input type="tel" id="uf-contact" />
-            </div>
-            <div class="form-group">
-              <label for="uf-email">Email</label>
-              <input type="email" id="uf-email" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="uf-website">Website</label>
-              <input type="url" id="uf-website" />
-            </div>
-            <div class="form-group">
-              <label for="uf-facebook">Facebook</label>
-              <input type="url" id="uf-facebook" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Services</label>
-            <div class="svc-grid">
-              <div class="form-checks">
-                <label class="check-label"><input type="checkbox" name="uf-services" value="OT" /> OT</label>
-                <label class="check-label"><input type="checkbox" name="uf-services" value="ST" /> ST</label>
-                <label class="check-label"><input type="checkbox" name="uf-services" value="ABA" /> ABA</label>
-              </div>
-              <div class="form-checks">
-                <label class="check-label"><input type="checkbox" name="uf-services" value="SPED" /> SPED</label>
-                <label class="check-label"><input type="checkbox" name="uf-services" value="DEVPED" /> DevPed</label>
-              </div>
-            </div>
-          </div>
-
-          <div id="updateFormArea" class="form-actions">
-            <button type="submit" class="btn-primary" id="updateFormBtn">Submit Update</button>
-            <p class="form-note">Your suggestion will be reviewed before any changes go live.</p>
-          </div>
-
-          <div id="updateSuccess" class="submit-success" hidden>
-            <div class="success-icon">✓</div>
-            <h3>Thanks!</h3>
-            <p>Your update has been submitted for review.</p>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <!-- SUPABASE CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1539,14 +1458,6 @@
         });
         card.appendChild(copyBtn);
 
-        // Suggest update button
-        const updateBtn = document.createElement('button');
-        updateBtn.type = 'button';
-        updateBtn.className = 'card-update-btn';
-        updateBtn.innerHTML = `${IC.pencil} Is this info outdated? Suggest an update`;
-        updateBtn.addEventListener('click', () => openUpdateModal(c));
-        card.appendChild(updateBtn);
-
         grid.appendChild(card);
         setTimeout(() => card.classList.add('visible'), i * 40);
       });
@@ -1760,92 +1671,6 @@
       }
     });
 
-    // ─── UPDATE MODAL ────────────────────────────────────────────────────
-    const updateModal     = document.getElementById('updateModal');
-    const updateModalClose = document.getElementById('updateModalClose');
-    const updateForm      = document.getElementById('updateForm');
-    const updateFormBtn   = document.getElementById('updateFormBtn');
-    const updateSuccess   = document.getElementById('updateSuccess');
-    const updateFormArea  = document.getElementById('updateFormArea');
-
-    function openUpdateModal(center) {
-      document.getElementById('uf-center-id').value = center.id || '';
-      document.getElementById('uf-name').value      = center.name || '';
-      document.getElementById('uf-city').value      = center.city || '';
-      document.getElementById('uf-region').value    = center.region || '';
-      document.getElementById('uf-address').value   = center.address || '';
-      document.getElementById('uf-contact').value   = center.contact || '';
-      document.getElementById('uf-email').value     = center.email || '';
-      document.getElementById('uf-website').value   = center.website || '';
-      document.getElementById('uf-facebook').value  = center.facebook_url || '';
-
-      const svcs = center.services || [];
-      updateForm.querySelectorAll('input[name="uf-services"]').forEach(cb => {
-        cb.checked = svcs.includes(cb.value);
-      });
-
-      updateFormArea.hidden = false;
-      updateSuccess.hidden = true;
-      updateFormBtn.disabled = false;
-      updateFormBtn.textContent = 'Submit Update';
-      updateForm.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
-      updateForm.querySelectorAll('.form-group, .form-row').forEach(el => el.style.display = '');
-
-      updateModal.hidden = false;
-      document.body.style.overflow = 'hidden';
-      document.getElementById('uf-name').focus();
-    }
-
-    function closeUpdateModal() {
-      updateModal.hidden = true;
-      document.body.style.overflow = '';
-    }
-
-    updateModalClose.addEventListener('click', closeUpdateModal);
-    updateModal.addEventListener('click', e => { if (e.target === updateModal) closeUpdateModal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !updateModal.hidden) closeUpdateModal(); });
-
-    updateForm.addEventListener('submit', async e => {
-      e.preventDefault();
-
-      const centerId = document.getElementById('uf-center-id').value;
-      const formData = {
-        center_name:    document.getElementById('uf-name').value.trim(),
-        city:           document.getElementById('uf-city').value.trim(),
-        region:         document.getElementById('uf-region').value.trim(),
-        address:        document.getElementById('uf-address').value.trim(),
-        contact_number: document.getElementById('uf-contact').value.trim(),
-        email:          document.getElementById('uf-email').value.trim(),
-        website:        document.getElementById('uf-website').value.trim(),
-        facebook_url:   document.getElementById('uf-facebook').value.trim(),
-        services:       [...updateForm.querySelectorAll('input[name="uf-services"]:checked')].map(cb => cb.value),
-      };
-
-      updateFormBtn.disabled = true;
-      updateFormBtn.textContent = 'Submitting…';
-
-      try {
-        if (IS_CONFIGURED && supabase) {
-          const { error } = await supabase.from('center_updates').insert([{
-            center_id:         centerId || null,
-            submitted_changes: formData,
-            change_note:       '',
-          }]);
-          if (error) throw error;
-        }
-        updateFormArea.hidden = true;
-        updateForm.querySelectorAll('.form-group, .form-row').forEach(el => el.style.display = 'none');
-        updateSuccess.hidden = false;
-        setTimeout(closeUpdateModal, 2800);
-      } catch (err) {
-        updateFormBtn.disabled = false;
-        updateFormBtn.textContent = 'Submit Update';
-        const msg = err.message || 'Please try again.';
-        alert(msg.includes('row-level security')
-          ? 'Submissions are currently unavailable. Please try again later.'
-          : 'Error: ' + msg);
-      }
-    });
 
     // ─── BURGER MENU ─────────────────────────────────────────────────────
     const burger   = document.getElementById('burger');

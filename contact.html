@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About — Autismph</title>
-  <meta name="description" content="About Autismph — a free directory of autism therapy centers and SPED schools across the Philippines." />
+  <title>Contact — Autismph</title>
+  <meta name="description" content="Contact Autismph — send us feedback, inquiries, or suggest updates to our autism therapy center directory." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -170,53 +170,27 @@
       letter-spacing: -0.6px;
       line-height: 1.15;
       color: var(--black);
-      margin-bottom: 28px;
+      margin-bottom: 12px;
       opacity: 0;
       animation: fadeUp 0.5s ease 0.15s forwards;
     }
 
-    .page-body {
-      opacity: 0;
-      animation: fadeUp 0.5s ease 0.22s forwards;
-    }
-
-    .page-body p {
+    .page-subtitle {
       font-size: 15px;
       color: var(--gray);
-      line-height: 1.75;
-      margin-bottom: 18px;
-    }
-
-    .page-body p:last-child { margin-bottom: 0; }
-    .page-body strong { color: var(--black); font-weight: 600; }
-
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 48px 0;
-    }
-
-    /* FEEDBACK SECTION */
-    .feedback-section {
+      line-height: 1.65;
+      margin-bottom: 40px;
       opacity: 0;
-      animation: fadeUp 0.5s ease 0.3s forwards;
+      animation: fadeUp 0.5s ease 0.2s forwards;
     }
 
-    .feedback-section h2 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      margin-bottom: 8px;
+    /* FORM */
+    .contact-form-wrap {
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.27s forwards;
     }
 
-    .feedback-section > p {
-      font-size: 14px;
-      color: var(--gray);
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-
-    .form-group { margin-bottom: 14px; }
+    .form-group { margin-bottom: 16px; }
 
     .form-group label {
       display: block;
@@ -226,10 +200,9 @@
       margin-bottom: 5px;
     }
 
-    .form-group .opt { color: #999; font-weight: 400; }
-
     .form-group input,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group select {
       width: 100%;
       padding: 9px 11px;
       border: 1.5px solid #d0d0d0;
@@ -244,15 +217,27 @@
       -webkit-appearance: none;
     }
 
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 11px center;
+      padding-right: 34px;
+      cursor: pointer;
+    }
+
     .form-group input:focus,
-    .form-group textarea:focus { border-color: var(--black); }
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--black); }
 
     .form-group input::placeholder,
     .form-group textarea::placeholder { color: #c0c0c0; }
 
-    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-group textarea { resize: vertical; min-height: 130px; }
 
-    .form-group input.field-error { border-color: #e53e3e !important; }
+    .form-group input.field-error,
+    .form-group textarea.field-error,
+    .form-group select.field-error { border-color: #e53e3e !important; }
+
     .field-hint { font-size: 11.5px; color: #e53e3e; margin-top: 4px; display: none; }
     .field-hint.show { display: block; }
 
@@ -260,7 +245,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     .form-row .form-group { margin-bottom: 0; }
 
@@ -268,7 +253,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 12px 24px;
+      padding: 12px 28px;
       background: var(--black);
       color: var(--white);
       font-family: var(--sans);
@@ -290,26 +275,26 @@
       line-height: 1.5;
     }
 
-    .feedback-success {
+    .contact-success {
       display: none;
       text-align: center;
-      padding: 32px 0 8px;
+      padding: 40px 0 8px;
     }
-    .feedback-success.show { display: block; }
-    .feedback-success .success-icon {
-      width: 48px; height: 48px;
+    .contact-success.show { display: block; }
+    .contact-success .success-icon {
+      width: 52px; height: 52px;
       border-radius: 50%;
       background: #EAFAF1;
       color: #1E8449;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 14px;
+      margin: 0 auto 16px;
     }
-    .feedback-success h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    .feedback-success p { font-size: 14px; color: var(--gray); line-height: 1.6; }
+    .contact-success h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+    .contact-success p { font-size: 14px; color: var(--gray); line-height: 1.65; }
 
     /* FOOTER */
     footer {
@@ -404,8 +389,8 @@
     </a>
     <ul class="nav-links" id="navLinks">
       <li><a href="index.html">Home</a></li>
-      <li><a href="about.html" class="active">About</a></li>
-      <li><a href="contact.html">Contact</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
     </ul>
     <a href="index.html" class="nav-submit-btn"><span class="nav-submit-full">+ Submit a Center</span><span class="nav-submit-short">+ Submit</span></a>
     <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
@@ -418,26 +403,58 @@
 
       <a href="index.html" class="back-link">← Back to search</a>
 
-      <p class="page-eyebrow">About</p>
+      <p class="page-eyebrow">Contact</p>
 
-      <h1 class="page-title">Supporting families<br>across the Philippines.</h1>
+      <h1 class="page-title">Get in touch.</h1>
 
-      <div class="page-body">
-        <p>
-          <strong>Autismph</strong> is a free, community-maintained directory built by an ausome dad to help Filipino families find autism therapy centers, SPED schools, and support services close to home. All listings are reviewed before they go live.
-        </p>
-        <p>
-          Navigating autism care in the Philippines can be overwhelming. There is no single place to find reliable, updated information about where to go for occupational therapy, speech therapy, ABA, or special education. Autismph exists to change that.
-        </p>
-        <p>
-          Our directory covers all major regions — from Metro Manila to Mindanao — and we are constantly working to expand our listings with the help of families, therapists, and center administrators. If you know a center not yet listed, please submit it!
-        </p>
-      </div>
+      <p class="page-subtitle">Have a question, suggestion, or spotted outdated info? Fill out the form below — we read every message.</p>
 
-      <hr class="divider" />
+      <div class="contact-form-wrap">
+        <form id="contactForm" novalidate>
 
-      <div class="page-body">
-        <p>Have a correction, suggestion, or want to reach out? <a href="contact.html" style="color:var(--black);font-weight:600;">Visit our Contact page</a> — we read every message.</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ct-name">Name <span style="color:#e53e3e">*</span></label>
+              <input type="text" id="ct-name" autocomplete="name" placeholder="Your name" />
+              <p class="field-hint" id="hint-ct-name">Please enter your name.</p>
+            </div>
+            <div class="form-group">
+              <label for="ct-email">Email <span style="color:#e53e3e">*</span></label>
+              <input type="email" id="ct-email" autocomplete="email" placeholder="your@email.com" />
+              <p class="field-hint" id="hint-ct-email">Please enter a valid email address.</p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-reason">Reason for contacting <span style="color:#e53e3e">*</span></label>
+            <select id="ct-reason">
+              <option value="" disabled selected>Select a reason…</option>
+              <option value="Inquire/Contact us">Inquire / Contact us</option>
+              <option value="Feedback">Feedback</option>
+              <option value="Update the Center/program information">Update Center / Program Information</option>
+              <option value="Others">Others</option>
+            </select>
+            <p class="field-hint" id="hint-ct-reason">Please select a reason.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-message">Message <span style="color:#e53e3e">*</span></label>
+            <textarea id="ct-message" placeholder="Your message, feedback, or correction…"></textarea>
+            <p class="field-hint" id="hint-ct-message">Please enter a message.</p>
+          </div>
+
+          <div id="contactFormArea">
+            <button type="submit" class="btn-primary" id="contactSubmitBtn">Send Message</button>
+            <p class="form-note">We read every message. Thank you for helping improve Autismph!</p>
+          </div>
+
+        </form>
+
+        <div id="contactSuccess" class="contact-success">
+          <div class="success-icon">✓</div>
+          <h3>Message received!</h3>
+          <p>Thank you for reaching out. We'll get back to you at the email you provided.</p>
+        </div>
       </div>
 
     </main>
@@ -458,7 +475,23 @@
     <p class="footer-disclaimer"><b>Disclaimer:</b> The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource — we make no guarantees regarding accuracy, completeness, or availability of any listed center. Always verify directly with the provider before making decisions.</p>
   </footer>
 
+  <!-- SUPABASE CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
+    // ─── SUPABASE CONFIG ─────────────────────────────────────────────────
+    const SUPABASE_URL      = 'https://pqshfeuyeeakdhesclem.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxc2hmZXV5ZWVha2RoZXNjbGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzYyMzcsImV4cCI6MjA5MTE1MjIzN30.sd6WQUANjZiTWpcfPwWrZ6egp5DURWC70JXQ-kcQnO0';
+    // ─────────────────────────────────────────────────────────────────────
+
+    const IS_CONFIGURED =
+      !SUPABASE_URL.includes('your-project-ref') &&
+      SUPABASE_ANON_KEY !== 'your-anon-public-key-here';
+
+    var supabase = (window.supabase && IS_CONFIGURED)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
     // ─── BURGER MENU ─────────────────────────────────────────────────────
     const burger   = document.getElementById('burger');
     const navLinks = document.getElementById('navLinks');
@@ -486,6 +519,68 @@
       }
     });
 
+    // ─── CONTACT FORM ─────────────────────────────────────────────────────
+    const contactForm      = document.getElementById('contactForm');
+    const contactSubmitBtn = document.getElementById('contactSubmitBtn');
+    const contactFormArea  = document.getElementById('contactFormArea');
+    const contactSuccess   = document.getElementById('contactSuccess');
+
+    function showErr(el, hintId) {
+      el.classList.add('field-error');
+      document.getElementById(hintId).classList.add('show');
+    }
+    function clearErr(el, hintId) {
+      el.classList.remove('field-error');
+      document.getElementById(hintId).classList.remove('show');
+    }
+
+    document.getElementById('ct-name').addEventListener('input', function() { clearErr(this, 'hint-ct-name'); });
+    document.getElementById('ct-email').addEventListener('input', function() { clearErr(this, 'hint-ct-email'); });
+    document.getElementById('ct-reason').addEventListener('change', function() { clearErr(this, 'hint-ct-reason'); });
+    document.getElementById('ct-message').addEventListener('input', function() { clearErr(this, 'hint-ct-message'); });
+
+    contactForm.addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const nameEl    = document.getElementById('ct-name');
+      const emailEl   = document.getElementById('ct-email');
+      const reasonEl  = document.getElementById('ct-reason');
+      const messageEl = document.getElementById('ct-message');
+
+      const name    = nameEl.value.trim();
+      const email   = emailEl.value.trim();
+      const reason  = reasonEl.value;
+      const message = messageEl.value.trim();
+
+      // Basic email format check
+      const emailOk = email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+      let valid = true;
+      if (!name)    { showErr(nameEl,    'hint-ct-name');    valid = false; }
+      if (!emailOk) { showErr(emailEl,   'hint-ct-email');   valid = false; }
+      if (!reason)  { showErr(reasonEl,  'hint-ct-reason');  valid = false; }
+      if (!message) { showErr(messageEl, 'hint-ct-message'); valid = false; }
+      if (!valid) return;
+
+      contactSubmitBtn.disabled = true;
+      contactSubmitBtn.textContent = 'Sending…';
+
+      try {
+        if (supabase) {
+          const { error } = await supabase.from('contacts').insert([{ name, email, reason, message }]);
+          if (error) throw error;
+        }
+        contactForm.style.display = 'none';
+        contactSuccess.classList.add('show');
+      } catch (err) {
+        contactSubmitBtn.disabled = false;
+        contactSubmitBtn.textContent = 'Send Message';
+        const msg = err.message || 'Please try again.';
+        alert(msg.includes('row-level security')
+          ? 'Submissions are temporarily unavailable. Please try again later.'
+          : 'Error: ' + msg);
+      }
+    });
   </script>
 </body>
 </html>
