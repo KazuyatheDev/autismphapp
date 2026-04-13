@@ -126,10 +126,10 @@
     }
     .nav-submit-btn:hover { opacity: 0.8; }
 
-    /* HERO — off-white bg, z-index so dropdown overlaps content below */
+    /* HERO — white bg, z-index so dropdown overlaps content below */
     #main {
       padding: calc(var(--nav-h) + 28px) 20px 22px;
-      background: #F9FAFB;
+      background: #ffffff;
       border-bottom: 1px solid var(--border);
       position: relative;
       z-index: 10;
@@ -318,6 +318,7 @@
       transition: all 0.15s;
       white-space: nowrap;
       line-height: 1;
+      text-align: center;
     }
 
     .pill.active {
@@ -453,24 +454,6 @@
 
     .card-row a:hover { text-decoration-color: var(--black); }
 
-    .card-update-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: var(--sans);
-      font-size: 12px;
-      color: #b0b0b0;
-      padding: 4px 0;
-      text-align: left;
-      transition: color 0.15s;
-      min-height: 32px;
-    }
-
-    .card-update-btn:hover { color: var(--gray); }
-
     .card-copy-btn {
       position: absolute;
       top: 10px;
@@ -597,16 +580,6 @@
     }
 
     .footer-copy { font-size: 12px; color: var(--gray); }
-
-    .footer-disclaimer {
-      font-size: 10.5px;
-      color: #c0c0c0;
-      line-height: 1.6;
-      width: 100%;
-      border-top: 1px solid var(--border);
-      padding-top: 12px;
-      margin-top: 4px;
-    }
 
     /* MODAL */
     .modal-overlay {
@@ -876,7 +849,15 @@
 
       #main { padding: calc(var(--nav-h) + 20px) 16px 18px; }
       .main-inner { text-align: left; }
-      .service-pills { justify-content: flex-start; }
+
+      /* Pills: 4-column grid → row 1: All OT ST ABA · row 2: SPED SNED DevPed */
+      .service-pills {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        overflow-x: visible;
+        justify-content: unset;
+      }
+      .pill { padding: 8px 6px; }
 
       #results { padding: 20px 16px 10px; }
       .submit-cta { padding: 24px 16px 36px; }
@@ -945,7 +926,7 @@
               id="cityInput"
               autocomplete="off"
               spellcheck="false"
-              placeholder="Search by center name or city"
+              placeholder="Search centers near you (e.g. Quezon City, Cebu, Davao)"
               aria-label="Search therapy centers"
             />
             <button class="city-clear" id="cityClr" aria-label="Clear input">&times;</button>
@@ -959,9 +940,10 @@
           <button class="pill active" data-svc="All" title="Show all centers">All</button>
           <button class="pill" data-svc="OT" title="Occupational Therapy">OT</button>
           <button class="pill" data-svc="ST" title="Speech Therapy">ST</button>
-          <button class="pill" data-svc="SPED" title="Special Education">SPED</button>
           <button class="pill" data-svc="ABA" title="Applied Behavior Analysis">ABA</button>
-          <button class="pill" data-svc="DEVPED" title="Developmental Pediatrician">DEVPED</button>
+          <button class="pill" data-svc="SPED" title="Special Education">SPED</button>
+          <button class="pill" data-svc="SNED" title="Special Needs Education">SNED</button>
+          <button class="pill" data-svc="DEVPED" title="Developmental Pediatrician">DevPed</button>
         </div>
 
       </div>
@@ -989,7 +971,7 @@
       </svg>
       Autismph
     </a>
-    <span class="footer-copy">© 2025 Autismph · Free to use · Built by Ausome Parent · Community maintained</span>
+    <span class="footer-copy">© 2025 Autismph · Free to use · Built by Ausome Parent</span>
     <p class="footer-copy"><b>Disclaimer:</b> The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource, we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions. This directory does not constitute a referral, endorsement, or professional recommendation.</p>
   </footer>
 
@@ -1025,6 +1007,7 @@
               </div>
               <div class="form-checks">
                 <label class="check-label"><input type="checkbox" name="services" value="SPED" /> SPED</label>
+                <label class="check-label"><input type="checkbox" name="services" value="SNED" /> SNED</label>
                 <label class="check-label"><input type="checkbox" name="services" value="DEVPED" /> DevPed</label>
               </div>
             </div>
@@ -1124,8 +1107,7 @@
     let selectedCity         = '';
     let acIdx                = -1;
     let acOpen               = false;
-    let rawResults           = [];
-    let usedAddrFallback     = false;
+    let rawResults = [];
 
     // DOM
     const cityInput = document.getElementById('cityInput');
@@ -1265,7 +1247,7 @@
           const j = Math.floor(Math.random() * (i + 1));
           [pool[i], pool[j]] = [pool[j], pool[i]];
         }
-        rawResults = pool.slice(0, 2);
+        rawResults = pool.slice(0, 3);
         applyFilters();
       } catch (e) {
         console.warn('Default load failed:', e);
@@ -1305,7 +1287,6 @@
       searchBtn.textContent = 'Searching…';
       results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading centers…</p></div>`;
       rawResults = [];
-      usedAddrFallback = false;
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
@@ -1329,7 +1310,6 @@
             .ilike('address', `%${searchText}%`);
           if (!fb.error && fb.data && fb.data.length > 0) {
             data = fb.data;
-            usedAddrFallback = true;
           }
         }
 
@@ -1625,8 +1605,6 @@
       const city    = fCityInput.value.trim();
       const region  = fRegionInput.value.trim();
       const address = addressEl.value.trim();
-      const typeChecked = submitForm.querySelector('input[name="f-type"]:checked');
-      const type    = typeChecked ? typeChecked.value : 'center';
       const services = [...submitForm.querySelectorAll('input[name="services"]:checked')].map(cb => cb.value);
       const contact  = document.getElementById('f-contact').value.trim() || null;
       const email    = document.getElementById('f-email').value.trim() || null;
@@ -1650,7 +1628,7 @@
         name,
         city,
         region:       region || 'Unknown',
-        type,
+        type:         'center',
         services,
         address,
         contact,
