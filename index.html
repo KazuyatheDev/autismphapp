@@ -943,7 +943,7 @@
           <button class="pill" data-svc="ABA" title="Applied Behavior Analysis">ABA</button>
           <button class="pill" data-svc="SPED" title="Special Education">SPED</button>
           <button class="pill" data-svc="SNED" title="Special Needs Education">SNED</button>
-          <button class="pill" data-svc="DEVPED" title="Developmental Pediatrician">DevPed</button>
+          <button class="pill" data-svc="DevPed" title="Developmental Pediatrician">DevPed</button>
         </div>
 
       </div>
@@ -1234,33 +1234,19 @@
       acIdx = -1;
     }
 
-    // DEFAULT LOAD — 2 random approved centers
+    // DEFAULT LOAD
     (async () => {
       if (!IS_CONFIGURED || !supabase) return;
-      try {
-        const { data, error } = await supabase
-          .from('centers').select('*').eq('status', 'approved')
-          .limit(50);
-        if (error) throw error;
-        const pool = data || [];
-        for (let i = pool.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-        rawResults = pool.slice(0, 3);
-        applyFilters();
-      } catch (e) {
-        console.warn('Default load failed:', e);
-      }
+      try { await performSearch(); } catch (e) { console.warn('Default load failed:', e); }
     })();
 
-    // SERVICE PILL — single select
+    // SERVICE PILL — single select; always re-query DB so filters work across all centers
     pillsEl.querySelectorAll('.pill').forEach(btn => {
       btn.addEventListener('click', () => {
         pillsEl.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         activeFilter = btn.dataset.svc;
-        if (rawResults.length > 0) applyFilters();
+        performSearch();
       });
     });
 
@@ -1290,6 +1276,7 @@
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
+        const isDefaultState = !searchText; // no text → always show 3 random for whatever pill is active
         let q = supabase.from('centers').select('*').eq('status', 'approved');
 
         if (searchText) {
@@ -1300,20 +1287,40 @@
           }
         }
 
+        // Apply service filter at DB level so pills work across all centers
+        if (activeFilter !== 'All') {
+          q = q.contains('services', [activeFilter]);
+        }
+
+        // Default state: fetch a pool to pick 3 random from
+        if (isDefaultState) q = q.limit(50);
+
         let { data, error } = await q;
         if (error) throw error;
 
-        // Address fallback
+        // Address fallback (text search only)
         if (!selectedCity && searchText && (!data || data.length === 0)) {
-          const fb = await supabase
-            .from('centers').select('*').eq('status', 'approved')
+          let fbq = supabase.from('centers').select('*').eq('status', 'approved')
             .ilike('address', `%${searchText}%`);
+          if (activeFilter !== 'All') fbq = fbq.contains('services', [activeFilter]);
+          const fb = await fbq;
           if (!fb.error && fb.data && fb.data.length > 0) {
             data = fb.data;
           }
         }
 
-        rawResults = data || [];
+        let pool = data || [];
+
+        // Default state: shuffle and show 3 random
+        if (isDefaultState) {
+          for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+          }
+          pool = pool.slice(0, 3);
+        }
+
+        rawResults = pool;
         applyFilters();
 
       } catch (err) {
@@ -1351,7 +1358,7 @@
           city.toLowerCase().includes(text);
         const services = c.services || [];
         const matchSvc = activeFilter === 'All' ||
-          (Array.isArray(services) && services.includes(activeFilter));
+          (Array.isArray(services) && services.some(s => s.toLowerCase() === activeFilter.toLowerCase()));
         return matchText && matchSvc;
       });
       renderResults(filtered, buildLabel());
