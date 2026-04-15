@@ -356,6 +356,32 @@
 
     .results-count { font-size: 13px; color: var(--gray); }
 
+    .view-all-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .view-all-btn, .load-more-btn {
+      padding: 11px 28px;
+      border: 1.5px solid var(--black);
+      background: #fff;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .view-all-btn:hover, .load-more-btn:hover { background: var(--black); color: #fff; }
+    .view-all-btn:disabled, .load-more-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .load-more-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
     /* CARDS GRID */
     .cards-grid {
       display: grid;
@@ -1108,7 +1134,10 @@
     let lastSearchText       = '';   // text actually submitted, used for labels
     let acIdx                = -1;
     let acOpen               = false;
-    let rawResults = [];
+    let rawResults           = [];
+    let totalApprovedCount   = 0;    // total approved centers in the DB
+    let isDefaultView        = false; // true when no search text and no service filter
+    let viewAllOffset        = 0;    // pagination cursor for View All mode
 
     // DOM
     const cityInput = document.getElementById('cityInput');
@@ -1277,7 +1306,18 @@
       try {
         const searchText = selectedCity || cityInput.value.trim();
         lastSearchText = searchText;
-        const isDefaultState = !searchText; // no text → always show 3 random for whatever pill is active
+        const isDefaultState = !searchText && activeFilter === 'All';
+        isDefaultView = isDefaultState;
+        viewAllOffset = 0;
+
+        // In default state, get the total approved count for the "Showing N of X" label
+        if (isDefaultState) {
+          const { count } = await supabase
+            .from('centers').select('*', { count: 'exact', head: true })
+            .eq('status', 'approved');
+          totalApprovedCount = count || 0;
+        }
+
         let q = supabase.from('centers').select('*').eq('status', 'approved');
 
         if (searchText) {
@@ -1293,8 +1333,8 @@
           q = q.contains('services', [activeFilter]);
         }
 
-        // Default state: fetch a pool to pick 3 random from
-        if (isDefaultState) q = q.limit(50);
+        // Default state: fetch a pool to pick 10 random from
+        if (isDefaultState) q = q.limit(100);
 
         let { data, error } = await q;
         if (error) throw error;
@@ -1312,13 +1352,13 @@
 
         let pool = data || [];
 
-        // Default state: shuffle and show 3 random
+        // Default state: shuffle and show 10 random
         if (isDefaultState) {
           for (let i = pool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [pool[i], pool[j]] = [pool[j], pool[i]];
           }
-          pool = pool.slice(0, 3);
+          pool = pool.slice(0, 10);
         }
 
         rawResults = pool;
@@ -1359,6 +1399,72 @@
       renderResults(filtered, buildLabel());
     }
 
+    // Stroke-only SVG icons (14px) — shared across card builders
+    const IC = {
+      pin:    `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+      phone:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+      mail:   `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+      globe:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+      fb:     `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`,
+      pencil: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+    };
+
+    // Build a single card DOM element (shared by renderResults and appendCardsToGrid)
+    function buildCardEl(c, animIdx) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const name     = c.name || '';
+      const city     = c.city || '';
+      const region   = c.region || '';
+      const address  = c.address || '';
+      const contact  = c.contact || '';
+      const email    = c.email || '';
+      const website  = c.website || '';
+      const facebook = c.facebook_url || '';
+      const services = c.services || [];
+
+      const badges = services.map(s => `<span class="svc">${esc(s)}</span>`).join('');
+
+      let contactsHTML = '';
+      if (address)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.pin}</span><span>${esc(address)}</span></div>`;
+      if (contact)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.phone}</span><span><a href="tel:${esc(contact)}">${esc(contact)}</a></span></div>`;
+      if (email)    contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.mail}</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></div>`;
+      if (website)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.globe}</span><span><a href="${esc(website)}" target="_blank" rel="noopener noreferrer">${esc(website.replace(/^https?:\/\//, ''))}</a></span></div>`;
+      if (facebook) contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.fb}</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener noreferrer">Facebook Page</a></span></div>`;
+
+      card.innerHTML = `
+        <p class="card-name" style="padding-right:36px">${esc(name)}</p>
+        <p class="card-city">${esc(city)}${region ? ', ' + esc(region) : ''}</p>
+        <div class="card-svcs">${badges}</div>
+        ${contactsHTML ? `<hr class="card-divider"><div class="card-contacts">${contactsHTML}</div>` : ''}
+        <hr class="card-divider">`;
+
+      const copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'card-copy-btn';
+      copyBtn.setAttribute('aria-label', 'Copy center info');
+      copyBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>`;
+      copyBtn.addEventListener('click', () => {
+        const parts = [`${name}${city ? ' – ' + city : ''}${region ? ', ' + region : ''}`];
+        if (services.length) parts.push(services.join(', '));
+        if (contact) parts.push(contact);
+        if (address) parts.push(address);
+        if (website) parts.push(website);
+        const text = parts.join(' | ');
+        navigator.clipboard.writeText(text).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+          document.body.removeChild(ta);
+        });
+        showCopyToast();
+      });
+      card.appendChild(copyBtn);
+      setTimeout(() => card.classList.add('visible'), animIdx * 40);
+      return card;
+    }
+
     // RENDER — collapsed cards with copy button
     function renderResults(centers, label) {
       results.innerHTML = '';
@@ -1374,84 +1480,102 @@
 
       const head = document.createElement('div');
       head.className = 'results-head';
-      const count = `${centers.length} center${centers.length !== 1 ? 's' : ''}`;
+      const countText = isDefaultView
+        ? `Showing ${centers.length} of ${totalApprovedCount} centers`
+        : `${centers.length} center${centers.length !== 1 ? 's' : ''} found`;
       head.innerHTML =
         `<span class="results-title">${esc(label || 'Browse Centers')}</span>` +
-        `<span class="results-count">${count}</span>`;
+        `<span class="results-count">${countText}</span>`;
       results.appendChild(head);
 
       const grid = document.createElement('div');
       grid.className = 'cards-grid';
-
-      // Stroke-only SVG icons (14px)
-      const IC = {
-        pin:    `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
-        phone:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
-        mail:   `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
-        globe:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
-        fb:     `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`,
-        pencil: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
-      };
-
-      centers.forEach((c, i) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const name     = c.name || '';
-        const city     = c.city || '';
-        const region   = c.region || '';
-        const address  = c.address || '';
-        const contact  = c.contact || '';
-        const email    = c.email || '';
-        const website  = c.website || '';
-        const facebook = c.facebook_url || '';
-        const services = c.services || [];
-
-        const badges = services.map(s => `<span class="svc">${esc(s)}</span>`).join('');
-
-        // Contact rows with SVG icons
-        let contactsHTML = '';
-        if (address)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.pin}</span><span>${esc(address)}</span></div>`;
-        if (contact)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.phone}</span><span><a href="tel:${esc(contact)}">${esc(contact)}</a></span></div>`;
-        if (email)    contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.mail}</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></div>`;
-        if (website)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.globe}</span><span><a href="${esc(website)}" target="_blank" rel="noopener noreferrer">${esc(website.replace(/^https?:\/\//, ''))}</a></span></div>`;
-        if (facebook) contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.fb}</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener noreferrer">Facebook Page</a></span></div>`;
-
-        card.innerHTML = `
-          <p class="card-name" style="padding-right:36px">${esc(name)}</p>
-          <p class="card-city">${esc(city)}${region ? ', ' + esc(region) : ''}</p>
-          <div class="card-svcs">${badges}</div>
-          ${contactsHTML ? `<hr class="card-divider"><div class="card-contacts">${contactsHTML}</div>` : ''}
-          <hr class="card-divider">`;
-
-        // Copy button
-        const copyBtn = document.createElement('button');
-        copyBtn.type = 'button';
-        copyBtn.className = 'card-copy-btn';
-        copyBtn.setAttribute('aria-label', 'Copy center info');
-        copyBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>`;
-        copyBtn.addEventListener('click', () => {
-          const parts = [`${name}${city ? ' – ' + city : ''}${region ? ', ' + region : ''}`];
-          if (services.length) parts.push(services.join(', '));
-          if (contact) parts.push(contact);
-          if (address) parts.push(address);
-          if (website) parts.push(website);
-          const text = parts.join(' | ');
-          navigator.clipboard.writeText(text).catch(() => {
-            const ta = document.createElement('textarea');
-            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-            document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-            document.body.removeChild(ta);
-          });
-          showCopyToast();
-        });
-        card.appendChild(copyBtn);
-
-        grid.appendChild(card);
-        setTimeout(() => card.classList.add('visible'), i * 40);
-      });
-
+      centers.forEach((c, i) => grid.appendChild(buildCardEl(c, i)));
       results.appendChild(grid);
+
+      // In default view, show a "View All Centers" button below the cards
+      if (isDefaultView) {
+        const wrap = document.createElement('div');
+        wrap.className = 'view-all-wrap';
+        const btn = document.createElement('button');
+        btn.className = 'view-all-btn';
+        btn.textContent = 'View All Centers';
+        btn.addEventListener('click', startViewAll);
+        wrap.appendChild(btn);
+        results.appendChild(wrap);
+      }
+    }
+
+    // VIEW ALL — fetches all approved centers, 20 at a time
+    const VIEW_ALL_PAGE = 20;
+
+    async function startViewAll() {
+      viewAllOffset = 0;
+      results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading all centers…</p></div>`;
+      try {
+        const { data, error } = await supabase
+          .from('centers').select('*').eq('status', 'approved')
+          .order('name').range(0, VIEW_ALL_PAGE - 1);
+        if (error) throw error;
+        const page = data || [];
+        viewAllOffset = page.length;
+        renderViewAllPage(page);
+        scrollToResults();
+      } catch (err) {
+        results.innerHTML = `<div class="state"><h2>Something went wrong.</h2><p>${esc(err.message)}</p></div>`;
+      }
+    }
+
+    function renderViewAllPage(centers) {
+      results.innerHTML = '';
+
+      const head = document.createElement('div');
+      head.className = 'results-head';
+      head.innerHTML =
+        `<span class="results-title">All Centers</span>` +
+        `<span class="results-count">${totalApprovedCount} centers total</span>`;
+      results.appendChild(head);
+
+      const grid = document.createElement('div');
+      grid.id = 'viewAllGrid';
+      grid.className = 'cards-grid';
+      centers.forEach((c, i) => grid.appendChild(buildCardEl(c, i)));
+      results.appendChild(grid);
+
+      if (viewAllOffset < totalApprovedCount) {
+        const wrap = document.createElement('div');
+        wrap.className = 'load-more-wrap';
+        const btn = document.createElement('button');
+        btn.id = 'loadMoreBtn';
+        btn.className = 'load-more-btn';
+        btn.textContent = 'Load More';
+        btn.addEventListener('click', loadMoreCenters);
+        wrap.appendChild(btn);
+        results.appendChild(wrap);
+      }
+    }
+
+    async function loadMoreCenters() {
+      const btn = document.getElementById('loadMoreBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+      try {
+        const { data, error } = await supabase
+          .from('centers').select('*').eq('status', 'approved')
+          .order('name').range(viewAllOffset, viewAllOffset + VIEW_ALL_PAGE - 1);
+        if (error) throw error;
+        const page = data || [];
+        viewAllOffset += page.length;
+        const grid = document.getElementById('viewAllGrid');
+        const startIdx = grid ? grid.children.length : 0;
+        if (grid) page.forEach((c, i) => grid.appendChild(buildCardEl(c, startIdx + i)));
+        if (viewAllOffset >= totalApprovedCount) {
+          if (btn) btn.closest('.load-more-wrap').remove();
+        } else {
+          if (btn) { btn.disabled = false; btn.textContent = 'Load More'; }
+        }
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Load More'; }
+      }
     }
 
     let toastTimer;
