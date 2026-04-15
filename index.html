@@ -356,13 +356,7 @@
 
     .results-count { font-size: 13px; color: var(--gray); }
 
-    .view-all-wrap {
-      display: flex;
-      justify-content: center;
-      margin-top: 24px;
-    }
-
-    .view-all-btn, .load-more-btn {
+    .load-more-btn {
       padding: 11px 28px;
       border: 1.5px solid var(--black);
       background: #fff;
@@ -373,8 +367,8 @@
       transition: background 0.15s, color 0.15s;
     }
 
-    .view-all-btn:hover, .load-more-btn:hover { background: var(--black); color: #fff; }
-    .view-all-btn:disabled, .load-more-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .load-more-btn:hover { background: var(--black); color: #fff; }
+    .load-more-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
     .load-more-wrap {
       display: flex;
@@ -1134,10 +1128,11 @@
     let lastSearchText       = '';   // text actually submitted, used for labels
     let acIdx                = -1;
     let acOpen               = false;
-    let rawResults           = [];
-    let totalApprovedCount   = 0;    // total approved centers in the DB
-    let isDefaultView        = false; // true when no search text and no service filter
-    let viewAllOffset        = 0;    // pagination cursor for View All mode
+    let totalMatchingCount   = 0;    // total DB rows for the current query
+    let currentOffset        = 0;    // how many cards are currently displayed
+    let currentQueryParams   = null; // params to reproduce the current query for Load More
+
+    const PAGE_SIZE = 10;
 
     // DOM
     const cityInput = document.getElementById('cityInput');
@@ -1300,69 +1295,38 @@
 
       searchBtn.disabled = true;
       searchBtn.textContent = 'Searching…';
-      results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading centers…</p></div>`;
-      rawResults = [];
+      results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading…</p></div>`;
+      currentOffset = 0;
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
         lastSearchText = searchText;
-        const isDefaultState = !searchText && activeFilter === 'All';
-        isDefaultView = isDefaultState;
-        viewAllOffset = 0;
 
-        // In default state, get the total approved count for the "Showing N of X" label
-        if (isDefaultState) {
-          const { count } = await supabase
-            .from('centers').select('*', { count: 'exact', head: true })
-            .eq('status', 'approved');
-          totalApprovedCount = count || 0;
-        }
+        const params = {
+          searchText,
+          isCitySearch: !!selectedCity,
+          filter: activeFilter,
+          addressFallback: false
+        };
 
-        let q = supabase.from('centers').select('*').eq('status', 'approved');
-
-        if (searchText) {
-          if (selectedCity) {
-            q = q.ilike('city', `%${searchText}%`);
-          } else {
-            q = q.or(`name.ilike.%${searchText}%,city.ilike.%${searchText}%`);
-          }
-        }
-
-        // Apply service filter at DB level so pills work across all centers
-        if (activeFilter !== 'All') {
-          q = q.contains('services', [activeFilter]);
-        }
-
-        // Default state: fetch a pool to pick 10 random from
-        if (isDefaultState) q = q.limit(100);
-
-        let { data, error } = await q;
+        let { data, count, error } = await fetchPage(params, 0);
         if (error) throw error;
 
-        // Address fallback (text search only)
-        if (!selectedCity && searchText && (!data || data.length === 0)) {
-          let fbq = supabase.from('centers').select('*').eq('status', 'approved')
-            .ilike('address', `%${searchText}%`);
-          if (activeFilter !== 'All') fbq = fbq.contains('services', [activeFilter]);
-          const fb = await fbq;
-          if (!fb.error && fb.data && fb.data.length > 0) {
-            data = fb.data;
+        // Address fallback — if name/city search returned nothing, try address field
+        if (!params.isCitySearch && searchText && (!data || data.length === 0)) {
+          const fb = await fetchPage({ ...params, addressFallback: true }, 0);
+          if (!fb.error && fb.count > 0) {
+            data  = fb.data;
+            count = fb.count;
+            params.addressFallback = true;
           }
         }
 
-        let pool = data || [];
+        currentQueryParams  = params;
+        totalMatchingCount  = count || 0;
+        currentOffset       = (data || []).length;
 
-        // Default state: shuffle and show 10 random
-        if (isDefaultState) {
-          for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
-          }
-          pool = pool.slice(0, 10);
-        }
-
-        rawResults = pool;
-        applyFilters();
+        renderResults(data || []);
 
       } catch (err) {
         results.innerHTML = `
@@ -1377,6 +1341,27 @@
       }
     }
 
+    // Build and execute a paged Supabase query; returns { data, count, error }
+    function fetchPage(params, offset) {
+      let q = supabase.from('centers')
+        .select('*', { count: 'exact' })
+        .eq('status', 'approved');
+
+      if (params.addressFallback) {
+        q = q.ilike('address', `%${params.searchText}%`);
+      } else if (params.searchText) {
+        q = params.isCitySearch
+          ? q.ilike('city', `%${params.searchText}%`)
+          : q.or(`name.ilike.%${params.searchText}%,city.ilike.%${params.searchText}%`);
+      }
+
+      if (params.filter !== 'All') {
+        q = q.contains('services', [params.filter]);
+      }
+
+      return q.order('name').range(offset, offset + PAGE_SIZE - 1);
+    }
+
     // Build a dynamic heading label from current search + filter state
     function buildLabel() {
       const text = lastSearchText;
@@ -1386,17 +1371,6 @@
       if (hasFilter)            return `${activeFilter} Centers`;
       if (hasText)              return `Results for '${text}'`;
       return 'Browse Centers';
-    }
-
-    // Apply active service filter to rawResults and re-render
-    // Text search is always DB-level (via performSearch) — no client-side text filtering here
-    function applyFilters() {
-      const filtered = rawResults.filter(c => {
-        const services = c.services || [];
-        return activeFilter === 'All' ||
-          (Array.isArray(services) && services.some(s => s.toLowerCase() === activeFilter.toLowerCase()));
-      });
-      renderResults(filtered, buildLabel());
     }
 
     // Stroke-only SVG icons (14px) — shared across card builders
@@ -1465,14 +1439,14 @@
       return card;
     }
 
-    // RENDER — collapsed cards with copy button
-    function renderResults(centers, label) {
+    // RENDER — first page of results
+    function renderResults(centers) {
       results.innerHTML = '';
 
       if (!centers.length) {
         results.innerHTML = `
           <div class="state">
-            <h2>No centers found.</h2>
+            <h2>No results found.</h2>
             <p>No centers match the current search or filter. Try a different search or select "All".</p>
           </div>`;
         return;
@@ -1480,95 +1454,59 @@
 
       const head = document.createElement('div');
       head.className = 'results-head';
-      const countText = isDefaultView
-        ? `Showing ${centers.length} of ${totalApprovedCount} centers`
-        : `${centers.length} center${centers.length !== 1 ? 's' : ''} found`;
+      const countText = totalMatchingCount > PAGE_SIZE
+        ? `Showing ${currentOffset} of ${totalMatchingCount} results`
+        : `${totalMatchingCount} result${totalMatchingCount !== 1 ? 's' : ''} found`;
       head.innerHTML =
-        `<span class="results-title">${esc(label || 'Browse Centers')}</span>` +
+        `<span class="results-title">${esc(buildLabel())}</span>` +
         `<span class="results-count">${countText}</span>`;
       results.appendChild(head);
 
       const grid = document.createElement('div');
+      grid.id = 'resultsGrid';
       grid.className = 'cards-grid';
       centers.forEach((c, i) => grid.appendChild(buildCardEl(c, i)));
       results.appendChild(grid);
 
-      // In default view, show a "View All Centers" button below the cards
-      if (isDefaultView) {
-        const wrap = document.createElement('div');
-        wrap.className = 'view-all-wrap';
-        const btn = document.createElement('button');
-        btn.className = 'view-all-btn';
-        btn.textContent = 'View All Centers';
-        btn.addEventListener('click', startViewAll);
-        wrap.appendChild(btn);
-        results.appendChild(wrap);
+      if (currentOffset < totalMatchingCount) {
+        results.appendChild(buildLoadMoreWrap());
       }
     }
 
-    // VIEW ALL — fetches all approved centers, 20 at a time
-    const VIEW_ALL_PAGE = 20;
-
-    async function startViewAll() {
-      viewAllOffset = 0;
-      results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading all centers…</p></div>`;
-      try {
-        const { data, error } = await supabase
-          .from('centers').select('*').eq('status', 'approved')
-          .order('name').range(0, VIEW_ALL_PAGE - 1);
-        if (error) throw error;
-        const page = data || [];
-        viewAllOffset = page.length;
-        renderViewAllPage(page);
-        scrollToResults();
-      } catch (err) {
-        results.innerHTML = `<div class="state"><h2>Something went wrong.</h2><p>${esc(err.message)}</p></div>`;
-      }
+    function buildLoadMoreWrap() {
+      const wrap = document.createElement('div');
+      wrap.className = 'load-more-wrap';
+      const btn = document.createElement('button');
+      btn.id = 'loadMoreBtn';
+      btn.className = 'load-more-btn';
+      btn.textContent = 'Load More';
+      btn.addEventListener('click', loadMore);
+      wrap.appendChild(btn);
+      return wrap;
     }
 
-    function renderViewAllPage(centers) {
-      results.innerHTML = '';
-
-      const head = document.createElement('div');
-      head.className = 'results-head';
-      head.innerHTML =
-        `<span class="results-title">All Centers</span>` +
-        `<span class="results-count">${totalApprovedCount} centers total</span>`;
-      results.appendChild(head);
-
-      const grid = document.createElement('div');
-      grid.id = 'viewAllGrid';
-      grid.className = 'cards-grid';
-      centers.forEach((c, i) => grid.appendChild(buildCardEl(c, i)));
-      results.appendChild(grid);
-
-      if (viewAllOffset < totalApprovedCount) {
-        const wrap = document.createElement('div');
-        wrap.className = 'load-more-wrap';
-        const btn = document.createElement('button');
-        btn.id = 'loadMoreBtn';
-        btn.className = 'load-more-btn';
-        btn.textContent = 'Load More';
-        btn.addEventListener('click', loadMoreCenters);
-        wrap.appendChild(btn);
-        results.appendChild(wrap);
-      }
-    }
-
-    async function loadMoreCenters() {
+    async function loadMore() {
       const btn = document.getElementById('loadMoreBtn');
       if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
       try {
-        const { data, error } = await supabase
-          .from('centers').select('*').eq('status', 'approved')
-          .order('name').range(viewAllOffset, viewAllOffset + VIEW_ALL_PAGE - 1);
+        const { data, error } = await fetchPage(currentQueryParams, currentOffset);
         if (error) throw error;
         const page = data || [];
-        viewAllOffset += page.length;
-        const grid = document.getElementById('viewAllGrid');
+        currentOffset += page.length;
+
+        const grid = document.getElementById('resultsGrid');
         const startIdx = grid ? grid.children.length : 0;
         if (grid) page.forEach((c, i) => grid.appendChild(buildCardEl(c, startIdx + i)));
-        if (viewAllOffset >= totalApprovedCount) {
+
+        // Update count text
+        const countEl = results.querySelector('.results-count');
+        if (countEl) {
+          countEl.textContent = currentOffset >= totalMatchingCount
+            ? `${totalMatchingCount} result${totalMatchingCount !== 1 ? 's' : ''} found`
+            : `Showing ${currentOffset} of ${totalMatchingCount} results`;
+        }
+
+        if (currentOffset >= totalMatchingCount) {
           if (btn) btn.closest('.load-more-wrap').remove();
         } else {
           if (btn) { btn.disabled = false; btn.textContent = 'Load More'; }
