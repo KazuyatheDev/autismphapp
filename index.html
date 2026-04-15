@@ -1105,6 +1105,7 @@
     let cities               = [];
     let activeFilter         = 'All';
     let selectedCity         = '';
+    let lastSearchText       = '';   // text actually submitted, used for labels
     let acIdx                = -1;
     let acOpen               = false;
     let rawResults = [];
@@ -1190,7 +1191,7 @@
       cityClr.style.display = 'none';
       closeAC();
       cityInput.focus();
-      if (rawResults.length > 0) applyFilters();
+      performSearch();
     });
 
     function renderAC(hits) {
@@ -1223,7 +1224,7 @@
       selectedCity = c.name;
       cityClr.style.display = 'block';
       closeAC();
-      if (rawResults.length > 0) applyFilters();
+      performSearch();
     }
 
     function closeAC() {
@@ -1275,6 +1276,7 @@
 
       try {
         const searchText = selectedCity || cityInput.value.trim();
+        lastSearchText = searchText;
         const isDefaultState = !searchText; // no text → always show 3 random for whatever pill is active
         let q = supabase.from('centers').select('*').eq('status', 'approved');
 
@@ -1337,7 +1339,7 @@
 
     // Build a dynamic heading label from current search + filter state
     function buildLabel() {
-      const text = selectedCity || cityInput.value.trim();
+      const text = lastSearchText;
       const hasText   = !!text;
       const hasFilter = activeFilter !== 'All';
       if (hasFilter && hasText) return `${activeFilter} Centers in '${text}'`;
@@ -1346,19 +1348,13 @@
       return 'Browse Centers';
     }
 
-    // Apply active service filter + text search to rawResults and re-render
+    // Apply active service filter to rawResults and re-render
+    // Text search is always DB-level (via performSearch) — no client-side text filtering here
     function applyFilters() {
-      const text = cityInput.value.trim().toLowerCase();
       const filtered = rawResults.filter(c => {
-        const name = c.name || '';
-        const city = c.city || '';
-        const matchText = !text ||
-          name.toLowerCase().includes(text) ||
-          city.toLowerCase().includes(text);
         const services = c.services || [];
-        const matchSvc = activeFilter === 'All' ||
+        return activeFilter === 'All' ||
           (Array.isArray(services) && services.some(s => s.toLowerCase() === activeFilter.toLowerCase()));
-        return matchText && matchSvc;
       });
       renderResults(filtered, buildLabel());
     }
