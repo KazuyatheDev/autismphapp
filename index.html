@@ -1888,11 +1888,14 @@
 
       try {
         if (IS_CONFIGURED && supabase) {
-          const { error } = await supabase.from('center_feedback').insert([{
-            center_id:   centerId || null,
-            center_name: centerName,
-            message,
-            contact,
+          const fullMessage = centerName
+            ? `[Re: ${centerName}] ${message}`
+            : message;
+          const { error } = await supabase.from('contacts').insert([{
+            name:    contact || 'Anonymous',
+            email:   null,
+            reason:  'Suggest Update',
+            message: fullMessage,
           }]);
           if (error) throw error;
         }
