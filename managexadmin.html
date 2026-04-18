@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Autismph</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --gray:    #737373;
+      --border:  #e5e5e5;
+      --surface: #f5f5f5;
+      --white:   #ffffff;
+      --sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --green:   #16a34a;
+      --red:     #dc2626;
+      --amber:   #d97706;
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--black);
+      background: #f8f8f8;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN SCREEN ── */
+    #loginScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .login-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-bottom: 20px;
+    }
+
+    .login-logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .login-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-size: 12.5px;
+      color: var(--gray);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 16px;
+      background: var(--white);
+      border: 1.5px solid #d0d0d0;
+      border-radius: 7px;
+      font-family: var(--sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--black);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-google:hover { background: var(--surface); border-color: #aaa; }
+
+    .btn-google svg { flex-shrink: 0; }
+
+    #loginError {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--red);
+      display: none;
+    }
+
+    /* ── ADMIN SHELL ── */
+    #adminShell { display: none; }
+
+    .admin-nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      height: 54px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .admin-nav-brand {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--black);
+      text-decoration: none;
+      margin-right: auto;
+    }
+
+    .admin-user {
+      font-size: 12px;
+      color: var(--gray);
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-signout {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .btn-signout:hover { color: var(--black); border-color: #aaa; }
+
+    /* ── TABS ── */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+
+    .tab-btn {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--black); }
+    .tab-btn.active { color: var(--black); border-bottom-color: var(--black); }
+
+    .tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e53e3e;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 10px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── CONTENT ── */
+    .admin-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .section-count {
+      font-size: 12px;
+      color: var(--gray);
+      margin-top: 2px;
+    }
+
+    .btn-refresh {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray);
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .btn-refresh:hover { color: var(--black); border-color: #aaa; }
+
+    /* ── TABLE ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 12.5px;
+    }
+
+    .data-table th {
+      background: var(--surface);
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #fafafa; }
+
+    .svc-pill {
+      display: inline-block;
+      background: #f0f0f0;
+      color: #555;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 10.5px;
+      font-weight: 600;
+      margin: 1px 2px 1px 0;
+    }
+
+    .status-badge {
+      display: inline-block;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-pending  { background: #fef3c7; color: #92400e; }
+    .badge-approved { background: #dcfce7; color: #166534; }
+    .badge-rejected { background: #fee2e2; color: #991b1b; }
+    .badge-resolved { background: #e0f2fe; color: #075985; }
+    .badge-open     { background: #fef9c3; color: #713f12; }
+
+    .btn-approve, .btn-reject, .btn-resolve {
+      font-family: var(--sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-approve { background: #dcfce7; color: #166534; }
+    .btn-approve:hover { background: #bbf7d0; }
+    .btn-reject  { background: #fee2e2; color: #991b1b; margin-left: 5px; }
+    .btn-reject:hover  { background: #fecaca; }
+    .btn-resolve { background: #dbeafe; color: #1d4ed8; }
+    .btn-resolve:hover { background: #bfdbfe; }
+
+    .btn-approve:disabled,
+    .btn-reject:disabled,
+    .btn-resolve:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── FEEDBACK GROUP ── */
+    .group-section {
+      margin-bottom: 28px;
+    }
+
+    .group-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
+
+    /* ── EMPTY / LOADING ── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--gray);
+      font-size: 13px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .loading-row td {
+      padding: 20px 12px;
+      color: var(--gray);
+      font-style: italic;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1c1c1c;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 16px;
+      border-radius: 7px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 700px) {
+      .admin-content { padding: 16px; }
+      .data-table { font-size: 11.5px; }
+      .data-table th, .data-table td { padding: 8px 9px; }
+      .admin-user { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg viewBox="0 0 32 32" width="24" height="24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="1"  y="1"  width="13" height="13" rx="2.5" fill="#FF6B6B"/>
+          <rect x="18" y="1"  width="13" height="13" rx="2.5" fill="#4D96FF"/>
+          <rect x="1"  y="18" width="13" height="13" rx="2.5" fill="#FFD93D"/>
+          <rect x="18" y="18" width="13" height="13" rx="2.5" fill="#6BCB77"/>
+        </svg>
+        <span class="login-logo-text">Autismph Admin</span>
+      </div>
+      <p class="login-title">Sign in to continue</p>
+      <p class="login-sub">Access is restricted to authorized administrators only.</p>
+      <button class="btn-google" id="signInBtn">
+        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <p id="loginError">Access denied. This account is not authorized.</p>
+    </div>
+  </div>
+
+  <!-- ADMIN SHELL -->
+  <div id="adminShell">
+    <nav class="admin-nav">
+      <span class="admin-nav-brand">Autismph Admin</span>
+      <span class="admin-user" id="adminUserEmail"></span>
+      <button class="btn-signout" id="signOutBtn">Sign out</button>
+    </nav>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="pending">
+        Pending Centers <span class="tab-badge" id="pendingBadge" style="display:none"></span>
+      </button>
+      <button class="tab-btn" data-tab="feedback">
+        Feedback &amp; Reports <span class="tab-badge" id="feedbackBadge" style="display:none"></span>
+      </button>
+    </div>
+
+    <!-- PENDING CENTERS TAB -->
+    <div id="tab-pending" class="tab-panel active">
+      <div class="admin-content">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Pending Centers</div>
+            <div class="section-count" id="pendingCount"></div>
+          </div>
+          <button class="btn-refresh" id="refreshPending">↻ Refresh</button>
+        </div>
+
+        <div id="pendingTableWrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>City</th>
+                <th>Region</th>
+                <th>Services</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pendingBody">
+              <tr class="loading-row"><td colspan="6">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEEDBACK / REPORTS TAB -->
+    <div id="tab-feedback" class="tab-panel">
+      <div class="admin-content">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Feedback &amp; Reports</div>
+            <div class="section-count" id="feedbackCount"></div>
+          </div>
+          <button class="btn-refresh" id="refreshFeedback">↻ Refresh</button>
+        </div>
+
+        <div id="feedbackGroups"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ─── CONFIG ──────────────────────────────────────────────────────────────
+    const SUPABASE_URL      = 'https://pqshfeuyeeakdhesclem.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxc2hmZXV5ZWVha2RoZXNjbGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzYyMzcsImV4cCI6MjA5MTE1MjIzN30.sd6WQUANjZiTWpcfPwWrZ6egp5DURWC70JXQ-kcQnO0';
+    const ADMIN_EMAIL       = 'jeerowboy1@gmail.com';
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ─── UTIL ─────────────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }) +
+             ' ' + d.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    // ─── AUTH ─────────────────────────────────────────────────────────────────
+    const loginScreen = document.getElementById('loginScreen');
+    const adminShell  = document.getElementById('adminShell');
+    const loginError  = document.getElementById('loginError');
+
+    async function checkSession() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        onSignedIn(session.user);
+      } else {
+        showLogin();
+      }
+    }
+
+    function showLogin() {
+      loginScreen.style.display = 'flex';
+      adminShell.style.display  = 'none';
+    }
+
+    function onSignedIn(user) {
+      if (user.email !== ADMIN_EMAIL) {
+        loginError.textContent = 'Access denied. This account (' + user.email + ') is not authorized.';
+        loginError.style.display = 'block';
+        sb.auth.signOut();
+        showLogin();
+        return;
+      }
+      loginScreen.style.display = 'none';
+      adminShell.style.display  = 'block';
+      document.getElementById('adminUserEmail').textContent = user.email;
+      loadPending();
+      loadFeedback();
+    }
+
+    document.getElementById('signInBtn').addEventListener('click', async () => {
+      loginError.style.display = 'none';
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.href }
+      });
+      if (error) {
+        loginError.textContent = 'Sign-in failed: ' + error.message;
+        loginError.style.display = 'block';
+      }
+    });
+
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      showLogin();
+    });
+
+    sb.auth.onAuthStateChange((_event, session) => {
+      if (session) onSignedIn(session.user);
+    });
+
+    checkSession();
+
+    // ─── TABS ─────────────────────────────────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ─── PENDING CENTERS ─────────────────────────────────────────────────────
+    async function loadPending() {
+      const tbody = document.getElementById('pendingBody');
+      tbody.innerHTML = '<tr class="loading-row"><td colspan="6">Loading…</td></tr>';
+
+      const { data, error } = await sb
+        .from('centers')
+        .select('id, name, city, region, services, created_at, address, contact')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        tbody.innerHTML = `<tr class="loading-row"><td colspan="6">Error loading data: ${esc(error.message)}</td></tr>`;
+        return;
+      }
+
+      const count = data.length;
+      document.getElementById('pendingCount').textContent = count + ' pending submission' + (count !== 1 ? 's' : '');
+      const badge = document.getElementById('pendingBadge');
+      if (count > 0) { badge.textContent = count; badge.style.display = 'inline-flex'; }
+      else           { badge.style.display = 'none'; }
+
+      if (!count) {
+        tbody.innerHTML = '<tr class="loading-row"><td colspan="6" style="text-align:center;color:#737373;">No pending submissions.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(c => {
+        const svcs = Array.isArray(c.services)
+          ? c.services.map(s => `<span class="svc-pill">${esc(s)}</span>`).join('')
+          : esc(c.services || '');
+        return `<tr>
+          <td><strong>${esc(c.name)}</strong>${c.address ? `<br><span style="color:#737373;font-size:11px">${esc(c.address)}</span>` : ''}</td>
+          <td>${esc(c.city || '—')}</td>
+          <td style="text-transform:uppercase;font-size:11.5px">${esc(c.region || '—')}</td>
+          <td>${svcs}</td>
+          <td style="color:#737373;white-space:nowrap">${fmtDate(c.created_at)}</td>
+          <td style="white-space:nowrap">
+            <button class="btn-approve" onclick="approveCenter('${c.id}', this)">Approve</button>
+            <button class="btn-reject"  onclick="rejectCenter('${c.id}', this)">Reject</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function approveCenter(id, btn) {
+      btn.disabled = true;
+      btn.nextElementSibling.disabled = true;
+      const { error } = await sb.from('centers').update({ status: 'approved' }).eq('id', id);
+      if (error) { showToast('Error: ' + error.message); btn.disabled = false; btn.nextElementSibling.disabled = false; return; }
+      showToast('Center approved.');
+      btn.closest('tr').remove();
+      decrementBadge('pendingBadge');
+      updateCountLabel('pendingCount', 'pending submission');
+    }
+
+    async function rejectCenter(id, btn) {
+      if (!confirm('Delete this pending submission permanently?')) return;
+      btn.disabled = true;
+      btn.previousElementSibling.disabled = true;
+      const { error } = await sb.from('centers').delete().eq('id', id);
+      if (error) { showToast('Error: ' + error.message); btn.disabled = false; btn.previousElementSibling.disabled = false; return; }
+      showToast('Submission rejected and removed.');
+      btn.closest('tr').remove();
+      decrementBadge('pendingBadge');
+      updateCountLabel('pendingCount', 'pending submission');
+    }
+
+    function decrementBadge(id) {
+      const badge = document.getElementById(id);
+      const n = Math.max(0, (parseInt(badge.textContent) || 1) - 1);
+      if (n === 0) badge.style.display = 'none';
+      else badge.textContent = n;
+    }
+
+    function updateCountLabel(id, singular) {
+      const tbody = document.getElementById('pendingBody');
+      const rows  = tbody.querySelectorAll('tr:not(.loading-row)').length;
+      document.getElementById(id).textContent = rows + ' ' + singular + (rows !== 1 ? 's' : '');
+    }
+
+    document.getElementById('refreshPending').addEventListener('click', loadPending);
+
+    // ─── FEEDBACK / REPORTS ───────────────────────────────────────────────────
+    const REASON_ORDER = [
+      'Outdated information',
+      'Center is closed',
+      'Wrong contact details',
+      'Wrong address',
+      'Wrong services listed',
+      'Update Center / Program Information',
+      'Feedback',
+      'Inquire / Contact us',
+      'Others',
+      'Other',
+    ];
+
+    async function loadFeedback() {
+      const wrap = document.getElementById('feedbackGroups');
+      wrap.innerHTML = '<div class="empty-state">Loading…</div>';
+
+      const { data, error } = await sb
+        .from('contacts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        wrap.innerHTML = `<div class="empty-state">Error: ${esc(error.message)}</div>`;
+        return;
+      }
+
+      // Also try to load center_feedback entries and merge
+      let cfData = [];
+      try {
+        const { data: cf } = await sb
+          .from('center_feedback')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (cf) cfData = cf.map(r => ({ ...r, _source: 'center_feedback', reason: 'Suggest Update' }));
+      } catch (_) {}
+
+      const all = [...(data || []).map(r => ({ ...r, _source: 'contacts' })), ...cfData];
+
+      const openItems = all.filter(r => r.status !== 'resolved');
+      const count = openItems.length;
+      document.getElementById('feedbackCount').textContent =
+        count + ' open item' + (count !== 1 ? 's' : '') + ' · ' + all.length + ' total';
+
+      const badge = document.getElementById('feedbackBadge');
+      if (count > 0) { badge.textContent = count; badge.style.display = 'inline-flex'; }
+      else           { badge.style.display = 'none'; }
+
+      if (!all.length) {
+        wrap.innerHTML = '<div class="empty-state">No feedback or reports yet.</div>';
+        return;
+      }
+
+      // Group by reason
+      const groups = {};
+      all.forEach(r => {
+        const key = r.reason || r._source === 'center_feedback' ? 'Suggest Update' : 'Other';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(r);
+      });
+
+      // Sort group keys
+      const sortedKeys = Object.keys(groups).sort((a, b) => {
+        const ai = REASON_ORDER.indexOf(a);
+        const bi = REASON_ORDER.indexOf(b);
+        if (ai === -1 && bi === -1) return a.localeCompare(b);
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      });
+
+      wrap.innerHTML = sortedKeys.map(key => {
+        const items = groups[key];
+        const rows = items.map(r => {
+          const isResolved = r.status === 'resolved';
+          const badge = isResolved
+            ? `<span class="status-badge badge-resolved">Resolved</span>`
+            : `<span class="status-badge badge-open">Open</span>`;
+          const resolveBtn = isResolved
+            ? ``
+            : `<button class="btn-resolve" onclick="resolveFeedback('${r.id}', '${r._source}', this)">Mark Resolved</button>`;
+
+          const centerInfo = r.center_name
+            ? `<div style="color:#737373;font-size:11px;margin-top:2px">Re: ${esc(r.center_name)}</div>` : '';
+
+          return `<tr>
+            <td>
+              <strong>${esc(r.name || r.contact || '—')}</strong>
+              ${r.email ? `<br><a href="mailto:${esc(r.email)}" style="font-size:11px;color:#737373">${esc(r.email)}</a>` : ''}
+              ${r.contact && r._source === 'center_feedback' ? `<br><span style="font-size:11px;color:#737373">${esc(r.contact)}</span>` : ''}
+            </td>
+            <td>${esc(r.message || '—')}${centerInfo}</td>
+            <td style="color:#737373;white-space:nowrap;font-size:11.5px">${fmtDate(r.created_at)}</td>
+            <td>${badge}</td>
+            <td style="white-space:nowrap">${resolveBtn}</td>
+          </tr>`;
+        }).join('');
+
+        const openCount = items.filter(r => r.status !== 'resolved').length;
+        return `<div class="group-section">
+          <div class="group-label">${esc(key)} <span style="font-weight:400;text-transform:none;letter-spacing:0">(${openCount} open / ${items.length} total)</span></div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>From</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+      }).join('');
+    }
+
+    async function resolveFeedback(id, source, btn) {
+      btn.disabled = true;
+      const table = source === 'center_feedback' ? 'center_feedback' : 'contacts';
+      const { error } = await sb.from(table).update({ status: 'resolved' }).eq('id', id);
+      if (error) {
+        showToast('Error: ' + error.message);
+        btn.disabled = false;
+        return;
+      }
+      showToast('Marked as resolved.');
+      const td = btn.closest('td');
+      const statusTd = td.previousElementSibling;
+      statusTd.innerHTML = '<span class="status-badge badge-resolved">Resolved</span>';
+      td.innerHTML = '';
+      decrementBadge('feedbackBadge');
+    }
+
+    document.getElementById('refreshFeedback').addEventListener('click', loadFeedback);
+  </script>
+</body>
+</html>

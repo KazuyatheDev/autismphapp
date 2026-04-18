@@ -696,6 +696,21 @@
     .field-hint { font-size: 11.5px; color: #e53e3e; margin-top: 4px; display: none; }
     .field-hint.show { display: block; }
 
+    .dup-warning {
+      font-size: 11.5px;
+      color: #c53030;
+      background: #fff5f5;
+      border: 1px solid #fc8181;
+      border-radius: 5px;
+      padding: 7px 10px;
+      margin-top: 5px;
+      line-height: 1.45;
+      display: none;
+    }
+    .dup-warning.show { display: block; }
+    .dup-warning a { color: #9b2c2c; font-weight: 600; text-decoration: underline; cursor: pointer; }
+    .dup-warning a:hover { color: #742a2a; }
+
     /* City autocomplete wrapper inside modal */
     .city-ac-wrap { position: relative; }
 
@@ -992,7 +1007,7 @@
       Autismph
     </a>
     <span class="footer-copy">© 2025 Autismph · Free to use · Built by Ausome Parent</span>
-    <p class="footer-copy"><b>Disclaimer:</b> The information in this directory is provided for general guidance only and may not reflect current details. Autismph is a community-maintained resource, we make no guarantees regarding the accuracy, completeness, or availability of any listed center or school. Always verify directly with the provider before making any decisions. This directory does not constitute a referral, endorsement, or professional recommendation.</p>
+    <p class="footer-copy"><b>Disclaimer:</b> The information in this directory is intended as a general guide only. Details such as contact numbers, addresses, services, and availability may change without notice. Autismph is a community-maintained resource and makes no guarantees regarding the accuracy, completeness, or current status of any listing. Users are responsible for independently verifying all information directly with the provider before making any decisions. Nothing in this directory constitutes a referral, professional recommendation, or endorsement of any kind. Autismph is not liable for any reliance placed on this information.</p>
   </footer>
 
   <!-- COPY TOAST -->
@@ -1014,6 +1029,7 @@
             <label for="f-name">Therapy / Name <span style="color:#e53e3e">*</span></label>
             <input type="text" id="f-name" autocomplete="off" placeholder="e.g. Sunshine Therapy Center" />
             <p class="field-hint" id="hint-name">Please enter the center or  name.</p>
+            <div class="dup-warning" id="dup-warning"></div>
           </div>
 
           <!-- services — 2-column grid -->
@@ -1092,6 +1108,42 @@
     </div>
   </div>
 
+
+  <!-- SUGGEST UPDATE MODAL -->
+  <div id="suggestModal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="suggestModalTitle">
+      <div class="modal-header">
+        <h2 id="suggestModalTitle" class="modal-title">Suggest an Update</h2>
+        <button type="button" class="modal-close" id="suggestModalClose" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="suggestForm" novalidate>
+          <div class="form-group">
+            <label for="sg-center">Center</label>
+            <input type="text" id="sg-center" readonly style="background:#f5f5f5;color:#555;" />
+          </div>
+          <input type="hidden" id="sg-center-id" />
+          <div class="form-group">
+            <label for="sg-message">What needs to be updated? <span style="color:#e53e3e">*</span></label>
+            <textarea id="sg-message" rows="4" placeholder="e.g. Phone number changed, new address, center is now closed…"></textarea>
+            <p class="field-hint" id="hint-sg-message">Please describe what needs to be updated.</p>
+          </div>
+          <div class="form-group">
+            <label for="sg-contact">Your contact <span class="opt">(optional)</span></label>
+            <input type="text" id="sg-contact" placeholder="Email or phone — so we can follow up" />
+          </div>
+          <div id="suggestFormArea" class="form-actions">
+            <button type="submit" class="btn-primary" id="suggestFormBtn">Send Suggestion</button>
+          </div>
+          <div id="suggestSuccess" class="submit-success" hidden>
+            <div class="success-icon">✓</div>
+            <h3>Thank you!</h3>
+            <p>We'll review your suggestion and update the listing.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- SUPABASE CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1572,6 +1624,7 @@
       submitForm.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
       fRegionInput.value = '';
       closeFCityAC();
+      hideDupWarning();
     }
 
     // All open-modal triggers
@@ -1652,7 +1705,10 @@
       document.getElementById(hintId).classList.remove('show');
     }
 
-    document.getElementById('f-name').addEventListener('input', function() { clearFieldError(this, 'hint-name'); });
+    document.getElementById('f-name').addEventListener('input', function() {
+      clearFieldError(this, 'hint-name');
+      if (!this.value.trim()) hideDupWarning();
+    });
     fCityInput.addEventListener('input', function() { clearFieldError(this, 'hint-city'); });
     document.getElementById('f-address').addEventListener('input', function() { clearFieldError(this, 'hint-address'); });
     submitForm.querySelectorAll('input[name="services"]').forEach(cb => {
@@ -1681,6 +1737,7 @@
       if (!city)            { showFieldError(fCityInput,'hint-city');     valid = false; }
       if (!address)         { showFieldError(addressEl, 'hint-address');  valid = false; }
       if (!services.length) { document.getElementById('hint-services').classList.add('show'); valid = false; }
+      if (isDuplicateName)  { nameEl.classList.add('field-error'); dupWarningEl.classList.add('show'); valid = false; }
       if (!valid) return;
 
       submitFormBtn.disabled = true;
@@ -1720,6 +1777,136 @@
       }
     });
 
+
+    // ─── DUPLICATE NAME CHECK ────────────────────────────────────────────
+    const dupWarningEl = document.getElementById('dup-warning');
+    let dupDebounceTimer = null;
+    let isDuplicateName  = false;   // hard block flag
+
+    function hideDupWarning() {
+      dupWarningEl.classList.remove('show');
+      dupWarningEl.innerHTML = '';
+      isDuplicateName = false;
+    }
+
+    async function checkDuplicateName(name) {
+      if (!name || !IS_CONFIGURED || !supabase) return;
+      try {
+        const { data } = await supabase
+          .from('centers')
+          .select('id, name, city')
+          .ilike('name', `%${name}%`)
+          .neq('status', 'rejected')
+          .limit(1)
+          .maybeSingle();
+        if (data) {
+          isDuplicateName = true;
+          dupWarningEl.innerHTML =
+            `A center with a similar name already exists: <strong>${esc(data.name)}</strong>, ${esc(data.city || '')}. ` +
+            `If you want to update this listing, use ` +
+            `<a id="dup-suggest-link" tabindex="0">Suggest an update</a> instead.`;
+          dupWarningEl.classList.add('show');
+          document.getElementById('f-name').classList.add('field-error');
+          document.getElementById('dup-suggest-link').addEventListener('click', () => {
+            hideDupWarning();
+            closeModal();
+            openSuggestModal(data.id, data.name);
+          });
+        } else {
+          isDuplicateName = false;
+          hideDupWarning();
+          document.getElementById('f-name').classList.remove('field-error');
+        }
+      } catch (_) {
+        isDuplicateName = false;
+        hideDupWarning();
+      }
+    }
+
+    document.getElementById('f-name').addEventListener('blur', function () {
+      const val = this.value.trim();
+      if (val.length < 3) { hideDupWarning(); return; }
+      clearTimeout(dupDebounceTimer);
+      checkDuplicateName(val);
+    });
+
+    document.getElementById('f-name').addEventListener('input', function () {
+      clearTimeout(dupDebounceTimer);
+      const val = this.value.trim();
+      if (val.length < 3) { hideDupWarning(); return; }
+      dupDebounceTimer = setTimeout(() => checkDuplicateName(val), 600);
+    });
+
+    // ─── SUGGEST UPDATE MODAL ─────────────────────────────────────────────
+    const suggestModal    = document.getElementById('suggestModal');
+    const suggestForm     = document.getElementById('suggestForm');
+    const suggestFormBtn  = document.getElementById('suggestFormBtn');
+    const suggestSuccess  = document.getElementById('suggestSuccess');
+    const suggestFormArea = document.getElementById('suggestFormArea');
+
+    function openSuggestModal(centerId, centerName) {
+      document.getElementById('sg-center').value   = centerName;
+      document.getElementById('sg-center-id').value = centerId;
+      suggestForm.reset();
+      document.getElementById('sg-center').value   = centerName;
+      document.getElementById('sg-center-id').value = centerId;
+      suggestFormArea.hidden  = false;
+      suggestSuccess.hidden   = true;
+      suggestFormBtn.disabled = false;
+      suggestFormBtn.textContent = 'Send Suggestion';
+      suggestForm.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
+      suggestModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('sg-message').focus();
+    }
+
+    function closeSuggestModal() {
+      suggestModal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('suggestModalClose').addEventListener('click', closeSuggestModal);
+    suggestModal.addEventListener('click', e => { if (e.target === suggestModal) closeSuggestModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !suggestModal.hidden) closeSuggestModal(); });
+
+    suggestForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const messageEl = document.getElementById('sg-message');
+      const message   = messageEl.value.trim();
+      if (!message) {
+        document.getElementById('hint-sg-message').classList.add('show');
+        return;
+      }
+      document.getElementById('hint-sg-message').classList.remove('show');
+
+      const centerId  = document.getElementById('sg-center-id').value;
+      const centerName = document.getElementById('sg-center').value;
+      const contact   = document.getElementById('sg-contact').value.trim() || null;
+
+      suggestFormBtn.disabled = true;
+      suggestFormBtn.textContent = 'Sending…';
+
+      try {
+        if (IS_CONFIGURED && supabase) {
+          const { error } = await supabase.from('center_feedback').insert([{
+            center_id:   centerId || null,
+            center_name: centerName,
+            message,
+            contact,
+          }]);
+          if (error) throw error;
+        }
+        suggestFormArea.hidden = true;
+        suggestSuccess.hidden  = false;
+      } catch (err) {
+        suggestFormBtn.disabled = false;
+        suggestFormBtn.textContent = 'Send Suggestion';
+        const msg = err.message || 'Please try again.';
+        alert(msg.includes('row-level security') || msg.includes('does not exist')
+          ? 'Unable to submit right now. Please try again later.'
+          : 'Error: ' + msg);
+      }
+    });
 
     // ─── BURGER MENU ─────────────────────────────────────────────────────
     const burger   = document.getElementById('burger');
