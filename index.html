@@ -1219,6 +1219,8 @@
     let totalMatchingCount   = 0;    // total DB rows for the current query
     let currentOffset        = 0;    // how many cards are currently displayed
     let currentQueryParams   = null; // params to reproduce the current query for Load More
+    let isDefaultView        = false; // true when showing random default landing
+    let defaultSeenIds       = [];    // IDs already shown in default view (for dedup)
 
     const PAGE_SIZE = 10;
 
@@ -1384,37 +1386,57 @@
       searchBtn.disabled = true;
       searchBtn.textContent = 'Searching…';
       results.innerHTML = `<div class="state"><div class="spinner"></div><p>Loading…</p></div>`;
-      currentOffset = 0;
+      currentOffset  = 0;
+      defaultSeenIds = [];
+
+      const searchText = selectedCity || cityInput.value.trim();
+      lastSearchText   = searchText;
+
+      // Default view: no text, no pill filter → random varied results
+      isDefaultView = !searchText && activeFilter === 'All';
 
       try {
-        const searchText = selectedCity || cityInput.value.trim();
-        lastSearchText = searchText;
+        let data, count;
 
-        const params = {
-          searchText,
-          isCitySearch: !!selectedCity,
-          filter: activeFilter,
-          addressFallback: false
-        };
+        if (isDefaultView) {
+          // Fetch total count and first random page in parallel
+          const [countRes, dataRes] = await Promise.all([
+            supabase.from('centers').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
+            supabase.rpc('get_random_centers', { limit_arg: PAGE_SIZE, exclude_ids: [] })
+          ]);
+          count = countRes.count || 0;
+          data  = dataRes.data || [];
+          if (dataRes.error) throw dataRes.error;
+          defaultSeenIds = data.map(c => c.id);
+        } else {
+          isDefaultView = false;
+          const params = {
+            searchText,
+            isCitySearch: !!selectedCity,
+            filter: activeFilter,
+            addressFallback: false
+          };
 
-        let { data, count, error } = await fetchPage(params, 0);
-        if (error) throw error;
+          let res = await fetchPage(params, 0);
+          if (res.error) throw res.error;
+          data  = res.data  || [];
+          count = res.count || 0;
 
-        // Address fallback — if name/city search returned nothing, try address field
-        if (!params.isCitySearch && searchText && (!data || data.length === 0)) {
-          const fb = await fetchPage({ ...params, addressFallback: true }, 0);
-          if (!fb.error && fb.count > 0) {
-            data  = fb.data;
-            count = fb.count;
-            params.addressFallback = true;
+          // Address fallback
+          if (!params.isCitySearch && searchText && !data.length) {
+            const fb = await fetchPage({ ...params, addressFallback: true }, 0);
+            if (!fb.error && fb.count > 0) {
+              data  = fb.data  || [];
+              count = fb.count || 0;
+              params.addressFallback = true;
+            }
           }
+          currentQueryParams = params;
         }
 
-        currentQueryParams  = params;
-        totalMatchingCount  = count || 0;
-        currentOffset       = (data || []).length;
-
-        renderResults(data || []);
+        totalMatchingCount = count;
+        currentOffset      = data.length;
+        renderResults(data);
 
       } catch (err) {
         results.innerHTML = `
@@ -1604,9 +1626,21 @@
       const btn = document.getElementById('loadMoreBtn');
       if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
       try {
-        const { data, error } = await fetchPage(currentQueryParams, currentOffset);
-        if (error) throw error;
-        const page = data || [];
+        let page;
+        if (isDefaultView) {
+          const { data, error } = await supabase.rpc('get_random_centers', {
+            limit_arg:   PAGE_SIZE,
+            exclude_ids: defaultSeenIds
+          });
+          if (error) throw error;
+          page = data || [];
+          defaultSeenIds = defaultSeenIds.concat(page.map(c => c.id));
+        } else {
+          const { data, error } = await fetchPage(currentQueryParams, currentOffset);
+          if (error) throw error;
+          page = data || [];
+        }
+
         currentOffset += page.length;
 
         const grid = document.getElementById('resultsGrid');
