@@ -492,6 +492,42 @@
     .card-copy-btn:hover { background: var(--surface); color: var(--black); border-color: #bbb; }
     .card-copy-btn svg { width: 13px; height: 13px; display: block; pointer-events: none; }
 
+    /* HEART BUTTON */
+    .card-heart-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 3px 2px;
+      color: #c0c0c0;
+      font-size: 11.5px;
+      font-family: var(--sans);
+      font-weight: 600;
+      line-height: 1;
+      transition: color 0.18s, transform 0.15s;
+      user-select: none;
+    }
+    .card-heart-btn svg { width: 15px; height: 15px; display: block; pointer-events: none; flex-shrink: 0; }
+    .card-heart-btn:hover { color: #e05; }
+    .card-heart-btn.liked { color: #e05; }
+    .card-heart-btn.liked svg { fill: #e05; stroke: #e05; }
+    .card-heart-btn.pop { animation: heartPop 0.28s ease; }
+    @keyframes heartPop {
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.45); }
+      100% { transform: scale(1); }
+    }
+
+    .card-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      padding-top: 2px;
+    }
+
     .copy-toast {
       position: fixed;
       bottom: 28px;
@@ -951,7 +987,7 @@
       <div class="main-inner">
 
         <h1 class="hero-title">Find Autism Therapy Centers in the Philippines</h1>
-        <p class="hero-sub">400+ services listed by the ausome community, for the community..</p>
+        <p class="hero-sub">Over 400 autism services listed. Know one we're missing? Add it!</p>
         <!-- Search row -->
         <div class="search-row">
           <div class="input-wrap">
@@ -1449,6 +1485,8 @@
       const website  = c.website || '';
       const facebook = c.facebook_url || '';
       const services = c.services || [];
+      const centerId = c.id || '';
+      let   recCount = c.recommend_count || 0;
 
       const badges = services.map(s => `<span class="svc">${esc(s)}</span>`).join('');
 
@@ -1464,8 +1502,10 @@
         <p class="card-city">${esc(city)}${region ? ', ' + esc(region) : ''}</p>
         <div class="card-svcs">${badges}</div>
         ${contactsHTML ? `<hr class="card-divider"><div class="card-contacts">${contactsHTML}</div>` : ''}
-        <hr class="card-divider">`;
+        <hr class="card-divider">
+        <div class="card-footer-row"></div>`;
 
+      // ── copy button
       const copyBtn = document.createElement('button');
       copyBtn.type = 'button';
       copyBtn.className = 'card-copy-btn';
@@ -1487,6 +1527,29 @@
         showCopyToast();
       });
       card.appendChild(copyBtn);
+
+      // ── heart button
+      const heartBtn = document.createElement('button');
+      heartBtn.type = 'button';
+      heartBtn.className = 'card-heart-btn';
+      heartBtn.setAttribute('aria-label', 'Recommend this center');
+      heartBtn.dataset.centerId = centerId;
+      const HEART_OUTLINE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+      const countSpan = document.createElement('span');
+      countSpan.className = 'heart-count';
+      countSpan.textContent = recCount > 0 ? recCount : '';
+      heartBtn.innerHTML = HEART_OUTLINE;
+      heartBtn.appendChild(countSpan);
+
+      // mark as liked if device already recommended
+      if (likedCenterIds.has(centerId)) {
+        heartBtn.classList.add('liked');
+      }
+
+      heartBtn.addEventListener('click', () => handleRecommend(centerId, heartBtn, countSpan));
+
+      card.querySelector('.card-footer-row').appendChild(heartBtn);
+
       setTimeout(() => card.classList.add('visible'), animIdx * 40);
       return card;
     }
@@ -1569,11 +1632,12 @@
     }
 
     let toastTimer;
-    function showCopyToast() {
+    function showCopyToast(msg) {
       const toast = document.getElementById('copyToast');
+      toast.textContent = msg || 'Copied!';
       toast.classList.add('show');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
     function esc(str) {
@@ -1584,6 +1648,79 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     }
+
+    // ─── DEVICE ID & RECOMMENDATIONS ─────────────────────────────────────
+    function getDeviceId() {
+      const KEY = 'autismph_device_id';
+      let id = localStorage.getItem(KEY);
+      if (!id) {
+        id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = Math.random() * 16 | 0;
+          return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        localStorage.setItem(KEY, id);
+      }
+      return id;
+    }
+
+    const DEVICE_ID = getDeviceId();
+    const likedCenterIds = new Set();   // populated on load
+
+    // Load which centers this device has already recommended
+    async function loadLikedCenters() {
+      if (!IS_CONFIGURED || !supabase) return;
+      try {
+        const { data } = await supabase
+          .from('recommendations')
+          .select('center_id')
+          .eq('device_id', DEVICE_ID);
+        if (data) data.forEach(r => likedCenterIds.add(r.center_id));
+      } catch (_) {}
+    }
+
+    async function handleRecommend(centerId, btn, countSpan) {
+      if (!centerId || !IS_CONFIGURED || !supabase) return;
+      if (btn.dataset.pending) return;   // debounce
+
+      if (likedCenterIds.has(centerId)) {
+        showCopyToast('You already recommended this center');
+        return;
+      }
+
+      btn.dataset.pending = '1';
+
+      try {
+        const { error: insertErr } = await supabase
+          .from('recommendations')
+          .insert([{ center_id: centerId, device_id: DEVICE_ID }]);
+
+        if (insertErr) {
+          // unique violation = already liked from another path
+          if (insertErr.code === '23505') {
+            likedCenterIds.add(centerId);
+            btn.classList.add('liked');
+            showCopyToast('You already recommended this center');
+          }
+          delete btn.dataset.pending;
+          return;
+        }
+
+        // Increment count on centers table
+        const newCount = (parseInt(countSpan.textContent) || 0) + 1;
+        await supabase.rpc('increment_recommend_count', { center_id_arg: centerId });
+
+        likedCenterIds.add(centerId);
+        btn.classList.add('liked');
+        btn.classList.add('pop');
+        btn.addEventListener('animationend', () => btn.classList.remove('pop'), { once: true });
+        countSpan.textContent = newCount;
+      } catch (_) {}
+
+      delete btn.dataset.pending;
+    }
+
+    // Kick off liked-centers load immediately
+    loadLikedCenters();
 
     // ─── SUBMIT MODAL ────────────────────────────────────────────────────
     const submitModal    = document.getElementById('submitModal');
