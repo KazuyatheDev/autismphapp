@@ -1716,38 +1716,49 @@
       if (!centerId || !IS_CONFIGURED || !supabase) return;
       if (btn.dataset.pending) return;   // debounce
 
-      if (likedCenterIds.has(centerId)) {
-        showCopyToast('You already recommended this center');
-        return;
-      }
-
       btn.dataset.pending = '1';
+      const alreadyLiked = likedCenterIds.has(centerId);
 
       try {
-        const { error: insertErr } = await supabase
-          .from('recommendations')
-          .insert([{ center_id: centerId, device_id: DEVICE_ID }]);
+        if (alreadyLiked) {
+          // ── UN-LIKE: delete row, decrement count ──────────────────────────
+          const { error } = await supabase
+            .from('recommendations')
+            .delete()
+            .eq('center_id', centerId)
+            .eq('device_id', DEVICE_ID);
+          if (error) throw error;
 
-        if (insertErr) {
-          // unique violation = already liked from another path
-          if (insertErr.code === '23505') {
-            likedCenterIds.add(centerId);
-            btn.classList.add('liked');
-            showCopyToast('You already recommended this center');
+          await supabase.rpc('decrement_recommend_count', { center_id_arg: centerId });
+
+          likedCenterIds.delete(centerId);
+          btn.classList.remove('liked');
+          const cur = parseInt(countSpan.textContent) || 0;
+          countSpan.textContent = cur - 1 > 0 ? cur - 1 : '';
+        } else {
+          // ── LIKE: insert row, increment count ────────────────────────────
+          const { error: insertErr } = await supabase
+            .from('recommendations')
+            .insert([{ center_id: centerId, device_id: DEVICE_ID }]);
+
+          if (insertErr) {
+            // Unique violation means it's actually already liked — sync UI
+            if (insertErr.code === '23505') {
+              likedCenterIds.add(centerId);
+              btn.classList.add('liked');
+            }
+            throw insertErr;
           }
-          delete btn.dataset.pending;
-          return;
+
+          await supabase.rpc('increment_recommend_count', { center_id_arg: centerId });
+
+          likedCenterIds.add(centerId);
+          btn.classList.add('liked');
+          btn.classList.add('pop');
+          btn.addEventListener('animationend', () => btn.classList.remove('pop'), { once: true });
+          const cur = parseInt(countSpan.textContent) || 0;
+          countSpan.textContent = cur + 1;
         }
-
-        // Increment count on centers table
-        const newCount = (parseInt(countSpan.textContent) || 0) + 1;
-        await supabase.rpc('increment_recommend_count', { center_id_arg: centerId });
-
-        likedCenterIds.add(centerId);
-        btn.classList.add('liked');
-        btn.classList.add('pop');
-        btn.addEventListener('animationend', () => btn.classList.remove('pop'), { once: true });
-        countSpan.textContent = newCount;
       } catch (_) {}
 
       delete btn.dataset.pending;
