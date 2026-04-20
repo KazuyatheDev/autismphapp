@@ -535,6 +535,23 @@
       document.getElementById(hintId).classList.remove('show');
     }
 
+    // Pre-fill from URL params (e.g. from center detail page)
+    (function() {
+      const p = new URLSearchParams(location.search);
+      const reason  = p.get('reason');
+      const center  = p.get('center');
+      if (reason) {
+        const sel = document.getElementById('ct-reason');
+        for (const opt of sel.options) {
+          if (opt.value === reason) { opt.selected = true; break; }
+        }
+      }
+      if (center) {
+        const msg = document.getElementById('ct-message');
+        msg.value = `Regarding: ${center}\n\n`;
+      }
+    })();
+
     document.getElementById('ct-name').addEventListener('input', function() { clearErr(this, 'hint-ct-name'); });
     document.getElementById('ct-email').addEventListener('input', function() { clearErr(this, 'hint-ct-email'); });
     document.getElementById('ct-reason').addEventListener('change', function() { clearErr(this, 'hint-ct-reason'); });

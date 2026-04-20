@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="pageTitle">Autism Therapy Center | Autismpinas</title>
+  <meta name="description" id="pageDesc" content="Autism therapy center details - Autismpinas directory." />
+  <meta property="og:title" id="ogTitle" content="Autism Therapy Center | Autismpinas" />
+  <meta property="og:description" id="ogDesc" content="Autism therapy center in the Philippines." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" id="ogUrl" content="" />
+  <meta name="robots" content="index, follow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --black:   #0a0a0a;
+      --gray:    #737373;
+      --border:  #e5e5e5;
+      --surface: #f5f5f5;
+      --white:   #ffffff;
+      --sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--black);
+      background: #f8f8f8;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--black);
+      text-decoration: none;
+      margin-right: auto;
+    }
+
+    .nav-links { display: flex; gap: 4px; }
+
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray);
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-links a:hover { color: var(--black); background: var(--surface); }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    /* ── BACK LINK ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray);
+      text-decoration: none;
+      margin-bottom: 20px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--black); }
+
+    /* ── STATE ── */
+    .state-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--gray);
+      font-size: 14px;
+    }
+    .state-box a { color: var(--black); font-weight: 600; }
+
+    /* ── DETAIL CARD ── */
+    .detail-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .detail-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .detail-name {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    .detail-location {
+      font-size: 13px;
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    /* ── SHARE BUTTON ── */
+    .btn-share {
+      flex-shrink: 0;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 9px;
+      cursor: pointer;
+      color: var(--gray);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .btn-share:hover { background: var(--surface); color: var(--black); border-color: #bbb; }
+    .btn-share svg { width: 14px; height: 14px; display: block; flex-shrink: 0; }
+
+    /* ── SERVICES ── */
+    .detail-svcs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+
+    .svc-badge {
+      display: inline-block;
+      background: var(--surface);
+      color: #444;
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    /* ── DIVIDER ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    /* ── CONTACT ROWS ── */
+    .contact-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      line-height: 1.45;
+    }
+    .contact-row:last-child { margin-bottom: 0; }
+    .contact-row-icon { color: var(--gray); margin-top: 1px; flex-shrink: 0; }
+    .contact-row a { color: var(--black); text-decoration: none; font-weight: 500; }
+    .contact-row a:hover { text-decoration: underline; }
+
+    /* ── ACTIONS ROW ── */
+    .detail-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ── HEART BUTTON ── */
+    .card-heart-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 0;
+      transition: color 0.18s, transform 0.15s;
+      user-select: none;
+    }
+    .card-heart-btn svg { width: 17px; height: 17px; display: block; pointer-events: none; flex-shrink: 0; }
+    .card-heart-btn:hover { color: #e05; }
+    .card-heart-btn.liked { color: #e05; }
+    .card-heart-btn.liked svg { fill: #e05; stroke: #e05; }
+    .card-heart-btn.pop { animation: heartPop 0.28s ease; }
+    @keyframes heartPop {
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.45); }
+      100% { transform: scale(1); }
+    }
+    .heart-count { font-size: 13px; font-weight: 600; min-width: 10px; }
+
+    /* ── REPORT LINK ── */
+    .report-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .report-link:hover { color: var(--black); }
+    .report-link svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1c1c1c;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 16px;
+      border-radius: 7px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: var(--white);
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--black);
+      text-decoration: none;
+    }
+
+    .footer-copy { font-size: 12px; color: var(--gray); }
+
+    .footer-disclaimer {
+      font-size: 10.5px;
+      color: #c0c0c0;
+      line-height: 1.6;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      main { padding: 20px 16px 40px; }
+      .detail-name { font-size: 17px; }
+      .nav-links a { font-size: 12.5px; padding: 5px 8px; }
+      footer { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">
+      <svg viewBox="0 0 32 32" width="22" height="22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="1"  y="1"  width="13" height="13" rx="2.5" fill="#FF6B6B"/>
+        <rect x="18" y="1"  width="13" height="13" rx="2.5" fill="#4D96FF"/>
+        <rect x="1"  y="18" width="13" height="13" rx="2.5" fill="#FFD93D"/>
+        <rect x="18" y="18" width="13" height="13" rx="2.5" fill="#6BCB77"/>
+      </svg>
+      Autismpinas
+    </a>
+    <nav class="nav-links">
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <a href="index.html" class="back-link" id="backLink">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to directory
+    </a>
+
+    <div id="loadState" class="state-box">Loading center details…</div>
+
+    <div id="errState" class="state-box" style="display:none">
+      <p style="margin-bottom:10px">Center not found or no longer listed.</p>
+      <a href="index.html">Browse all centers →</a>
+    </div>
+
+    <div id="centerContent" style="display:none">
+      <div class="detail-card">
+        <div class="detail-top">
+          <div>
+            <h1 class="detail-name" id="dName"></h1>
+            <p class="detail-location" id="dLocation"></p>
+          </div>
+          <button class="btn-share" id="sharePageBtn" aria-label="Share this center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            Share
+          </button>
+        </div>
+
+        <div class="detail-svcs" id="dServices"></div>
+
+        <hr class="divider" id="contactsDivider" style="display:none">
+        <div id="dContacts"></div>
+
+        <hr class="divider">
+
+        <div class="detail-actions">
+          <button class="card-heart-btn" id="heartBtn" aria-label="Recommend this center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="heart-count" id="heartCount"></span>
+          </button>
+          <a class="report-link" id="reportLink" href="contact.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Is this info outdated?
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="index.html" class="footer-logo">
+      <svg viewBox="0 0 32 32" width="18" height="18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="1"  y="1"  width="13" height="13" rx="2.5" fill="#FF6B6B"/>
+        <rect x="18" y="1"  width="13" height="13" rx="2.5" fill="#4D96FF"/>
+        <rect x="1"  y="18" width="13" height="13" rx="2.5" fill="#FFD93D"/>
+        <rect x="18" y="18" width="13" height="13" rx="2.5" fill="#6BCB77"/>
+      </svg>
+      Autismpinas
+    </a>
+    <span class="footer-copy">© 2025 Autismpinas · Built by Ausome Parent · Community maintained</span>
+    <p class="footer-disclaimer"><b>Disclaimer:</b> The information in this directory is provided for general guidance only and may not always be complete, accurate, or up to date. Details such as contact information, addresses, services, fees, and availability can change at any time without notice. This platform is a community-maintained resource intended to help users discover and explore service options. Users are solely responsible for verifying all information directly with the service provider before making any decisions or arrangements. Inclusion in this directory does not constitute a referral, endorsement, or recommendation of any provider or service. Autismpinas makes no warranties, express or implied, regarding the accuracy or reliability of the information and shall not be held liable for any errors, omissions, or outcomes resulting from the use of this directory.</p>
+  </footer>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL      = 'https://pqshfeuyeeakdhesclem.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxc2hmZXV5ZWVha2RoZXNjbGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzYyMzcsImV4cCI6MjA5MTE1MjIzN30.sd6WQUANjZiTWpcfPwWrZ6egp5DURWC70JXQ-kcQnO0';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function esc(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function toSlug(name) {
+      return (name || '').toLowerCase().trim()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    // ── DEVICE ID (for liked tracking) ──────────────────────────────────────
+    function getDeviceId() {
+      const KEY = 'ap_device_id';
+      let id = localStorage.getItem(KEY);
+      if (!id) {
+        id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = Math.random() * 16 | 0;
+          return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        localStorage.setItem(KEY, id);
+      }
+      return id;
+    }
+    const DEVICE_ID = getDeviceId();
+
+    // ── TOAST ────────────────────────────────────────────────────────────────
+    let toastTimer;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    // ── LOAD CENTER ──────────────────────────────────────────────────────────
+    const slug = new URLSearchParams(location.search).get('slug');
+
+    async function loadCenter() {
+      if (!slug) { showErr(); return; }
+
+      const { data, error } = await sb
+        .from('centers')
+        .select('*')
+        .eq('slug', slug)
+        .eq('status', 'approved')
+        .maybeSingle();
+
+      if (error || !data) { showErr(); return; }
+      renderCenter(data);
+    }
+
+    function showErr() {
+      document.getElementById('loadState').style.display = 'none';
+      document.getElementById('errState').style.display = '';
+    }
+
+    function renderCenter(c) {
+      document.getElementById('loadState').style.display = 'none';
+
+      const name     = c.name || '';
+      const city     = c.city || '';
+      const region   = c.region || '';
+      const address  = c.address || '';
+      const contact  = c.contact || '';
+      const email    = c.email || '';
+      const website  = c.website || '';
+      const facebook = c.facebook_url || '';
+      const services = Array.isArray(c.services) ? c.services : [];
+      let   recCount = c.recommend_count || 0;
+      const centerId = c.id || '';
+
+      // SEO meta
+      const pageUrl = location.href;
+      const titleText = `${name} - Autism Therapy in ${city} | Autismpinas`;
+      const descText = `${name} offers ${services.slice(0, 3).join(', ')}${services.length > 3 ? ' and more' : ''}${address ? ' in ' + address : (city ? ' in ' + city : '')}. Find autism therapy centers across the Philippines on Autismpinas.`;
+
+      document.getElementById('pageTitle').textContent = titleText;
+      document.getElementById('pageDesc').setAttribute('content', descText);
+      document.getElementById('ogTitle').setAttribute('content', titleText);
+      document.getElementById('ogDesc').setAttribute('content', descText);
+      document.getElementById('ogUrl').setAttribute('content', pageUrl);
+
+      // Name + location
+      document.getElementById('dName').textContent = name;
+      document.getElementById('dLocation').textContent =
+        [city, region].filter(Boolean).join(', ');
+
+      // Services
+      const svcWrap = document.getElementById('dServices');
+      if (services.length) {
+        svcWrap.innerHTML = services.map(s => `<span class="svc-badge">${esc(s)}</span>`).join('');
+      } else {
+        svcWrap.style.display = 'none';
+      }
+
+      // Contacts
+      const IC = {
+        pin:   `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+        phone: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+        mail:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+        globe: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+        fb:    `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`,
+      };
+
+      let html = '';
+      if (address)  html += `<div class="contact-row"><span class="contact-row-icon">${IC.pin}</span><span>${esc(address)}</span></div>`;
+      if (contact)  html += `<div class="contact-row"><span class="contact-row-icon">${IC.phone}</span><span><a href="tel:${esc(contact)}">${esc(contact)}</a></span></div>`;
+      if (email)    html += `<div class="contact-row"><span class="contact-row-icon">${IC.mail}</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></div>`;
+      if (website)  html += `<div class="contact-row"><span class="contact-row-icon">${IC.globe}</span><span><a href="${esc(website)}" target="_blank" rel="noopener noreferrer">${esc(website.replace(/^https?:\/\//, ''))}</a></span></div>`;
+      if (facebook) html += `<div class="contact-row"><span class="contact-row-icon">${IC.fb}</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener noreferrer">Facebook Page</a></span></div>`;
+
+      if (html) {
+        document.getElementById('contactsDivider').style.display = '';
+        document.getElementById('dContacts').innerHTML = html;
+      }
+
+      // Feedback link
+      const reportHref = `contact.html?reason=${encodeURIComponent('Update the Center/program information')}&center=${encodeURIComponent(name)}`;
+      document.getElementById('reportLink').href = reportHref;
+
+      // Heart button
+      const heartBtn   = document.getElementById('heartBtn');
+      const countSpan  = document.getElementById('heartCount');
+      countSpan.textContent = recCount > 0 ? recCount : '';
+
+      sb.from('recommendations').select('center_id').eq('device_id', DEVICE_ID).then(({ data: recs }) => {
+        if (recs && recs.some(r => r.center_id === centerId)) {
+          heartBtn.classList.add('liked');
+        }
+      });
+
+      heartBtn.addEventListener('click', async () => {
+        if (heartBtn.dataset.pending) return;
+        heartBtn.dataset.pending = '1';
+        const liked = heartBtn.classList.contains('liked');
+
+        try {
+          if (liked) {
+            await sb.from('recommendations').delete().eq('center_id', centerId).eq('device_id', DEVICE_ID);
+            await sb.rpc('decrement_recommend_count', { center_id_arg: centerId });
+            heartBtn.classList.remove('liked');
+            const cur = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = cur - 1 > 0 ? cur - 1 : '';
+          } else {
+            const { error } = await sb.from('recommendations').insert([{ center_id: centerId, device_id: DEVICE_ID }]);
+            if (error && error.code !== '23505') throw error;
+            await sb.rpc('increment_recommend_count', { center_id_arg: centerId });
+            heartBtn.classList.add('liked');
+            heartBtn.classList.add('pop');
+            heartBtn.addEventListener('animationend', () => heartBtn.classList.remove('pop'), { once: true });
+            const cur = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = cur + 1;
+          }
+        } catch (_) {}
+
+        delete heartBtn.dataset.pending;
+      });
+
+      // Share button
+      document.getElementById('sharePageBtn').addEventListener('click', () => {
+        const url   = location.href;
+        const title = name;
+        const text  = `${name} – autism therapy in ${city || 'the Philippines'}`;
+        if (navigator.share) {
+          navigator.share({ title, text, url }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(url).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+            document.body.removeChild(ta);
+          });
+          showToast('Link copied!');
+        }
+      });
+
+      document.getElementById('centerContent').style.display = '';
+    }
+
+    // If we came from within the site, go back; otherwise go to index
+    document.getElementById('backLink').addEventListener('click', e => {
+      if (document.referrer && new URL(document.referrer).origin === location.origin) {
+        e.preventDefault();
+        history.back();
+      }
+    });
+
+    loadCenter();
+  </script>
+</body>
+</html>

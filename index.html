@@ -474,7 +474,10 @@
 
     .card-row a:hover { text-decoration-color: var(--black); }
 
-    .card-copy-btn {
+    .card-name-link { color: inherit; text-decoration: none; }
+    .card-name-link:hover { text-decoration: underline; }
+
+    .card-share-btn {
       position: absolute;
       top: 10px;
       right: 10px;
@@ -489,8 +492,8 @@
       align-items: center;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
-    .card-copy-btn:hover { background: var(--surface); color: var(--black); border-color: #bbb; }
-    .card-copy-btn svg { width: 13px; height: 13px; display: block; pointer-events: none; }
+    .card-share-btn:hover { background: var(--surface); color: var(--black); border-color: #bbb; }
+    .card-share-btn svg { width: 13px; height: 13px; display: block; pointer-events: none; }
 
     /* HEART BUTTON */
     .card-heart-btn {
@@ -1202,6 +1205,11 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxc2hmZXV5ZWVha2RoZXNjbGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzYyMzcsImV4cCI6MjA5MTE1MjIzN30.sd6WQUANjZiTWpcfPwWrZ6egp5DURWC70JXQ-kcQnO0';
     // ─────────────────────────────────────────────────────────────────────
 
+    function toSlug(name) {
+      return (name || '').toLowerCase().trim()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
     const IS_CONFIGURED =
       !SUPABASE_URL.includes('your-project-ref') &&
       SUPABASE_ANON_KEY !== 'your-anon-public-key-here';
@@ -1518,6 +1526,7 @@
       const facebook = c.facebook_url || '';
       const services = c.services || [];
       const centerId = c.id || '';
+      const slug     = c.slug || toSlug(name);
       let   recCount = c.recommend_count || 0;
 
       const badges = services.map(s => `<span class="svc">${esc(s)}</span>`).join('');
@@ -1530,35 +1539,36 @@
       if (facebook) contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.fb}</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener noreferrer">Facebook Page</a></span></div>`;
 
       card.innerHTML = `
-        <p class="card-name" style="padding-right:36px">${esc(name)}</p>
+        <p class="card-name" style="padding-right:36px"><a href="center.html?slug=${esc(slug)}" class="card-name-link">${esc(name)}</a></p>
         <p class="card-city">${esc(city)}${region ? ', ' + esc(region) : ''}</p>
         <div class="card-svcs">${badges}</div>
         ${contactsHTML ? `<hr class="card-divider"><div class="card-contacts">${contactsHTML}</div>` : ''}
         <hr class="card-divider">
         <div class="card-footer-row"></div>`;
 
-      // ── copy button
-      const copyBtn = document.createElement('button');
-      copyBtn.type = 'button';
-      copyBtn.className = 'card-copy-btn';
-      copyBtn.setAttribute('aria-label', 'Copy center info');
-      copyBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>`;
-      copyBtn.addEventListener('click', () => {
-        const parts = [`${name}${city ? ' – ' + city : ''}${region ? ', ' + region : ''}`];
-        if (services.length) parts.push(services.join(', '));
-        if (contact) parts.push(contact);
-        if (address) parts.push(address);
-        if (website) parts.push(website);
-        const text = parts.join(' | ');
-        navigator.clipboard.writeText(text).catch(() => {
-          const ta = document.createElement('textarea');
-          ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-          document.body.removeChild(ta);
-        });
-        showCopyToast();
+      // ── share button
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'card-share-btn';
+      shareBtn.setAttribute('aria-label', 'Share this center');
+      shareBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`;
+      shareBtn.addEventListener('click', () => {
+        const url   = `${location.origin}/center.html?slug=${encodeURIComponent(slug)}`;
+        const title = name;
+        const text  = `${name} – autism therapy in ${city || 'the Philippines'}`;
+        if (navigator.share) {
+          navigator.share({ title, text, url }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(url).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+            document.body.removeChild(ta);
+          });
+          showCopyToast('Link copied!');
+        }
       });
-      card.appendChild(copyBtn);
+      card.appendChild(shareBtn);
 
       // ── heart button
       const heartBtn = document.createElement('button');
