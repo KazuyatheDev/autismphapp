@@ -382,6 +382,72 @@
       transform: translateY(0);
     }
 
+    /* ── BULK BAR ── */
+    .bulk-bar {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 7px;
+      padding: 8px 14px;
+      margin-bottom: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #1e40af;
+    }
+
+    .bulk-bar.visible { display: flex; }
+
+    .bulk-bar-count { margin-right: auto; }
+
+    .btn-bulk-approve {
+      font-family: var(--sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      background: #dcfce7;
+      color: #166534;
+      transition: background 0.15s;
+    }
+    .btn-bulk-approve:hover { background: #bbf7d0; }
+
+    .btn-bulk-reject {
+      font-family: var(--sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      background: #fee2e2;
+      color: #991b1b;
+      transition: background 0.15s;
+    }
+    .btn-bulk-reject:hover { background: #fecaca; }
+
+    .cb-col { width: 36px; text-align: center; }
+
+    input[type="checkbox"] { cursor: pointer; accent-color: #0a0a0a; width: 14px; height: 14px; }
+
+    /* ── FILTER SELECT ── */
+    .filter-select {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--black);
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      outline: none;
+    }
+    .filter-select:hover { border-color: #aaa; }
+
     @media (max-width: 700px) {
       .admin-content { padding: 16px; }
       .data-table { font-size: 11.5px; }
@@ -447,10 +513,17 @@
           <button class="btn-refresh" id="refreshPending">↻ Refresh</button>
         </div>
 
+        <div class="bulk-bar" id="bulkBar">
+          <span class="bulk-bar-count" id="bulkCount">0 selected</span>
+          <button class="btn-bulk-approve" onclick="bulkApprove()">Approve Selected</button>
+          <button class="btn-bulk-reject"  onclick="bulkReject()">Reject Selected</button>
+        </div>
+
         <div id="pendingTableWrap">
           <table class="data-table">
             <thead>
               <tr>
+                <th class="cb-col"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
                 <th>Name</th>
                 <th>City</th>
                 <th>Region</th>
@@ -460,7 +533,7 @@
               </tr>
             </thead>
             <tbody id="pendingBody">
-              <tr class="loading-row"><td colspan="6">Loading…</td></tr>
+              <tr class="loading-row"><td colspan="7">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -475,7 +548,14 @@
             <div class="section-title">Feedback &amp; Reports</div>
             <div class="section-count" id="feedbackCount"></div>
           </div>
-          <button class="btn-refresh" id="refreshFeedback">↻ Refresh</button>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="filter-select" id="feedbackFilter" onchange="applyFeedbackFilter()">
+              <option value="open">Open</option>
+              <option value="resolved">Resolved</option>
+              <option value="all">All</option>
+            </select>
+            <button class="btn-refresh" id="refreshFeedback">↻ Refresh</button>
+          </div>
         </div>
 
         <div id="feedbackGroups"></div>
@@ -587,7 +667,9 @@
     // ─── PENDING CENTERS ─────────────────────────────────────────────────────
     async function loadPending() {
       const tbody = document.getElementById('pendingBody');
-      tbody.innerHTML = '<tr class="loading-row"><td colspan="6">Loading…</td></tr>';
+      tbody.innerHTML = '<tr class="loading-row"><td colspan="7">Loading…</td></tr>';
+      document.getElementById('selectAll').checked = false;
+      hideBulkBar();
 
       const { data, error } = await sb
         .from('centers')
@@ -596,7 +678,7 @@
         .order('created_at', { ascending: false });
 
       if (error) {
-        tbody.innerHTML = `<tr class="loading-row"><td colspan="6">Error loading data: ${esc(error.message)}</td></tr>`;
+        tbody.innerHTML = `<tr class="loading-row"><td colspan="7">Error loading data: ${esc(error.message)}</td></tr>`;
         return;
       }
 
@@ -607,7 +689,7 @@
       else           { badge.style.display = 'none'; }
 
       if (!count) {
-        tbody.innerHTML = '<tr class="loading-row"><td colspan="6" style="text-align:center;color:#737373;">No pending submissions.</td></tr>';
+        tbody.innerHTML = '<tr class="loading-row"><td colspan="7" style="text-align:center;color:#737373;">No pending submissions.</td></tr>';
         return;
       }
 
@@ -615,7 +697,8 @@
         const svcs = Array.isArray(c.services)
           ? c.services.map(s => `<span class="svc-pill">${esc(s)}</span>`).join('')
           : esc(c.services || '');
-        return `<tr>
+        return `<tr data-id="${c.id}">
+          <td class="cb-col"><input type="checkbox" class="row-cb" onchange="onRowCheck()"></td>
           <td><strong>${esc(c.name)}</strong>${c.address ? `<br><span style="color:#737373;font-size:11px">${esc(c.address)}</span>` : ''}</td>
           <td>${esc(c.city || '—')}</td>
           <td style="text-transform:uppercase;font-size:11.5px">${esc(c.region || '—')}</td>
@@ -629,6 +712,71 @@
       }).join('');
     }
 
+    function toggleSelectAll(masterCb) {
+      document.querySelectorAll('.row-cb').forEach(cb => cb.checked = masterCb.checked);
+      onRowCheck();
+    }
+
+    function onRowCheck() {
+      const all  = document.querySelectorAll('.row-cb');
+      const checked = document.querySelectorAll('.row-cb:checked');
+      document.getElementById('selectAll').checked = all.length > 0 && checked.length === all.length;
+      document.getElementById('selectAll').indeterminate = checked.length > 0 && checked.length < all.length;
+      if (checked.length > 0) {
+        document.getElementById('bulkCount').textContent = checked.length + ' selected';
+        document.getElementById('bulkBar').classList.add('visible');
+      } else {
+        hideBulkBar();
+      }
+    }
+
+    function hideBulkBar() {
+      document.getElementById('bulkBar').classList.remove('visible');
+    }
+
+    function getSelectedIds() {
+      return Array.from(document.querySelectorAll('.row-cb:checked'))
+        .map(cb => cb.closest('tr').dataset.id);
+    }
+
+    async function bulkApprove() {
+      const ids = getSelectedIds();
+      if (!ids.length) return;
+      if (!confirm(`Approve ${ids.length} center(s)?`)) return;
+      const { error } = await sb.from('centers').update({ status: 'approved' }).in('id', ids);
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast(`${ids.length} center(s) approved.`);
+      ids.forEach(id => document.querySelector(`tr[data-id="${id}"]`)?.remove());
+      syncPendingBadge();
+      hideBulkBar();
+      document.getElementById('selectAll').checked = false;
+    }
+
+    async function bulkReject() {
+      const ids = getSelectedIds();
+      if (!ids.length) return;
+      if (!confirm(`Permanently delete ${ids.length} submission(s)?`)) return;
+      const { error } = await sb.from('centers').delete().in('id', ids);
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast(`${ids.length} submission(s) rejected.`);
+      ids.forEach(id => document.querySelector(`tr[data-id="${id}"]`)?.remove());
+      syncPendingBadge();
+      hideBulkBar();
+      document.getElementById('selectAll').checked = false;
+    }
+
+    function syncPendingBadge() {
+      const rows = document.querySelectorAll('#pendingBody tr:not(.loading-row)').length;
+      document.getElementById('pendingCount').textContent = rows + ' pending submission' + (rows !== 1 ? 's' : '');
+      const badge = document.getElementById('pendingBadge');
+      if (rows > 0) { badge.textContent = rows; badge.style.display = 'inline-flex'; }
+      else badge.style.display = 'none';
+      if (!rows) {
+        document.getElementById('pendingBody').innerHTML =
+          '<tr class="loading-row"><td colspan="7" style="text-align:center;color:#737373;">No pending submissions.</td></tr>';
+      }
+    }
+
     async function approveCenter(id, btn) {
       btn.disabled = true;
       btn.nextElementSibling.disabled = true;
@@ -636,8 +784,8 @@
       if (error) { showToast('Error: ' + error.message); btn.disabled = false; btn.nextElementSibling.disabled = false; return; }
       showToast('Center approved.');
       btn.closest('tr').remove();
-      decrementBadge('pendingBadge');
-      updateCountLabel('pendingCount', 'pending submission');
+      syncPendingBadge();
+      onRowCheck();
     }
 
     async function rejectCenter(id, btn) {
@@ -648,8 +796,8 @@
       if (error) { showToast('Error: ' + error.message); btn.disabled = false; btn.previousElementSibling.disabled = false; return; }
       showToast('Submission rejected and removed.');
       btn.closest('tr').remove();
-      decrementBadge('pendingBadge');
-      updateCountLabel('pendingCount', 'pending submission');
+      syncPendingBadge();
+      onRowCheck();
     }
 
     function decrementBadge(id) {
@@ -657,12 +805,6 @@
       const n = Math.max(0, (parseInt(badge.textContent) || 1) - 1);
       if (n === 0) badge.style.display = 'none';
       else badge.textContent = n;
-    }
-
-    function updateCountLabel(id, singular) {
-      const tbody = document.getElementById('pendingBody');
-      const rows  = tbody.querySelectorAll('tr:not(.loading-row)').length;
-      document.getElementById(id).textContent = rows + ' ' + singular + (rows !== 1 ? 's' : '');
     }
 
     document.getElementById('refreshPending').addEventListener('click', loadPending);
@@ -681,6 +823,8 @@
       'Other',
     ];
 
+    let allFeedback = [];
+
     async function loadFeedback() {
       const wrap = document.getElementById('feedbackGroups');
       wrap.innerHTML = '<div class="empty-state">Loading…</div>';
@@ -695,31 +839,45 @@
         return;
       }
 
-      const all = data || [];
+      allFeedback = data || [];
+      renderFeedback();
+    }
 
-      const openItems = all.filter(r => r.status !== 'resolved');
-      const count = openItems.length;
+    function applyFeedbackFilter() {
+      renderFeedback();
+    }
+
+    function renderFeedback() {
+      const wrap   = document.getElementById('feedbackGroups');
+      const filter = document.getElementById('feedbackFilter').value; // 'open' | 'resolved' | 'all'
+
+      const openCount = allFeedback.filter(r => r.status !== 'resolved').length;
       document.getElementById('feedbackCount').textContent =
-        count + ' open item' + (count !== 1 ? 's' : '') + ' · ' + all.length + ' total';
+        openCount + ' open item' + (openCount !== 1 ? 's' : '') + ' · ' + allFeedback.length + ' total';
 
       const badge = document.getElementById('feedbackBadge');
-      if (count > 0) { badge.textContent = count; badge.style.display = 'inline-flex'; }
-      else           { badge.style.display = 'none'; }
+      if (openCount > 0) { badge.textContent = openCount; badge.style.display = 'inline-flex'; }
+      else               { badge.style.display = 'none'; }
 
-      if (!all.length) {
-        wrap.innerHTML = '<div class="empty-state">No feedback or reports yet.</div>';
+      const filtered = allFeedback.filter(r =>
+        filter === 'all' ? true :
+        filter === 'resolved' ? r.status === 'resolved' :
+        r.status !== 'resolved'
+      );
+
+      if (!filtered.length) {
+        wrap.innerHTML = '<div class="empty-state">No ' + (filter === 'all' ? '' : filter + ' ') + 'feedback or reports.</div>';
         return;
       }
 
       // Group by reason
       const groups = {};
-      all.forEach(r => {
+      filtered.forEach(r => {
         const key = r.reason || 'Other';
         if (!groups[key]) groups[key] = [];
         groups[key].push(r);
       });
 
-      // Sort group keys
       const sortedKeys = Object.keys(groups).sort((a, b) => {
         const ai = REASON_ORDER.indexOf(a);
         const bi = REASON_ORDER.indexOf(b);
@@ -740,7 +898,7 @@
             ? ``
             : `<button class="btn-resolve" onclick="resolveFeedback('${r.id}', this)">Mark Resolved</button>`;
 
-          return `<tr>
+          return `<tr data-fb-id="${r.id}">
             <td>
               <strong>${esc(r.name || '—')}</strong>
               ${r.email ? `<br><a href="mailto:${esc(r.email)}" style="font-size:11px;color:#737373">${esc(r.email)}</a>` : ''}
@@ -752,9 +910,9 @@
           </tr>`;
         }).join('');
 
-        const openCount = items.filter(r => r.status !== 'resolved').length;
+        const grpOpen = items.filter(r => r.status !== 'resolved').length;
         return `<div class="group-section">
-          <div class="group-label">${esc(key)} <span style="font-weight:400;text-transform:none;letter-spacing:0">(${openCount} open / ${items.length} total)</span></div>
+          <div class="group-label">${esc(key)} <span style="font-weight:400;text-transform:none;letter-spacing:0">(${grpOpen} open / ${items.length} total)</span></div>
           <table class="data-table">
             <thead>
               <tr>
@@ -780,11 +938,43 @@
         return;
       }
       showToast('Marked as resolved.');
-      const td = btn.closest('td');
-      const statusTd = td.previousElementSibling;
-      statusTd.innerHTML = '<span class="status-badge badge-resolved">Resolved</span>';
-      td.innerHTML = '';
-      decrementBadge('feedbackBadge');
+
+      // Update local cache
+      const item = allFeedback.find(r => r.id === id);
+      if (item) item.status = 'resolved';
+
+      const filter = document.getElementById('feedbackFilter').value;
+      if (filter === 'open') {
+        // Remove row from view
+        btn.closest('tr').remove();
+        // Update group label
+        const section = btn.closest('.group-section');
+        if (section) {
+          const remaining = section.querySelectorAll('tbody tr').length;
+          if (!remaining) section.remove();
+          else {
+            const label = section.querySelector('.group-label span');
+            if (label) {
+              const total = parseInt(label.textContent) || 0;
+              const grpOpen = section.querySelectorAll('tbody tr').length;
+              label.textContent = `(${grpOpen} open / ${total} total)`;
+            }
+          }
+        }
+        decrementBadge('feedbackBadge');
+        const openCount = allFeedback.filter(r => r.status !== 'resolved').length;
+        document.getElementById('feedbackCount').textContent =
+          openCount + ' open item' + (openCount !== 1 ? 's' : '') + ' · ' + allFeedback.length + ' total';
+      } else {
+        // Re-render in place
+        const td = btn.closest('td');
+        td.previousElementSibling.innerHTML = '<span class="status-badge badge-resolved">Resolved</span>';
+        td.innerHTML = '';
+        decrementBadge('feedbackBadge');
+        const openCount = allFeedback.filter(r => r.status !== 'resolved').length;
+        document.getElementById('feedbackCount').textContent =
+          openCount + ' open item' + (openCount !== 1 ? 's' : '') + ' · ' + allFeedback.length + ' total';
+      }
     }
 
     document.getElementById('refreshFeedback').addEventListener('click', loadFeedback);
