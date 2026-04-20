@@ -619,10 +619,10 @@
       border-top: 1px solid var(--border);
       padding: 20px 24px;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
+      text-align: center;
+      gap: 6px;
     }
 
     .footer-logo {
@@ -636,7 +636,16 @@
     }
 
     .footer-copy { font-size: 12px; color: var(--gray); }
-    .footer-disclaimer { font-size: 10.5px; color: #c0c0c0; line-height: 1.6; margin-top: 10px; max-width: 680px; text-align: center; }
+    .footer-disclaimer {
+      font-size: 10.5px;
+      color: #c0c0c0;
+      line-height: 1.6;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+      text-align: center;
+    }
 
     /* MODAL */
     .modal-overlay {
@@ -1043,7 +1052,7 @@
       </svg>
       Autismpinas
     </a>
-    <span class="footer-copy">© 2025 Autismpinas · Free to use · Built by Ausome Parent</span>
+    <span class="footer-copy">© 2025 Autismpinas · Built by Ausome Parent</span>
     <p class="footer-disclaimer"><b>Disclaimer:</b> The information in this directory is provided for general guidance only and may not always be complete, accurate, or up to date. Details such as contact information, addresses, services, fees, and availability can change at any time without notice. This platform is a community-maintained resource intended to help users discover and explore service options.<br><br>Users are solely responsible for verifying all information directly with the service provider before making any decisions or arrangements. Inclusion in this directory does not constitute a referral, endorsement, or recommendation of any provider or service.<br><br>Autismpinas makes no warranties, express or implied, regarding the accuracy or reliability of the information and shall not be held liable for any errors, omissions, or outcomes resulting from the use of this directory.</p>
   </footer>
 
