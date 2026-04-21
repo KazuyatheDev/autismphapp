@@ -162,17 +162,24 @@
     .btn-share svg { width: 14px; height: 14px; display: block; flex-shrink: 0; }
 
     /* ── SERVICES ── */
-    .detail-svcs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+    .detail-svcs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
 
     .svc-badge {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       background: var(--surface);
-      color: #444;
-      border-radius: 5px;
-      padding: 3px 8px;
-      font-size: 11.5px;
-      font-weight: 600;
+      color: #333;
+      border-radius: 7px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      font-weight: 500;
+      border: 1px solid var(--border);
     }
+    .svc-badge svg { flex-shrink: 0; color: var(--gray); }
+    .svc-badge-abbr { font-weight: 700; color: var(--black); }
+    .svc-badge-sep { color: #bbb; margin: 0 1px; }
+    .svc-badge-name { color: #555; }
 
     /* ── DIVIDER ── */
     .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
@@ -297,6 +304,126 @@
       text-align: center;
     }
 
+    /* ── COMMENT COUNT BUTTON (detail actions) ── */
+    .comment-count-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 0;
+      transition: color 0.18s;
+      user-select: none;
+      text-decoration: none;
+    }
+    .comment-count-btn svg { width: 17px; height: 17px; display: block; flex-shrink: 0; }
+    .comment-count-btn:hover { color: var(--black); }
+    .comment-count-num { font-size: 13px; font-weight: 600; min-width: 10px; }
+
+    /* ── FEEDBACK / COMMENTS SECTION ── */
+    .feedback-section { margin-top: 16px; }
+
+    .feedback-heading {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gray);
+      margin-bottom: 12px;
+    }
+
+    .comment-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+    .comment-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .comment-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .comment-name { font-size: 13px; font-weight: 700; color: var(--black); }
+    .comment-time { font-size: 11.5px; color: var(--gray); }
+    .comment-text { font-size: 13px; color: #333; line-height: 1.55; }
+
+    .comment-empty {
+      font-size: 13px;
+      color: var(--gray);
+      text-align: center;
+      padding: 18px 0 8px;
+    }
+
+    .comment-form-wrap {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .comment-form-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; color: var(--black); }
+
+    .cf-group { margin-bottom: 12px; }
+
+    .cf-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .cf-input, .cf-textarea {
+      width: 100%;
+      font-family: var(--sans);
+      font-size: 13.5px;
+      color: var(--black);
+      border: 1.5px solid #d0d0d0;
+      border-radius: 7px;
+      padding: 9px 12px;
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .cf-input:focus, .cf-textarea:focus { border-color: #888; }
+    .cf-textarea { resize: vertical; min-height: 80px; }
+
+    .cf-char-wrap { display: flex; justify-content: flex-end; margin-top: 3px; }
+    .cf-chars { font-size: 11.5px; color: var(--gray); }
+    .cf-chars.warn { color: #e05; }
+
+    .btn-cf-submit {
+      width: 100%;
+      padding: 10px;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-cf-submit:hover { opacity: 0.82; }
+    .btn-cf-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .already-commented {
+      font-size: 13px;
+      color: var(--gray);
+      text-align: center;
+      padding: 12px;
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
     /* ── MAP SECTION ── */
     .map-section {
       margin-top: 16px;
@@ -403,6 +530,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Is this info outdated?
           </a>
+          <span id="commentCountBtn"></span>
           <button class="card-heart-btn" id="heartBtn" aria-label="Recommend this center">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             <span class="heart-count" id="heartCount"></span>
@@ -418,6 +546,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Open in Google Maps
         </a>
+      </div>
+      <!-- COMMUNITY FEEDBACK -->
+      <div class="feedback-section" id="feedbackSection">
+        <p class="feedback-heading" id="feedback">Community Feedback</p>
+        <div id="commentsList"></div>
+        <div id="commentFormArea"></div>
       </div>
     </div>
   </main>
@@ -535,10 +669,16 @@
       document.getElementById('dLocation').textContent =
         [city, region].filter(Boolean).join(', ');
 
-      // Services
+      // Services — icons + full names on detail page
       const svcWrap = document.getElementById('dServices');
       if (services.length) {
-        svcWrap.innerHTML = services.map(s => `<span class="svc-badge">${esc(s)}</span>`).join('');
+        svcWrap.innerHTML = services.map(s => {
+          const meta = SVC_META[s.toUpperCase()] || SVC_META[s] || null;
+          if (meta) {
+            return `<span class="svc-badge">${meta.icon}<span class="svc-badge-abbr">${esc(s)}</span><span class="svc-badge-sep">—</span><span class="svc-badge-name">${esc(meta.label)}</span></span>`;
+          }
+          return `<span class="svc-badge"><span class="svc-badge-abbr">${esc(s)}</span></span>`;
+        }).join('');
       } else {
         svcWrap.style.display = 'none';
       }
@@ -641,6 +781,151 @@
       }
 
       document.getElementById('centerContent').style.display = '';
+
+      // Load comments async after revealing content
+      loadComments(centerId);
+    }
+
+    // ── SERVICE META (icons + full names) ────────────────────────────────────
+    const SVC_META = {
+      OT: {
+        label: 'Occupational Therapy',
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>`,
+      },
+      ST: {
+        label: 'Speech Therapy',
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+      },
+      ABA: {
+        label: 'Applied Behavior Analysis',
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>`,
+      },
+      SPED: {
+        label: 'Special Education',
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+      },
+      SNED: {
+        label: 'Special Needs Education',
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+      },
+    };
+
+    // ── COMMENTS ─────────────────────────────────────────────────────────────
+    const BUBBLE_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+
+    function timeAgo(iso) {
+      const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+      if (s < 60) return 'just now';
+      const m = Math.floor(s / 60);
+      if (m < 60) return m + ' min ago';
+      const h = Math.floor(m / 60);
+      if (h < 24) return h + ' hr' + (h !== 1 ? 's' : '') + ' ago';
+      const d = Math.floor(h / 24);
+      if (d < 30) return d + ' day' + (d !== 1 ? 's' : '') + ' ago';
+      const mo = Math.floor(d / 30);
+      if (mo < 12) return mo + ' mo ago';
+      return Math.floor(mo / 12) + ' yr ago';
+    }
+
+    async function loadComments(centerId) {
+      // Fetch approved comments + check if this device already submitted
+      const [commentsRes, ownRes] = await Promise.all([
+        sb.from('comments').select('id, display_name, comment_text, created_at')
+          .eq('center_id', centerId).eq('status', 'approved')
+          .order('created_at', { ascending: false }),
+        sb.from('comments').select('id').eq('center_id', centerId).eq('device_id', DEVICE_ID).maybeSingle()
+      ]);
+
+      const comments = commentsRes.data || [];
+      const alreadySubmitted = !!ownRes.data;
+
+      // Update comment count button in detail-actions
+      const ccBtn = document.getElementById('commentCountBtn');
+      if (ccBtn) {
+        ccBtn.innerHTML = `<a href="#feedback" class="comment-count-btn" aria-label="Community feedback">${BUBBLE_SVG}<span class="comment-count-num">${comments.length > 0 ? comments.length : ''}</span></a>`;
+      }
+
+      // Render comments list
+      const listEl = document.getElementById('commentsList');
+      if (comments.length) {
+        listEl.innerHTML = `<div class="comment-list">${comments.map(c => `
+          <div class="comment-card">
+            <div class="comment-meta">
+              <span class="comment-name">${esc(c.display_name)}</span>
+              <span class="comment-time">${timeAgo(c.created_at)}</span>
+            </div>
+            <p class="comment-text">${esc(c.comment_text)}</p>
+          </div>`).join('')}</div>`;
+      } else {
+        listEl.innerHTML = `<p class="comment-empty">No feedback yet. Be the first to share your experience!</p>`;
+      }
+
+      // Render form or "already submitted" message
+      const formArea = document.getElementById('commentFormArea');
+      if (alreadySubmitted) {
+        formArea.innerHTML = `<p class="already-commented">You've already shared your feedback on this center.</p>`;
+      } else {
+        setupCommentForm(centerId, formArea);
+      }
+    }
+
+    function setupCommentForm(centerId, container) {
+      const savedName = localStorage.getItem('autismph_display_name') || '';
+      container.innerHTML = `
+        <div class="comment-form-wrap">
+          <p class="comment-form-title">Share Your Experience</p>
+          <form id="commentForm" novalidate>
+            <div class="cf-group">
+              <label class="cf-label" for="cf-name">Your Name <span style="color:#e53e3e">*</span></label>
+              <input class="cf-input" type="text" id="cf-name" maxlength="80" placeholder="e.g. Maria S." value="${esc(savedName)}" autocomplete="name" />
+            </div>
+            <div class="cf-group">
+              <label class="cf-label" for="cf-text">Comment <span style="color:#e53e3e">*</span></label>
+              <textarea class="cf-textarea" id="cf-text" maxlength="500" placeholder="Share your experience with this center…"></textarea>
+              <div class="cf-char-wrap"><span class="cf-chars" id="cf-chars">500 characters left</span></div>
+            </div>
+            <button type="submit" class="btn-cf-submit">Submit Feedback</button>
+          </form>
+        </div>`;
+
+      const textarea = container.querySelector('#cf-text');
+      const charsEl  = container.querySelector('#cf-chars');
+
+      textarea.addEventListener('input', () => {
+        const left = 500 - textarea.value.length;
+        charsEl.textContent = left + ' characters left';
+        charsEl.classList.toggle('warn', left < 50);
+      });
+
+      container.querySelector('#commentForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const name = container.querySelector('#cf-name').value.trim();
+        const text = textarea.value.trim();
+        if (!name || !text) { showToast('Please fill in your name and comment.'); return; }
+
+        const btn = container.querySelector('.btn-cf-submit');
+        btn.disabled = true;
+        btn.textContent = 'Submitting…';
+
+        const { error } = await sb.from('comments').insert([{
+          center_id:    centerId,
+          device_id:    DEVICE_ID,
+          display_name: name,
+          comment_text: text,
+          status:       'pending',
+        }]);
+
+        if (error) {
+          btn.disabled = false;
+          btn.textContent = 'Submit Feedback';
+          showToast(error.code === '23505' ? 'You have already submitted feedback.' : 'Error submitting. Please try again.');
+          return;
+        }
+
+        localStorage.setItem('autismph_display_name', name);
+        container.innerHTML = `<p class="already-commented">Thank you! Your comment has been submitted for review.</p>`;
+        showToast('Thank you! Your comment has been submitted for review.');
+      });
     }
 
     // If we came from within the site, go back; otherwise go to index

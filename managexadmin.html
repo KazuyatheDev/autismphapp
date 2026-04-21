@@ -501,6 +501,9 @@
       <button class="tab-btn" data-tab="feedback">
         Feedback &amp; Reports <span class="tab-badge" id="feedbackBadge" style="display:none"></span>
       </button>
+      <button class="tab-btn" data-tab="comments">
+        Comments <span class="tab-badge" id="commentsBadge" style="display:none"></span>
+      </button>
     </div>
 
     <!-- PENDING CENTERS TAB -->
@@ -560,6 +563,43 @@
         </div>
 
         <div id="feedbackGroups"></div>
+      </div>
+    </div>
+    <!-- COMMENTS TAB -->
+    <div id="tab-comments" class="tab-panel">
+      <div class="admin-content">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Community Comments</div>
+            <div class="section-count" id="commentsCount"></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="filter-select" id="commentsFilter" onchange="renderCommentsList()">
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="all">All</option>
+            </select>
+            <button class="btn-refresh" id="refreshComments">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="commentsTableWrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Center</th>
+                <th>Name</th>
+                <th>Comment</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="commentsBody">
+              <tr class="loading-row"><td colspan="6">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -630,6 +670,7 @@
       document.getElementById('adminUserEmail').textContent = user.email;
       loadPending();
       loadFeedback();
+      loadAdminComments();
     }
 
     document.getElementById('signInBtn').addEventListener('click', async () => {
@@ -979,6 +1020,81 @@
     }
 
     document.getElementById('refreshFeedback').addEventListener('click', loadFeedback);
+
+    // ─── COMMENTS ────────────────────────────────────────────────────────────
+    let allAdminComments = [];
+
+    async function loadAdminComments() {
+      document.getElementById('commentsBody').innerHTML =
+        '<tr class="loading-row"><td colspan="6">Loading…</td></tr>';
+
+      const { data, error } = await sb
+        .from('comments')
+        .select('id, center_id, display_name, comment_text, created_at, status, centers(name)')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('commentsBody').innerHTML =
+          `<tr class="loading-row"><td colspan="6">Error: ${esc(error.message)}</td></tr>`;
+        return;
+      }
+
+      allAdminComments = data || [];
+      renderCommentsList();
+    }
+
+    function renderCommentsList() {
+      const filter = document.getElementById('commentsFilter').value;
+      const tbody  = document.getElementById('commentsBody');
+
+      const filtered = filter === 'all'
+        ? allAdminComments
+        : allAdminComments.filter(c => c.status === filter);
+
+      const pendingCount = allAdminComments.filter(c => c.status === 'pending').length;
+      document.getElementById('commentsCount').textContent =
+        pendingCount + ' pending · ' + allAdminComments.length + ' total';
+
+      const badge = document.getElementById('commentsBadge');
+      if (pendingCount > 0) { badge.textContent = pendingCount; badge.style.display = 'inline-flex'; }
+      else badge.style.display = 'none';
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr class="loading-row"><td colspan="6" style="text-align:center;color:#737373">No ${filter === 'all' ? '' : filter + ' '}comments.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(c => {
+        const centerName = c.centers?.name || '—';
+        const statusBadgeClass = c.status === 'approved' ? 'badge-approved' : c.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+        const approveBtn = c.status !== 'approved'
+          ? `<button class="btn-approve" onclick="setCommentStatus('${c.id}','approved',this)">Approve</button>`
+          : '';
+        const rejectBtn  = c.status !== 'rejected'
+          ? `<button class="btn-reject"  onclick="setCommentStatus('${c.id}','rejected',this)">Reject</button>`
+          : '';
+        return `<tr data-cmt-id="${c.id}">
+          <td style="font-size:11.5px;max-width:140px">${esc(centerName)}</td>
+          <td style="white-space:nowrap">${esc(c.display_name)}</td>
+          <td style="max-width:260px">${esc(c.comment_text)}</td>
+          <td style="color:#737373;white-space:nowrap;font-size:11.5px">${fmtDate(c.created_at)}</td>
+          <td><span class="status-badge ${statusBadgeClass}">${esc(c.status)}</span></td>
+          <td style="white-space:nowrap">${approveBtn}${rejectBtn}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function setCommentStatus(id, status, btn) {
+      btn.disabled = true;
+      const { error } = await sb.from('comments').update({ status }).eq('id', id);
+      if (error) { showToast('Error: ' + error.message); btn.disabled = false; return; }
+      showToast('Comment ' + status + '.');
+      const item = allAdminComments.find(c => c.id === id);
+      if (item) item.status = status;
+      renderCommentsList();
+    }
+
+    document.getElementById('refreshComments').addEventListener('click', loadAdminComments);
   </script>
 </body>
 </html>

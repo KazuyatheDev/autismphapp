@@ -527,6 +527,22 @@
     }
 
 
+    /* COMMENT ICON LINK on cards */
+    .card-comment-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #c0c0c0;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 3px 2px;
+      transition: color 0.18s;
+      line-height: 1;
+    }
+    .card-comment-link svg { width: 15px; height: 15px; display: block; flex-shrink: 0; }
+    .card-comment-link:hover { color: var(--gray); }
+
     /* STATES */
     .state {
       text-align: center;
@@ -978,7 +994,7 @@
       <div class="main-inner">
 
         <h1 class="hero-title">Find Autism Services in the Philippines</h1>
-        <p class="hero-sub">Over 500 autism directories listed. Know one we're missing? Add it!</p>
+        <p class="hero-sub">Over 300 autism directories listed. Help us make this directory grow! Know one we're missing? Add it!</p>
         <!-- Search row -->
         <div class="search-row">
           <div class="input-wrap">
@@ -1431,6 +1447,7 @@
           currentQueryParams = params;
         }
 
+        data = await attachCommentCounts(data);
         totalMatchingCount = count;
         currentOffset      = data.length;
         renderResults(data);
@@ -1468,6 +1485,24 @@
       }
 
       return q.order('name').range(offset, offset + PAGE_SIZE - 1);
+    }
+
+    // Batch-fetch approved comment counts for a list of centers
+    async function attachCommentCounts(centers) {
+      if (!centers.length || !IS_CONFIGURED || !supabase) return centers;
+      try {
+        const ids = centers.map(c => c.id).filter(Boolean);
+        const { data } = await supabase
+          .from('comments')
+          .select('center_id')
+          .eq('status', 'approved')
+          .in('center_id', ids);
+        const counts = {};
+        (data || []).forEach(r => { counts[r.center_id] = (counts[r.center_id] || 0) + 1; });
+        return centers.map(c => ({ ...c, _comment_count: counts[c.id] || 0 }));
+      } catch (_) {
+        return centers;
+      }
     }
 
     // Build a dynamic heading label from current search + filter state
@@ -1509,6 +1544,7 @@
       const slug     = c.slug || toSlug(name);
       let   recCount = c.recommend_count || 0;
 
+      const commentCount = c._comment_count || 0;
       const badges = services.map(s => `<span class="svc">${esc(s)}</span>`).join('');
 
       let contactsHTML = '';
@@ -1548,6 +1584,15 @@
       }
 
       heartBtn.addEventListener('click', () => handleRecommend(centerId, heartBtn, countSpan));
+
+      // ── comment icon link
+      const BUBBLE_SVG_CARD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+      const commentLink = document.createElement('a');
+      commentLink.href = `/${encodeURIComponent(slug)}#feedback`;
+      commentLink.className = 'card-comment-link';
+      commentLink.setAttribute('aria-label', 'Community feedback');
+      commentLink.innerHTML = BUBBLE_SVG_CARD + (commentCount > 0 ? `<span>${commentCount}</span>` : '');
+      card.querySelector('.card-footer-row').appendChild(commentLink);
 
       card.querySelector('.card-footer-row').appendChild(heartBtn);
 
@@ -1620,6 +1665,7 @@
           page = data || [];
         }
 
+        page = await attachCommentCounts(page);
         currentOffset += page.length;
 
         const grid = document.getElementById('resultsGrid');
