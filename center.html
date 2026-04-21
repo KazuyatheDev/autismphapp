@@ -433,10 +433,10 @@
     }
 
     // ── LOAD CENTER ──────────────────────────────────────────────────────────
-    const KNOWN_PAGES = new Set(['', 'index', 'about', 'contact', 'managexadmin', 'center']);
+    const KNOWN_REDIRECTS = { 'about': '/about', 'contact': '/contact', 'managexadmin': '/managexadmin', 'index': '/', '': '/' };
     const pathSlug = location.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
-    const slug = (!KNOWN_PAGES.has(pathSlug) ? pathSlug : null)
-               || new URLSearchParams(location.search).get('slug');
+    if (pathSlug in KNOWN_REDIRECTS) { location.replace(KNOWN_REDIRECTS[pathSlug]); }
+    const slug = pathSlug || new URLSearchParams(location.search).get('slug');
 
     async function loadCenter() {
       if (!slug) { showErr(); return; }
