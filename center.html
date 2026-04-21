@@ -10,6 +10,8 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" id="ogUrl" content="" />
   <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -431,7 +433,10 @@
     }
 
     // ── LOAD CENTER ──────────────────────────────────────────────────────────
-    const slug = new URLSearchParams(location.search).get('slug');
+    const KNOWN_PAGES = new Set(['', 'index', 'about', 'contact', 'managexadmin', 'center']);
+    const pathSlug = location.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
+    const slug = (!KNOWN_PAGES.has(pathSlug) ? pathSlug : null)
+               || new URLSearchParams(location.search).get('slug');
 
     async function loadCenter() {
       if (!slug) { showErr(); return; }

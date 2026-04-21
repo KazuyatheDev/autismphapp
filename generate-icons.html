@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Generate Icons</title>
+<style>body{font-family:sans-serif;padding:32px}canvas{display:block;margin:8px 0}a{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;background:#0a0a0a;color:#fff;border-radius:6px;text-decoration:none;font-size:13px}</style>
+</head>
+<body>
+<h2>Autismpinas Icon Generator</h2>
+<p>Save the downloaded files to the project root directory.</p>
+
+<script>
+function drawIcon(canvas, size) {
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.height = size;
+  const gap = size * 0.0625;   // 2/32
+  const sq  = size * 0.40625;  // 13/32
+  const off = size * 0.5625;   // 18/32
+  const rx  = size * 0.078125; // 2.5/32
+
+  function rr(x, y, w, h, r, color) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  rr(gap, gap, sq, sq, rx, '#FF6B6B');
+  rr(off, gap, sq, sq, rx, '#4D96FF');
+  rr(gap, off, sq, sq, rx, '#FFD93D');
+  rr(off, off, sq, sq, rx, '#6BCB77');
+}
+
+const sizes = [
+  { label: 'favicon.png (32×32)',          name: 'favicon.png',          size: 32 },
+  { label: 'apple-touch-icon.png (180×180)', name: 'apple-touch-icon.png', size: 180 },
+];
+
+sizes.forEach(({ label, name, size }) => {
+  const wrap = document.createElement('div');
+  const p = document.createElement('p');
+  p.textContent = label;
+  const canvas = document.createElement('canvas');
+  drawIcon(canvas, size);
+
+  const a = document.createElement('a');
+  a.textContent = 'Download ' + name;
+  a.download = name;
+  a.href = canvas.toDataURL('image/png');
+
+  wrap.appendChild(p);
+  wrap.appendChild(canvas);
+  wrap.appendChild(a);
+  document.body.appendChild(wrap);
+});
+</script>
+</body>
+</html>

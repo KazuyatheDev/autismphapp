@@ -2,9 +2,11 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/contact", "destination": "/contact.html" },
-    { "source": "/managexadmin", "destination": "/managexadmin.html" }
+    { "source": "/about",        "destination": "/about.html" },
+    { "source": "/contact",      "destination": "/contact.html" },
+    { "source": "/managexadmin", "destination": "/managexadmin.html" },
+    { "source": "/center",       "destination": "/center.html" },
+    { "source": "/:slug",        "destination": "/center.html" }
   ],
   "headers": [
     {

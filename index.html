@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Autismpinas Search Autism services</title>
   <meta name="description" content="Free directory of autism therapy centers and SPED schools across the Philippines." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -1542,14 +1544,10 @@
       const badges = services.map(s => `<span class="svc">${esc(s)}</span>`).join('');
 
       let contactsHTML = '';
-      if (address)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.pin}</span><span>${esc(address)}</span></div>`;
-      if (contact)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.phone}</span><span><a href="tel:${esc(contact)}">${esc(contact)}</a></span></div>`;
-      if (email)    contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.mail}</span><span><a href="mailto:${esc(email)}">${esc(email)}</a></span></div>`;
-      if (website)  contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.globe}</span><span><a href="${esc(website)}" target="_blank" rel="noopener noreferrer">${esc(website.replace(/^https?:\/\//, ''))}</a></span></div>`;
-      if (facebook) contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.fb}</span><span><a href="${esc(facebook)}" target="_blank" rel="noopener noreferrer">Facebook Page</a></span></div>`;
+      if (address) contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.pin}</span><span>${esc(address)}</span></div>`;
 
       card.innerHTML = `
-        <p class="card-name" style="padding-right:36px"><a href="center.html?slug=${esc(slug)}" class="card-name-link">${esc(name)}</a></p>
+        <p class="card-name" style="padding-right:36px"><a href="/${esc(slug)}" class="card-name-link">${esc(name)}</a></p>
         <p class="card-city">${esc(city)}${region ? ', ' + esc(region) : ''}</p>
         <div class="card-svcs">${badges}</div>
         ${contactsHTML ? `<hr class="card-divider"><div class="card-contacts">${contactsHTML}</div>` : ''}
@@ -1581,7 +1579,7 @@
 
       // ── view details link
       const viewLink = document.createElement('a');
-      viewLink.href = `center.html?slug=${encodeURIComponent(slug)}`;
+      viewLink.href = `/${encodeURIComponent(slug)}`;
       viewLink.className = 'card-view-link';
       viewLink.textContent = 'View details →';
       card.querySelector('.card-footer-row').appendChild(viewLink);
