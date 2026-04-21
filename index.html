@@ -977,8 +977,8 @@
     <section id="main">
       <div class="main-inner">
 
-        <h1 class="hero-title">Find Autism Therapy Centers in the Philippines</h1>
-        <p class="hero-sub">Over 400 autism services listed. Know one we're missing? Add it!</p>
+        <h1 class="hero-title">Find Autism Services in the Philippines</h1>
+        <p class="hero-sub">Over 500 autism directories listed. Know one we're missing? Add it!</p>
         <!-- Search row -->
         <div class="search-row">
           <div class="input-wrap">
@@ -1004,7 +1004,6 @@
           <button class="pill" data-svc="ABA" title="Applied Behavior Analysis">ABA</button>
           <button class="pill" data-svc="SPED" title="Special Education">SPED</button>
           <button class="pill" data-svc="SNED" title="Special Needs Education">SNED</button>
-          <button class="pill" data-svc="DevPed" title="Developmental Pediatrics">DevPed</button>
         </div>
 
       </div>
@@ -1069,7 +1068,6 @@
               <div class="form-checks">
                 <label class="check-label"><input type="checkbox" name="services" value="SPED" /> SPED</label>
                 <label class="check-label"><input type="checkbox" name="services" value="SNED" /> SNED</label>
-                <label class="check-label"><input type="checkbox" name="services" value="DEVPED" /> DevPed</label>
               </div>
             </div>
             <p class="field-hint" id="hint-services">Select at least one.</p>
@@ -1400,11 +1398,11 @@
         if (isDefaultView) {
           // Fetch total count and first random page in parallel
           const [countRes, dataRes] = await Promise.all([
-            supabase.from('centers').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
+            supabase.from('centers').select('*', { count: 'exact', head: true }).eq('status', 'approved').not('services', 'cs', '["DevPed"]'),
             supabase.rpc('get_random_centers', { limit_arg: PAGE_SIZE, exclude_ids: [] })
           ]);
           count = countRes.count || 0;
-          data  = dataRes.data || [];
+          data  = (dataRes.data || []).filter(c => !(c.services || []).includes('DevPed'));
           if (dataRes.error) throw dataRes.error;
           defaultSeenIds = data.map(c => c.id);
         } else {
@@ -1454,7 +1452,8 @@
     function fetchPage(params, offset) {
       let q = supabase.from('centers')
         .select('*', { count: 'exact' })
-        .eq('status', 'approved');
+        .eq('status', 'approved')
+        .not('services', 'cs', '["DevPed"]');
 
       if (params.addressFallback) {
         q = q.ilike('address', `%${params.searchText}%`);
@@ -1613,7 +1612,7 @@
             exclude_ids: defaultSeenIds
           });
           if (error) throw error;
-          page = data || [];
+          page = (data || []).filter(c => !(c.services || []).includes('DevPed'));
           defaultSeenIds = defaultSeenIds.concat(page.map(c => c.id));
         } else {
           const { data, error } = await fetchPage(currentQueryParams, currentOffset);

@@ -16,7 +16,11 @@
       "Bash(git commit:*)",
       "Bash(git branch:*)",
       "Bash(git remote:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(node:*)",
+      "Bash(git revert:*)",
+      "Bash(git rm:*)",
+      "Bash(npx supabase *)"
     ]
   }
 }
