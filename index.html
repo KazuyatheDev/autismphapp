@@ -479,23 +479,6 @@
     .card-name-link { color: inherit; text-decoration: none; }
     .card-name-link:hover { text-decoration: underline; }
 
-    .card-copy-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: none;
-      border: 1.5px solid var(--border);
-      border-radius: 5px;
-      cursor: pointer;
-      padding: 4px 6px;
-      color: var(--gray);
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-    .card-copy-btn:hover { background: var(--surface); color: var(--black); border-color: #bbb; }
-    .card-copy-btn svg { width: 13px; height: 13px; display: block; pointer-events: none; }
 
     .card-view-link {
       font-size: 12px;
@@ -543,24 +526,6 @@
       padding-top: 2px;
     }
 
-    .copy-toast {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(6px);
-      background: var(--black);
-      color: var(--white);
-      font-size: 13px;
-      font-family: var(--sans);
-      padding: 8px 16px;
-      border-radius: 6px;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.18s, transform 0.18s;
-      z-index: 3000;
-      white-space: nowrap;
-    }
-    .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* STATES */
     .state {
@@ -659,7 +624,7 @@
       border-top: 1px solid var(--border);
       padding-top: 12px;
       margin-top: 4px;
-      text-align: center;
+      text-align: left;
     }
 
     /* MODAL */
@@ -946,14 +911,15 @@
       #main { padding: calc(var(--nav-h) + 20px) 16px 18px; }
       .main-inner { text-align: left; }
 
-      /* Pills: 4-column grid → row 1: All OT ST ABA · row 2: SPED SNED DevPed */
+      /* Pills: single row, all 6 fit without scroll */
       .service-pills {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        display: flex;
+        flex-wrap: nowrap;
         overflow-x: visible;
-        justify-content: unset;
+        justify-content: stretch;
+        gap: 5px;
       }
-      .pill { padding: 8px 6px; }
+      .pill { flex: 1; padding: 8px 4px; font-size: 11.5px; }
 
       #results { padding: 20px 16px 10px; }
       .submit-cta { padding: 24px 16px 36px; }
@@ -1033,13 +999,12 @@
 
         <!-- Service filter pills -->
         <div class="service-pills" id="servicePills">
-          <button class="pill active" data-svc="All" title="Show all centers">All</button>
           <button class="pill" data-svc="OT" title="Occupational Therapy">OT</button>
           <button class="pill" data-svc="ST" title="Speech Therapy">ST</button>
           <button class="pill" data-svc="ABA" title="Applied Behavior Analysis">ABA</button>
           <button class="pill" data-svc="SPED" title="Special Education">SPED</button>
           <button class="pill" data-svc="SNED" title="Special Needs Education">SNED</button>
-          <button class="pill" data-svc="DevPed" title="Developmental Pediatrician">DevPed</button>
+          <button class="pill" data-svc="DevPed" title="Developmental Pediatrics">DevPed</button>
         </div>
 
       </div>
@@ -1072,7 +1037,6 @@
   </footer>
 
   <!-- COPY TOAST -->
-  <div id="copyToast" class="copy-toast" aria-live="polite">Copied!</div>
 
   <!-- SUBMIT MODAL -->
   <div id="submitModal" class="modal-overlay" hidden>
@@ -1241,7 +1205,7 @@
 
     // STATE
     let cities               = [];
-    let activeFilter         = 'All';
+    let activeFilter         = '';
     let selectedCity         = '';
     let lastSearchText       = '';   // text actually submitted, used for labels
     let acIdx                = -1;
@@ -1384,12 +1348,17 @@
       try { await performSearch(); } catch (e) { console.warn('Default load failed:', e); }
     })();
 
-    // SERVICE PILL — single select; always re-query DB so filters work across all centers
+    // SERVICE PILL — toggle: tap active pill to deselect and show all
     pillsEl.querySelectorAll('.pill').forEach(btn => {
       btn.addEventListener('click', () => {
+        const isActive = btn.classList.contains('active');
         pillsEl.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        activeFilter = btn.dataset.svc;
+        if (isActive) {
+          activeFilter = '';
+        } else {
+          btn.classList.add('active');
+          activeFilter = btn.dataset.svc;
+        }
         performSearch();
       });
     });
@@ -1423,7 +1392,7 @@
       lastSearchText   = searchText;
 
       // Default view: no text, no pill filter → random varied results
-      isDefaultView = !searchText && activeFilter === 'All';
+      isDefaultView = !searchText && !activeFilter;
 
       try {
         let data, count;
@@ -1495,7 +1464,7 @@
           : q.or(`name.ilike.%${params.searchText}%,city.ilike.%${params.searchText}%`);
       }
 
-      if (params.filter !== 'All') {
+      if (params.filter) {
         q = q.contains('services', [params.filter]);
       }
 
@@ -1506,7 +1475,7 @@
     function buildLabel() {
       const text = lastSearchText;
       const hasText   = !!text;
-      const hasFilter = activeFilter !== 'All';
+      const hasFilter = !!activeFilter;
       if (hasFilter && hasText) return `${activeFilter} Centers in '${text}'`;
       if (hasFilter)            return `${activeFilter} Centers`;
       if (hasText)              return `Results for '${text}'`;
@@ -1547,35 +1516,12 @@
       if (address) contactsHTML += `<div class="card-row"><span class="card-row-icon">${IC.pin}</span><span>${esc(address)}</span></div>`;
 
       card.innerHTML = `
-        <p class="card-name" style="padding-right:36px"><a href="/${esc(slug)}" class="card-name-link">${esc(name)}</a></p>
+        <p class="card-name"><a href="/${esc(slug)}" class="card-name-link">${esc(name)}</a></p>
         <p class="card-city">${esc(city)}${region ? ', ' + esc(region) : ''}</p>
         <div class="card-svcs">${badges}</div>
         ${contactsHTML ? `<hr class="card-divider"><div class="card-contacts">${contactsHTML}</div>` : ''}
         <hr class="card-divider">
         <div class="card-footer-row"></div>`;
-
-      // ── copy button
-      const copyBtn = document.createElement('button');
-      copyBtn.type = 'button';
-      copyBtn.className = 'card-copy-btn';
-      copyBtn.setAttribute('aria-label', 'Copy center info');
-      copyBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>`;
-      copyBtn.addEventListener('click', () => {
-        const parts = [`${name}${city ? ' – ' + city : ''}${region ? ', ' + region : ''}`];
-        if (services.length) parts.push(services.join(', '));
-        if (contact) parts.push(contact);
-        if (address) parts.push(address);
-        if (website) parts.push(website);
-        const text = parts.join(' | ');
-        navigator.clipboard.writeText(text).catch(() => {
-          const ta = document.createElement('textarea');
-          ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-          document.body.removeChild(ta);
-        });
-        showCopyToast();
-      });
-      card.appendChild(copyBtn);
 
       // ── view details link
       const viewLink = document.createElement('a');
@@ -1697,15 +1643,6 @@
       } catch (err) {
         if (btn) { btn.disabled = false; btn.textContent = 'Load More'; }
       }
-    }
-
-    let toastTimer;
-    function showCopyToast(msg) {
-      const toast = document.getElementById('copyToast');
-      toast.textContent = msg || 'Copied!';
-      toast.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
     function esc(str) {
