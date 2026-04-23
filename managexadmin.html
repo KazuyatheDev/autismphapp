@@ -611,7 +611,6 @@
     // ─── CONFIG ──────────────────────────────────────────────────────────────
     const SUPABASE_URL      = 'https://pqshfeuyeeakdhesclem.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxc2hmZXV5ZWVha2RoZXNjbGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzYyMzcsImV4cCI6MjA5MTE1MjIzN30.sd6WQUANjZiTWpcfPwWrZ6egp5DURWC70JXQ-kcQnO0';
-    const ADMIN_EMAIL       = 'jeerowboy1@gmail.com';
 
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -646,7 +645,7 @@
     async function checkSession() {
       const { data: { session } } = await sb.auth.getSession();
       if (session) {
-        onSignedIn(session.user);
+        await onSignedIn(session.user);
       } else {
         showLogin();
       }
@@ -657,11 +656,12 @@
       adminShell.style.display  = 'none';
     }
 
-    function onSignedIn(user) {
-      if (user.email !== ADMIN_EMAIL) {
-        loginError.textContent = 'Access denied. This account (' + user.email + ') is not authorized.';
+    async function onSignedIn(user) {
+      const { data: isAdmin, error: rpcErr } = await sb.rpc('is_admin');
+      if (rpcErr || !isAdmin) {
+        loginError.textContent = 'Access denied. This account is not authorized.';
         loginError.style.display = 'block';
-        sb.auth.signOut();
+        await sb.auth.signOut();
         showLogin();
         return;
       }

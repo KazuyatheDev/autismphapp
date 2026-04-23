@@ -9,6 +9,7 @@
   <meta property="og:description" id="ogDesc" content="Autism therapy center in the Philippines." />
   <meta property="og:type" content="website" />
   <meta property="og:url" id="ogUrl" content="" />
+  <link rel="canonical" id="canonicalLink" href="" />
   <meta name="robots" content="index, follow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -663,6 +664,7 @@
       document.getElementById('ogTitle').setAttribute('content', titleText);
       document.getElementById('ogDesc').setAttribute('content', descText);
       document.getElementById('ogUrl').setAttribute('content', pageUrl);
+      document.getElementById('canonicalLink').setAttribute('href', pageUrl);
 
       // Name + location
       document.getElementById('dName').textContent = name;
