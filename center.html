@@ -27,6 +27,7 @@
       --surface: #f5f5f5;
       --white:   #ffffff;
       --sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --nav-h:   60px;
     }
 
     body {
@@ -40,42 +41,98 @@
     }
 
     /* ── NAV ── */
-    .nav {
-      background: var(--white);
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
-      padding: 0 24px;
       display: flex;
       align-items: center;
-      gap: 24px;
-      height: 60px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      justify-content: flex-start;
+      gap: 28px;
+      padding: 0 28px;
+      z-index: 1000;
     }
 
     .nav-logo {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--black);
+      gap: 9px;
       text-decoration: none;
-      margin-right: auto;
+      flex-shrink: 0;
     }
 
-    .nav-links { display: flex; gap: 4px; }
+    .nav-logo-text {
+      font-family: var(--sans);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: -0.3px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      margin-left: auto;
+    }
 
     .nav-links a {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--gray);
       text-decoration: none;
-      padding: 6px 10px;
-      border-radius: 6px;
-      transition: color 0.15s, background 0.15s;
+      transition: color 0.18s;
     }
-    .nav-links a:hover { color: var(--black); background: var(--surface); }
+    .nav-links a:hover, .nav-links a.active { color: var(--black); }
+
+    .nav-submit-btn {
+      padding: 7px 14px;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 12.5px;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .nav-submit-btn:hover { opacity: 0.8; }
+    .nav-submit-short { display: none; }
+
+    .burger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 36px;
+      height: 36px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      flex-shrink: 0;
+    }
+    .burger span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--black);
+      border-radius: 1px;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+    .burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
     /* ── MAIN ── */
     main {
@@ -83,7 +140,7 @@
       max-width: 680px;
       width: 100%;
       margin: 0 auto;
-      padding: 28px 20px 48px;
+      padding: calc(var(--nav-h) + 28px) 20px 48px;
     }
 
     /* ── BACK LINK ── */
@@ -461,32 +518,70 @@
     .map-open-link:hover { color: var(--black); }
     .map-open-link svg { width: 12px; height: 12px; flex-shrink: 0; }
 
-    @media (max-width: 600px) {
-      main { padding: 20px 16px 40px; }
+    @keyframes menuSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; gap: 0; }
+      .burger { display: flex; }
+      .nav-submit-full { display: none; }
+      .nav-submit-short { display: inline; }
+      .nav-submit-btn { margin-left: auto; font-size: 12px; padding: 7px 11px; margin-right: 8px; }
+
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 6px 24px rgba(0,0,0,0.09);
+        flex-direction: column;
+        gap: 0;
+        display: none;
+        margin-left: 0;
+        z-index: 999;
+        animation: menuSlide 0.18s ease;
+      }
+      .nav-links.mob-open { display: flex; }
+      .nav-links li { border-bottom: 1px solid var(--border); }
+      .nav-links li:last-child { border-bottom: none; }
+      .nav-links a { display: block; padding: 17px 24px; font-size: 15px; font-weight: 500; }
+
+      main { padding: calc(var(--nav-h) + 20px) 16px 40px; }
       .detail-name { font-size: 17px; }
-      .nav-links a { font-size: 12.5px; padding: 5px 8px; }
       footer { padding: 16px; }
       .map-frame { height: 200px; }
+    }
+
+    @media (max-width: 380px) {
+      .nav-logo-text { font-size: 15px; }
     }
   </style>
 </head>
 <body>
 
   <!-- NAV -->
-  <nav class="nav">
+  <nav>
     <a href="index.html" class="nav-logo">
-      <svg viewBox="0 0 32 32" width="22" height="22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <rect x="1"  y="1"  width="13" height="13" rx="2.5" fill="#FF6B6B"/>
         <rect x="18" y="1"  width="13" height="13" rx="2.5" fill="#4D96FF"/>
         <rect x="1"  y="18" width="13" height="13" rx="2.5" fill="#FFD93D"/>
         <rect x="18" y="18" width="13" height="13" rx="2.5" fill="#6BCB77"/>
       </svg>
-      Autismpinas
+      <span class="nav-logo-text">Autismpinas</span>
     </a>
-    <nav class="nav-links">
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-    </nav>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a href="index.html" class="nav-submit-btn"><span class="nav-submit-full">+ Submit a Center</span><span class="nav-submit-short">+ Submit</span></a>
+    <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
 
   <!-- MAIN -->
@@ -935,6 +1030,33 @@
       if (document.referrer && new URL(document.referrer).origin === location.origin) {
         e.preventDefault();
         history.back();
+      }
+    });
+
+    // ── NAV BURGER ──────────────────────────────────────────────────────────
+    const burger   = document.getElementById('burger');
+    const navLinks = document.getElementById('navLinks');
+
+    burger.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = burger.classList.toggle('open');
+      navLinks.classList.toggle('mob-open', open);
+      burger.setAttribute('aria-expanded', open);
+    });
+
+    navLinks.querySelectorAll('a').forEach(a =>
+      a.addEventListener('click', () => {
+        burger.classList.remove('open');
+        navLinks.classList.remove('mob-open');
+        burger.setAttribute('aria-expanded', 'false');
+      })
+    );
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('nav')) {
+        burger.classList.remove('open');
+        navLinks.classList.remove('mob-open');
+        burger.setAttribute('aria-expanded', 'false');
       }
     });
 
