@@ -127,6 +127,8 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
       transition: opacity 0.15s;
       white-space: nowrap;
       flex-shrink: 0;
@@ -892,11 +894,11 @@
     }
 
     @media (max-width: 640px) {
-      nav { padding: 0 16px; }
+      nav { padding: 0 16px; gap: 0; }
       .burger { display: flex; }
       .nav-submit-full { display: none; }
       .nav-submit-short { display: inline; }
-      .nav-submit-btn { margin-left: auto; font-size: 12px; padding: 7px 11px; }
+      .nav-submit-btn { margin-left: auto; font-size: 12px; padding: 7px 11px; margin-right: 8px; }
 
       .nav-links {
         position: absolute;
